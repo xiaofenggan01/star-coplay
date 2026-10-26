@@ -1,0 +1,14 @@
+{
+  "id": "planned-001-evening-watering",
+  "title": "傍晚先浇水还是先睡觉",
+  "status": "planned",
+  "tags": [
+    "daily",
+    "planned"
+  ],
+  "skill": null,
+  "params": {},
+  "world": {},
+  "why": "21:00 且有未浇水作物：应评估体力/时间，选择浇水后再睡，或明确告知来不及。",
+  "expect": {}
+}

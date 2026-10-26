@@ -1,0 +1,14 @@
+{
+  "id": "planned-005-ship-before-bed",
+  "title": "睡前出货",
+  "status": "planned",
+  "tags": [
+    "economy",
+    "planned"
+  ],
+  "skill": null,
+  "params": {},
+  "world": {},
+  "why": "23:00 前把背包可售物放进出货箱，保留工具/种子，不卖出任务物品。",
+  "expect": {}
+}

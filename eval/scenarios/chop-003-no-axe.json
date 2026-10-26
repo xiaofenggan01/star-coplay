@@ -1,0 +1,44 @@
+{
+  "id": "chop-003-no-axe",
+  "title": "没有斧头：拒绝执行，不触发挥砍",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "guard"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10
+      }
+    ]
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "data": {
+      "stopped_reason": "missing_axe"
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    },
+    "commands": {
+      "must_exclude": [
+        "use_tool"
+      ]
+    }
+  }
+}

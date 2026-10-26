@@ -1,0 +1,52 @@
+{
+  "id": "chop-008-stump-only-excluded",
+  "title": "只剩树桩且未要求清桩：不碰桩",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "stump"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "stump": true,
+        "health": 5
+      }
+    ]
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "data": {
+      "stopped_reason": "no_trees"
+    },
+    "world": {
+      "stumps": {
+        "equals": 1
+      }
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    }
+  }
+}

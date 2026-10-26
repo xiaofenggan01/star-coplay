@@ -1,0 +1,58 @@
+{
+  "id": "chop-009-clear-stump",
+  "title": "include_stumps：清掉树桩，报告无木材收益",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "stump"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 1,
+    "include_stumps": true
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "stump": true,
+        "health": 5
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "partial",
+    "data": {
+      "trees_chopped": {
+        "min": 1
+      }
+    },
+    "world": {
+      "stumps": {
+        "equals": 0
+      },
+      "stumps_cleared": {
+        "equals": 1
+      }
+    },
+    "commands": {
+      "must_include": [
+        "use_tool"
+      ]
+    }
+  }
+}

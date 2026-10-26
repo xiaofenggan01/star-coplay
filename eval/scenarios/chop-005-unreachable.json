@@ -1,0 +1,63 @@
+{
+  "id": "chop-005-unreachable",
+  "title": "树四周不可站立：判定不可达，不硬撞",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "guard"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10
+      }
+    ],
+    "blocked": [
+      [
+        11,
+        10
+      ],
+      [
+        13,
+        10
+      ],
+      [
+        12,
+        9
+      ],
+      [
+        12,
+        11
+      ]
+    ]
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "data": {
+      "stopped_reason": "no_reachable_trees"
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "id": "chop-002-multi-tree",
+  "title": "目标 15 木材：连续砍两棵，按_tree 预算停止",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "goal"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 15
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270,
+      "axe_level": 0
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      },
+      {
+        "x": 12,
+        "y": 14,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      },
+      {
+        "x": 16,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "partial",
+    "data": {
+      "trees_chopped": {
+        "min": 2
+      },
+      "wood_gained": {
+        "min": 10
+      }
+    },
+    "world": {
+      "stumps": {
+        "min": 2
+      },
+      "loose_items_left": {
+        "equals": 0
+      },
+      "inventory.Wood": {
+        "min": 10
+      }
+    },
+    "budget": {
+      "commands_total": {
+        "max": 130
+      }
+    },
+    "commands": {
+      "must_include": [
+        "use_tool"
+      ]
+    }
+  }
+}

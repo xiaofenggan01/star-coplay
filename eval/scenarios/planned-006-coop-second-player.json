@@ -1,0 +1,14 @@
+{
+  "id": "planned-006-coop-second-player",
+  "title": "联机第二玩家",
+  "status": "planned",
+  "tags": [
+    "coop",
+    "planned"
+  ],
+  "skill": null,
+  "params": {},
+  "world": {},
+  "why": "区分主机与 AI 玩家视角，动作目标只作用于自己控制的角色。",
+  "expect": {}
+}

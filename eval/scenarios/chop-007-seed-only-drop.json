@@ -1,0 +1,59 @@
+{
+  "id": "chop-007-seed-only-drop",
+  "title": "只掉种子：确认是部分成功而不是失败",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "drops"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Acorn",
+            "qty": 1
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "partial",
+    "data": {
+      "trees_chopped": {
+        "min": 1
+      },
+      "wood_gained": {
+        "equals": 0
+      }
+    },
+    "world": {
+      "inventory.Acorn": {
+        "min": 1
+      },
+      "loose_items_left": {
+        "equals": 0
+      }
+    }
+  }
+}

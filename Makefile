@@ -14,7 +14,7 @@ PY_OUT_DIR    := agent/generated/protocol
 CS_OUT_DIR    := mod/StarCoPlay/Generated/Protocol
 MOD_CSPROJ    := mod/StarCoPlay/StarCoPlay.csproj
 
-.PHONY: proto proto-python proto-csharp proto-clean mod-build protocol-mapper-test protocol-check
+.PHONY: proto proto-python proto-csharp proto-clean mod-build protocol-mapper-test protocol-check eval eval-test
 
 proto: proto-python proto-csharp
 
@@ -51,3 +51,12 @@ proto-clean:
 	rm -f $(PY_OUT_DIR)/*_pb2.py $(PY_OUT_DIR)/*_pb2.pyi $(PY_OUT_DIR)/*_pb2_grpc.py $(PY_OUT_DIR)/__init__.py
 	rm -f $(CS_OUT_DIR)/*.cs
 	@echo "Generated protocol files cleaned"
+
+# ── Deterministic eval set (see eval/README.md) ─────────────────────────
+PY_AGENT      ?= agent/.venv/bin/python
+
+eval:
+	$(PY_AGENT) eval/run_eval.py
+
+eval-test:
+	$(PY_AGENT) -m pytest eval/tests -q

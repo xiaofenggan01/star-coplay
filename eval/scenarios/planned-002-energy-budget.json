@@ -1,0 +1,14 @@
+{
+  "id": "planned-002-energy-budget",
+  "title": "体力预算管理",
+  "status": "planned",
+  "tags": [
+    "energy",
+    "planned"
+  ],
+  "skill": null,
+  "params": {},
+  "world": {},
+  "why": "剩余体力不足以完成当前目标时，应先吃饭/休息或缩小目标，而不是执行到 0。",
+  "expect": {}
+}

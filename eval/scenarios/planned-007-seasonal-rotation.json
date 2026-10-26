@@ -1,0 +1,14 @@
+{
+  "id": "planned-007-seasonal-rotation",
+  "title": "季节交替换作物",
+  "status": "planned",
+  "tags": [
+    "season",
+    "planned"
+  ],
+  "skill": null,
+  "params": {},
+  "world": {},
+  "why": "换季时旧作物枯萎，应停止按旧季节计划，改用当季可种作物。",
+  "expect": {}
+}

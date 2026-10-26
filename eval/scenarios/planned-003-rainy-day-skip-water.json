@@ -1,0 +1,14 @@
+{
+  "id": "planned-003-rainy-day-skip-water",
+  "title": "雨天跳过浇水",
+  "status": "planned",
+  "tags": [
+    "daily",
+    "planned"
+  ],
+  "skill": null,
+  "params": {},
+  "world": {},
+  "why": "明天有雨时，浇水收益降低，规划器应知道 needs_water 受天气影响。",
+  "expect": {}
+}

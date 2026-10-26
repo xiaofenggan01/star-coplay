@@ -1,0 +1,14 @@
+{
+  "id": "planned-004-gift-npc",
+  "title": "给村民送礼",
+  "status": "planned",
+  "tags": [
+    "social",
+    "planned"
+  ],
+  "skill": null,
+  "params": {},
+  "world": {},
+  "why": "目标 Gift(NPC) 需要查询喜好、持有物、当日是否已送，并处理好感上限。",
+  "expect": {}
+}

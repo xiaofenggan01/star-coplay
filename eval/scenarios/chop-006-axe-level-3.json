@@ -1,0 +1,70 @@
+{
+  "id": "chop-006-axe-level-3",
+  "title": "金斧头 4 刀倒树：挥砍次数随等级下降",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "energy"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270,
+      "axe_level": 3
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "trees_chopped": {
+        "min": 1
+      }
+    },
+    "world": {
+      "stumps": {
+        "equals": 1
+      },
+      "inventory.Wood": {
+        "min": 5
+      }
+    },
+    "budget": {
+      "use_tool_calls": {
+        "max": 6
+      },
+      "energy_spent": {
+        "max": 15
+      }
+    },
+    "commands": {
+      "must_include": [
+        "use_tool"
+      ]
+    }
+  }
+}

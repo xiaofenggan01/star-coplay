@@ -1,0 +1,94 @@
+{
+  "id": "chop-001-basic",
+  "title": "砍倒一棵成熟树，掉落物全部捡回，留下树桩",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "drops"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270,
+      "axe_level": 0
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          },
+          {
+            "item": "Sap",
+            "qty": 1
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "trees_chopped": {
+        "min": 1
+      },
+      "wood_gained": {
+        "min": 5
+      }
+    },
+    "world": {
+      "stumps": {
+        "equals": 1
+      },
+      "loose_items_left": {
+        "equals": 0
+      },
+      "inventory.Wood": {
+        "min": 5
+      },
+      "inventory.Sap": {
+        "min": 1
+      },
+      "mature_trees_left": {
+        "equals": 0
+      }
+    },
+    "budget": {
+      "commands_total": {
+        "max": 60
+      },
+      "energy_spent": {
+        "max": 45
+      },
+      "game_minutes": {
+        "max": 260
+      }
+    },
+    "commands": {
+      "must_include": [
+        "query_world_region",
+        "use_tool",
+        "interact"
+      ],
+      "must_exclude": [
+        "harvest_crops"
+      ]
+    }
+  }
+}

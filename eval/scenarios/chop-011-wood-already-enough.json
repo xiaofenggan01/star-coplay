@@ -1,0 +1,58 @@
+{
+  "id": "chop-011-wood-already-enough",
+  "title": "木材已达标：不应继续砍树",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "goal",
+    "gap"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      },
+      {
+        "item": "Wood",
+        "qty": 50,
+        "slot": 2
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "known_gap": true,
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    },
+    "world": {
+      "mature_trees_left": {
+        "equals": 1
+      }
+    }
+  }
+}

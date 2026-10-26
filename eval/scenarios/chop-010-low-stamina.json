@@ -1,0 +1,48 @@
+{
+  "id": "chop-010-low-stamina",
+  "title": "体力不足 20：应当拒绝或只砍一刀，而不是砍到虚脱",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "energy",
+    "gap"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 12
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "known_gap": true,
+    "data": {
+      "stopped_reason": "stamina_low"
+    }
+  }
+}

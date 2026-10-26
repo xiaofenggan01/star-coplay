@@ -1,0 +1,63 @@
+{
+  "id": "chop-014-estimate-overshoot",
+  "title": "按 10 木材算预算会提前停：实际只砍 1 棵就以为够了",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "goal",
+    "gap"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 10
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      },
+      {
+        "x": 12,
+        "y": 14,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "known_gap": true,
+    "data": {
+      "trees_chopped": {
+        "min": 2
+      }
+    },
+    "world": {
+      "inventory.Wood": {
+        "min": 10
+      }
+    }
+  }
+}

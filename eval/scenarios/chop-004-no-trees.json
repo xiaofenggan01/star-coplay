@@ -1,0 +1,40 @@
+{
+  "id": "chop-004-no-trees",
+  "title": "附近没有成熟树：明确报告没有目标",
+  "status": "runnable",
+  "tags": [
+    "chop",
+    "guard"
+  ],
+  "skill": "chop_trees",
+  "params": {
+    "target_wood": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": []
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "data": {
+      "stopped_reason": "no_trees"
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    }
+  }
+}
