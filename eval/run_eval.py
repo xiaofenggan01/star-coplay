@@ -121,10 +121,13 @@ def main(argv: list[str] | None = None) -> int:
                 base_url=args.llm_base_url,
                 api_key=args.llm_api_key,
             )
+            env_config = LlmConfig.from_env(model=args.llm_model)
             if not llm_config.base_url:
-                llm_config.base_url = LlmConfig.from_env().base_url
+                llm_config.base_url = env_config.base_url
             if not llm_config.api_key:
-                llm_config.api_key = LlmConfig.from_env().api_key
+                llm_config.api_key = env_config.api_key
+            if not llm_config.model:
+                llm_config.model = env_config.model
             if not llm_config.model:
                 print("llm policy needs --llm-model (or LLM_MODEL)", file=sys.stderr)
                 return 2
