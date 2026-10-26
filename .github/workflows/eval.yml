@@ -36,6 +36,9 @@ jobs:
       - name: Deterministic eval set
         run: python eval/run_eval.py --json eval-report.json
 
+      - name: LLM policy replay (offline, no key)
+        run: python eval/run_eval.py --policy both --llm-script eval/replays/scripted-demo.json --id goal-
+
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4

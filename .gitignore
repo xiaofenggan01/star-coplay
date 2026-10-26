@@ -126,3 +126,6 @@ backup/
 
 # eval 生成的报告
 /eval/report.json
+
+# eval：LLM 运行记录
+/eval/transcripts/

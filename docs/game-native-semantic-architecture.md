@@ -321,7 +321,8 @@ method: acquire_item_via_gather
 - **状态**：`passed` / `gap`（已知缺陷）/ `failed`（回归）/ `skipped`（规格）；
 - **基线**（2026-10-26）：20 passed，4 gap，0 failed。
 
-后续扩展方向：`goal` 模式（评估 L4/L5 的目标分解）、真实 trace 回放、CI 门禁。
+`goal` 模式已接入确定性 `GoalRouter` 与 LLM 规划器（同一 Policy 接口，可做 A/B 对比），
+CI 同时跑 routing 与 scripted 回放。后续方向：接完整 `DeliberativeLoop`、真实 trace 回放、方差与成本汇总。
 
 ## 11. 取舍与风险
 

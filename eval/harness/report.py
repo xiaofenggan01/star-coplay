@@ -13,12 +13,16 @@ STATUS_ORDER = ["passed", "gap", "failed", "error", "skipped"]
 def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
     counts = {status: 0 for status in STATUS_ORDER}
     by_tag: dict[str, dict[str, int]] = {}
+    by_policy: dict[str, dict[str, int]] = {}
     for result in results:
         status = result.get("status", "error")
         counts[status] = counts.get(status, 0) + 1
         for tag in result.get("tags") or ["untagged"]:
             bucket = by_tag.setdefault(tag, {})
             bucket[status] = bucket.get(status, 0) + 1
+        policy_key = result.get("policy") or "skill"
+        bucket = by_policy.setdefault(policy_key, {})
+        bucket[status] = bucket.get(status, 0) + 1
 
     runnable = counts["passed"] + counts["gap"] + counts["failed"] + counts["error"]
     return {
@@ -27,6 +31,7 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
         "skipped": counts["skipped"],
         **{key: counts[key] for key in STATUS_ORDER},
         "by_tag": by_tag,
+        "by_policy": by_policy,
     }
 
 
@@ -42,12 +47,13 @@ def _icon(status: str) -> str:
 
 def render(results: list[dict[str, Any]], summary: dict[str, Any], *, verbose: bool = False) -> str:
     lines: list[str] = []
-    header = f"{'ID':<30}{'STATUS':<7}{'MS':>6}  TITLE"
+    header = f"{'ID':<30}{'POLICY':<9}{'STATUS':<7}{'MS':>6}  TITLE"
     lines.append(header)
     lines.append("-" * len(header))
     for result in results:
         lines.append(
-            f"{result.get('id', ''):<30}{_icon(result.get('status', '')):<7}"
+            f"{result.get('id', ''):<30}{str(result.get('policy') or '-'):<9}"
+            f"{_icon(result.get('status', '')):<7}"
             f"{result.get('duration_ms', 0):>6}  {result.get('title', '')}"
         )
         if verbose or result.get("status") in ("failed", "error"):

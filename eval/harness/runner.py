@@ -55,6 +55,7 @@ def _game_state_stub(world) -> Path:
 
 def build_metrics(world, bridge: SimBridge, result: dict[str, Any]) -> dict[str, Any]:
     snap = world.snapshot()
+    llm_meta = (result.get("data") or {}).get("llm") or {}
     counts = bridge.capability_counts()
     metrics: dict[str, Any] = {
         "stumps": snap["stumps"],
@@ -82,11 +83,21 @@ def build_metrics(world, bridge: SimBridge, result: dict[str, Any]) -> dict[str,
         "goal_status": (result.get("data") or {}).get("goal_status"),
         "goal_satisfied": bool((result.get("data") or {}).get("goal_satisfied")),
         "blocked_reason": (result.get("data") or {}).get("blocked_reason"),
+        "llm_tokens": llm_meta.get("tokens", 0),
+        "llm_calls": llm_meta.get("calls", 0),
+        "llm_latency_ms": llm_meta.get("latency_ms", 0),
+        "llm_valid": llm_meta.get("valid"),
     }
     return metrics
 
 
-def run_scenario(spec: dict[str, Any], *, verbose: bool = False) -> dict[str, Any]:
+def run_scenario(
+    spec: dict[str, Any],
+    *,
+    verbose: bool = False,
+    policy: str | None = None,
+    llm_policy: Any | None = None,
+) -> dict[str, Any]:
     scenario_id = str(spec.get("id") or "<unnamed>")
     status = str(spec.get("status") or "runnable")
     started = time.monotonic()
@@ -113,12 +124,20 @@ def run_scenario(spec: dict[str, Any], *, verbose: bool = False) -> dict[str, An
     trace: str | None = None
     try:
         if spec.get("mode") == "goal":
-            from .policies.routing import RoutingPolicy
+            chosen = policy or spec.get("policy") or "routing"
+            if chosen == "llm":
+                if llm_policy is None:
+                    from .policies.llm import LlmPolicy
 
-            policy = RoutingPolicy()
+                    llm_policy = LlmPolicy()
+                runner_policy = llm_policy
+            else:
+                from .policies.routing import RoutingPolicy
+
+                runner_policy = RoutingPolicy()
             result = asyncio.run(
                 asyncio.wait_for(
-                    policy.run(spec.get("goal") or {}, ctx, world),
+                    runner_policy.run(spec.get("goal") or {}, ctx, world),
                     timeout=SKILL_TIMEOUT_S,
                 )
             )
@@ -166,6 +185,7 @@ def run_scenario(spec: dict[str, Any], *, verbose: bool = False) -> dict[str, An
         "id": scenario_id,
         "title": spec.get("title", ""),
         "status": outcome,
+        "policy": (policy or spec.get("policy")) if spec.get("mode") == "goal" else None,
         "skill": spec.get("skill"),
         "tags": spec.get("tags") or [],
         "checks": [c.to_dict() for c in checks],

@@ -63,6 +63,34 @@ eval/
 （目标已满足？太晚了？体力够吗？下雨吗），skill 负责“怎么做”。
 后续 LLM / HTN 规划器只要实现同一条 `Policy` 接口，就能与它做 A/B 对比。
 
+### LLM 规划器
+
+同一个 `Policy` 接口下还有 `llm` 实现：模型只输出计划 JSON，执行与后置校验仍走共享的
+确定性代码，所以评分看的是世界终态，不是模型的自述。
+
+真实调用（需要 OpenAI 兼容端点）：
+
+```bash
+LLM_RELAY_BASE_URL=... LLM_RELAY_API_KEY=... LLM_MODEL=... \
+  agent/.venv/bin/python eval/run_eval.py --policy both --runs 3 \
+    --transcript-dir eval/transcripts
+```
+
+- `--policy both` 在同一批 goal 场景上跑 routing 与 llm，并打印对比表；
+- `--runs N` 重复 LLM 运行，用来观察方差；
+- 每次调用记录 `tokens / calls / latency / valid` 指标；
+- `--transcript-dir` 保存每条响应，便于复盘；
+- 模型声明“已完成”时，harness 仍会用世界状态复核，不一致记为 `llm_misjudged`。
+
+离线回放（不需要 key，CI 也在用）：
+
+```bash
+agent/.venv/bin/python eval/run_eval.py --policy both \
+  --llm-script eval/replays/scripted-demo.json --id goal-
+```
+
+`eval/replays/*.json` 是手写的规划响应，只用于验证链路，不是模型输出。
+
 ## 场景 schema
 
 ```json
@@ -103,7 +131,7 @@ eval/
 | `success` / `status` | skill 返回的 `success` / `status` |
 | `data.<field>` | skill 返回的 `data` 字段 |
 | `world.<metric>` | 世界终态，如 `stumps`、`loose_items_left`、`inventory.Wood`、`mature_trees_left` |
-| `budget.<metric>` | `commands_total`、`use_tool_calls`、`energy_spent`、`game_minutes` 等 |
+| `budget.<metric>` | `commands_total`、`use_tool_calls`、`energy_spent`、`game_minutes`、`llm_tokens`、`llm_calls`、`llm_latency_ms` 等 |
 | `commands.must_include` / `must_exclude` | 必须/禁止出现的 capability |
 | `commands.max_total` / `max_per` | 命令数上限，防退化成狂暴循环 |
 | `warnings_required` / `warnings_max` | skill 的 warnings |
@@ -129,7 +157,9 @@ total=31  runnable=24  passed=20  gaps=4  failed=0  skipped=7
 
 - 14 个 `skill` 场景：10 通过、4 个 gap；
 - 10 个 `goal` 场景：全部通过，覆盖 Acquire / Water / Sleep 的目标分解与前置检查；
-- 7 个 `planned` 场景：语义规格。
+- 7 个 `planned` 场景：语义规格；
+- LLM 策略：10 个 goal 场景在 scripted 回放下与 routing 持平（10/10），
+  真实模型结果需用 `--policy both` 自行跑。
 
 四个已知 gap，都是真实缺陷，不是测试写错：
 
@@ -158,15 +188,15 @@ agent/.venv/bin/python eval/run_eval.py --id <new-id> --verbose
 
 - `chop_trees` / `water_crops` / `go_bed` 可在仿真里真实运行；`harvest_crops` /
   `ship_items` 仍委托 mod compound handler，仿真尚未覆盖。
-- `goal` 模式用的是确定性 `GoalRouter`，不是 LLM 规划；它定义“正确行为”的基线，
-  而不是验证模型能力。
+- `goal` 模式的默认策略是确定性 `GoalRouter`，它定义“正确行为”的基线；`llm` 策略
+  已接入同一接口，但真实模型需要自备 API key，仓库内只有 scripted 回放。
 - 没有模拟 LLM 决策：评估的是 L3 skill 的语义，不是“玩家一句话 → 计划”。
 - 仿真简化：单地图、无天气/季节/作物生长、掉落散射简化为固定环。
 - 时间粒度 10 分钟/动作，用于预算断言，不是精确游戏时钟。
 
 ## 下一步
 
-1. **LLM 规划器对比**：把真实 agent 作为 `policy` 接入，和 `GoalRouter` 跑同一批目标，
-   比较成功率、动作数、澄清次数。
-2. **trace 回放**：把真实运行记录成 trace，离线重放，替代手工构造期望。
+1. **接真实 agent**：现在接的是“LLM 规划器”，下一步把完整 `DeliberativeLoop`
+   （含工具 schema、记忆、prompt 装配）作为 policy 跑同一批目标。
+2. **方差与成本**：`--runs` 已支持重复运行，补一个汇总表（均值/标准差/tokens 成本）。
 3. **覆盖扩展**：`harvest_crops` / `ship_items`、背包满、季节与体力恢复。

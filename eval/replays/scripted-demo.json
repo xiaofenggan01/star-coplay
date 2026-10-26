@@ -1,0 +1,33 @@
+{
+  "_comment": "Hand-written planner responses used to exercise the LLM path offline. Not model output; real runs record under --transcript-dir.",
+  "goal-001-acquire-wood": [
+    "{\"action\":\"plan\",\"steps\":[{\"skill\":\"chop_trees\",\"params\":{\"target_wood\":10},\"reason\":\"need 10 wood\"}]}"
+  ],
+  "goal-002-already-satisfied": [
+    "{\"action\":\"satisfied\",\"note\":\"inventory already has 20 wood\"}"
+  ],
+  "goal-003-late-night": [
+    "{\"action\":\"refuse\",\"reason\":\"late_night\",\"note\":\"it is past midnight\"}"
+  ],
+  "goal-004-low-stamina": [
+    "{\"action\":\"refuse\",\"reason\":\"stamina_low\",\"note\":\"12 stamina is not enough\"}"
+  ],
+  "goal-005-unsupported-item": [
+    "{\"action\":\"refuse\",\"reason\":\"unsupported_item\",\"note\":\"cannot gather an iridium bar\"}"
+  ],
+  "goal-006-water-crops": [
+    "{\"action\":\"plan\",\"steps\":[{\"skill\":\"water_crops\",\"params\":{},\"reason\":\"3 unwatered crops\"}]}"
+  ],
+  "goal-007-rainy-skip-water": [
+    "{\"action\":\"refuse\",\"reason\":\"raining\",\"note\":\"rain waters the crops\"}"
+  ],
+  "goal-008-all-watered": [
+    "{\"action\":\"satisfied\",\"note\":\"no unwatered crops\"}"
+  ],
+  "goal-009-sleep": [
+    "{\"action\":\"plan\",\"steps\":[{\"skill\":\"go_bed\",\"params\":{},\"reason\":\"22:00, end the day\"}]}"
+  ],
+  "goal-010-sleep-too-early": [
+    "{\"action\":\"refuse\",\"reason\":\"too_early\",\"note\":\"it is only 09:00\"}"
+  ]
+}

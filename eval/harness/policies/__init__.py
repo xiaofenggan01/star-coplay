@@ -1,10 +1,16 @@
-"""Goal policies: turn a structured goal into skill calls.
+"""Goal policies: turn a structured goal into skill calls."""
 
-The policy is the seam where a future LLM/HTN planner plugs in.  Today it wraps
-the deterministic ``GoalRouter`` so goal-mode scenarios exercise production
-planning code end to end, against the same simulated world.
-"""
-
+from .executor import execute_plan, postcheck
+from .llm import LlmConfig, LlmPolicy, OpenAIPlannerClient, ScriptedPlannerClient, parse_plan
 from .routing import RoutingPolicy
 
-__all__ = ["RoutingPolicy"]
+__all__ = [
+    "RoutingPolicy",
+    "LlmPolicy",
+    "LlmConfig",
+    "OpenAIPlannerClient",
+    "ScriptedPlannerClient",
+    "parse_plan",
+    "execute_plan",
+    "postcheck",
+]
