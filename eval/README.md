@@ -1,5 +1,7 @@
 # StarCoPlay 确定性评估集
 
+![eval](https://github.com/xiaofenggan01/star-coplay/actions/workflows/eval.yml/badge.svg)
+
 离线、可重复、不依赖真实游戏和真实模型的评估基线。它回答一个问题：
 **给定同一个存档状态和同一个目标，系统的行为是否仍然符合“正常玩家”的预期？**
 
@@ -25,7 +27,9 @@ agent/.venv/bin/python eval/run_eval.py --list
 make eval
 ```
 
-退出码：全部 `passed` 或 `gap` 时返回 0；出现 `failed` / `error` 返回 1，可直接做 CI 门禁。
+退出码：全部 `passed` 或 `gap` 时返回 0；出现 `failed` / `error` 返回 1。
+CI 已接入（[.github/workflows/eval.yml](../.github/workflows/eval.yml)）：push 到 main
+和 PR 都会跑评估集，回归会让 job 失败，报告作为 artifact 上传。
 
 ## 结构
 
@@ -143,5 +147,4 @@ agent/.venv/bin/python eval/run_eval.py --id <new-id> --verbose
 1. **policy 模式**：场景从 `skill` 改为 `goal`（如 `Acquire(Wood, 10)`），接确定性规划器，
    评估 L4/L5 的目标分解。
 2. **trace 回放**：把真实运行记录成 trace，离线重放，替代手工构造期望。
-3. **CI**：`make eval` 进 GitHub Actions，任何 skill 改动都跑一遍。
-4. **覆盖扩展**：等 harvest/water 迁到 Python 侧后补场景；加入天气、季节、背包满等状态。
+3. **覆盖扩展**：等 harvest/water 迁到 Python 侧后补场景；加入天气、季节、背包满等状态。

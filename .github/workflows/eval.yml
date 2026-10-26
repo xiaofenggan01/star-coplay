@@ -1,0 +1,45 @@
+name: eval
+
+# Deterministic gameplay evaluation set (see eval/README.md).
+# Runs the real L3 skills against a simulated Stardew world: no game, no model,
+# no network. A regression (failed/error) fails the job; known gaps do not.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Harness self-tests
+        run: python -m pytest eval/tests -q
+
+      - name: Deterministic eval set
+        run: python eval/run_eval.py --json eval-report.json
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: eval-report.json
+          if-no-files-found: ignore

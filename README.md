@@ -145,6 +145,17 @@ cd platform/backend && python -m pytest
 cd mod && dotnet build
 ```
 
+## 评估
+
+确定性的玩法语义评估集（离线、不依赖游戏与模型）：
+
+```bash
+make eval        # 跑全部场景
+make eval-test   # 评估集自测
+```
+
+场景 schema、断言语法与当前基线见 [`eval/README.md`](eval/README.md)。push / PR 会自动跑（[`.github/workflows/eval.yml`](.github/workflows/eval.yml)）。
+
 ## LLM 配置
 
 Agent 通过 `agent/.env` 配置 LLM（复制 `.env.example` 填写）：
