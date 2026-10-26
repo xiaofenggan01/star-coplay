@@ -1,6 +1,6 @@
 {
   "id": "chop-014-estimate-overshoot",
-  "title": "按 10 木材算预算会提前停：实际只砍 1 棵就以为够了",
+  "title": "实测木材达标才停：目标 10 会砍满两棵",
   "status": "runnable",
   "tags": [
     "chop",
@@ -48,7 +48,8 @@
     ]
   },
   "expect": {
-    "known_gap": true,
+    "success": true,
+    "status": "ok",
     "data": {
       "trees_chopped": {
         "min": 2

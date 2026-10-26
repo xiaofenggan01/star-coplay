@@ -43,7 +43,11 @@
     ]
   },
   "expect": {
-    "known_gap": true,
+    "success": true,
+    "status": "ok",
+    "data": {
+      "stopped_reason": "already_satisfied"
+    },
     "budget": {
       "use_tool_calls": {
         "equals": 0

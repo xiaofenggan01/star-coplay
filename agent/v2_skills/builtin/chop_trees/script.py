@@ -40,6 +40,8 @@ async def chop_trees(
         include_menu_state=True,
     )
     runtime = _fact(runtime_payload)
+    stamina = _num(runtime.get("stamina"))
+    time_of_day = _num(runtime.get("time_of_day"))
     player_pos = _player_position(runtime)
     if player_pos is None:
         return _result(
@@ -61,6 +63,49 @@ async def chop_trees(
     axe = _find_axe(inventory)
     wood_before = _wood_count(inventory)
     wood_after = wood_before
+
+    if wood_before >= target_wood:
+        return _result(
+            success=True,
+            status="ok",
+            observation=(
+                f"chop_trees skipped: already have {wood_before}/{target_wood} wood."
+            ),
+            stopped_reason="already_satisfied",
+            target_wood=target_wood,
+            wood_before=wood_before,
+            wood_after=wood_after,
+            warnings=warnings,
+        )
+
+    if time_of_day >= 2400:
+        return _result(
+            success=False,
+            status="blocked",
+            observation="chop_trees blocked: it is past midnight; go to bed first.",
+            stopped_reason="late_night",
+            target_wood=target_wood,
+            wood_before=wood_before,
+            wood_after=wood_after,
+            error_code="LATE_NIGHT",
+            warnings=warnings,
+        )
+
+    if stamina < 20:
+        return _result(
+            success=False,
+            status="blocked",
+            observation=(
+                f"chop_trees blocked: stamina too low ({stamina:.0f} < 20)."
+            ),
+            stopped_reason="stamina_low",
+            target_wood=target_wood,
+            wood_before=wood_before,
+            wood_after=wood_after,
+            error_code="STAMINA_LOW",
+            warnings=warnings,
+        )
+
     if axe is None:
         return _result(
             success=False,
@@ -181,18 +226,6 @@ async def chop_trees(
                 )
                 break
 
-            inventory_payload = await ctx.query_inventory_snapshot(
-                container_kind="player",
-                include_empty_slots=False,
-                include_details=True,
-            )
-            inventory = _fact(inventory_payload)
-            wood_after = _wood_count(inventory)
-            if wood_after - wood_before >= target_wood:
-                stopped_reason = "wood_target_reached"
-                tree_gone = True
-                break
-
             if not await _tree_still_choppable(ctx, tree, include_stumps=include_stumps):
                 tree_gone = True
                 break
@@ -223,18 +256,17 @@ async def chop_trees(
         if wood_after - wood_before >= target_wood:
             stopped_reason = "wood_target_reached"
             break
-        if trees_chopped * ESTIMATED_WOOD_PER_TREE >= target_wood:
-            stopped_reason = "tree_budget_reached"
-            warnings.append(
-                {
-                    "code": "TREE_BUDGET_REACHED",
-                    "message": (
-                        "Stopped after enough completed trees for the requested wood target; "
-                        "inventory pickup may lag behind dropped wood."
-                    ),
-                    "estimated_wood_gained": trees_chopped * ESTIMATED_WOOD_PER_TREE,
-                }
+
+        runtime_after = _fact(
+            await ctx.query_runtime_snapshot(
+                include_player=True,
+                include_world_time=False,
+                include_menu_state=False,
             )
+        )
+        stamina = _num(runtime_after.get("stamina"), stamina)
+        if stamina < 20:
+            stopped_reason = "stamina_low"
             break
 
     wood_gained = max(0, wood_after - wood_before)
@@ -242,6 +274,7 @@ async def chop_trees(
         status = "ok"
         success = True
         error_code = None
+        stopped_reason = "wood_target_reached"
         observation = (
             f"chop_trees completed: wood_gained={wood_gained} "
             "stopped_reason=wood_target_reached"
@@ -253,6 +286,13 @@ async def chop_trees(
         observation = (
             f"chop_trees partial: wood_gained={wood_gained}/{target_wood} "
             f"stopped_reason={stopped_reason}"
+        )
+    elif stopped_reason == "stamina_low":
+        status = "blocked"
+        success = False
+        error_code = "STAMINA_LOW"
+        observation = (
+            f"chop_trees blocked: ran out of stamina after {wood_gained} wood."
         )
     elif atom_failed:
         status = "failed"
@@ -526,6 +566,13 @@ def _is_wood(item: dict) -> bool:
 def _items(inventory_fact: dict) -> list[dict]:
     items = inventory_fact.get("items") if isinstance(inventory_fact, dict) else []
     return [item for item in items if isinstance(item, dict)]
+
+
+def _num(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _fact(payload: Any) -> dict:

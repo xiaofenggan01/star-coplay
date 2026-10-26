@@ -40,9 +40,13 @@
   "expect": {
     "success": false,
     "status": "blocked",
-    "known_gap": true,
     "data": {
       "stopped_reason": "stamina_low"
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
     }
   }
 }

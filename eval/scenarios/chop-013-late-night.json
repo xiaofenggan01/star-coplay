@@ -39,8 +39,11 @@
     ]
   },
   "expect": {
-    "known_gap": true,
     "success": false,
+    "status": "blocked",
+    "data": {
+      "stopped_reason": "late_night"
+    },
     "budget": {
       "use_tool_calls": {
         "equals": 0

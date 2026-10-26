@@ -1,6 +1,6 @@
 {
   "id": "chop-002-multi-tree",
-  "title": "目标 15 木材：连续砍两棵，按_tree 预算停止",
+  "title": "目标 15 木材：一直砍到实际数量达标，砍满三棵",
   "status": "runnable",
   "tags": [
     "chop",
@@ -59,24 +59,24 @@
   },
   "expect": {
     "success": true,
-    "status": "partial",
+    "status": "ok",
     "data": {
       "trees_chopped": {
-        "min": 2
+        "min": 3
       },
       "wood_gained": {
-        "min": 10
+        "min": 15
       }
     },
     "world": {
       "stumps": {
-        "min": 2
+        "min": 3
       },
       "loose_items_left": {
         "equals": 0
       },
       "inventory.Wood": {
-        "min": 10
+        "min": 15
       }
     },
     "budget": {
