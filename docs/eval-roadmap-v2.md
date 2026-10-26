@@ -78,7 +78,7 @@ planner prompt，router 也实现了同一套规则，所以 routing 与 llm 必
 
 - [x] `make eval` 全绿：0 failed、0 gap（44 场景 / 37 可执行）
 - [x] routing / llm / agent 三种策略都能在离线回放下通过对应场景
-- [x] 本地真实模型对比产出一张可读的表（通过率、延迟、tokens）
+- [x] 本地真实模型对比产出一张可读的表（routing/llm/agent 均 23/23，见 eval/LIVE-RESULTS.md）
 - [x] CI 在无密钥环境下跑通全量 + 回放
 - [x] README / 架构文档与实现一致
 

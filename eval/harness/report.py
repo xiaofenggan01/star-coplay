@@ -143,6 +143,7 @@ def write_json(path: Path, summary: dict[str, Any], results: list[dict[str, Any]
                 "id": r.get("id"),
                 "title": r.get("title"),
                 "status": r.get("status"),
+                "policy": r.get("policy") or ("skill" if r.get("skill") else None),
                 "failure_kind": r.get("failure_kind"),
                 "tags": r.get("tags"),
                 "checks": r.get("checks"),

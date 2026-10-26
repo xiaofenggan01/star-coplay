@@ -106,3 +106,14 @@ def test_sleep_allowed_in_the_evening():
 def test_unknown_goal_type_is_rejected():
     plan = GoalRouter().plan({"type": "fly_to_moon"}, StubContext())
     assert plan.blocked_reason == "unsupported_goal"
+
+
+def test_sleep_is_too_early_in_the_afternoon():
+    # 13:00 in Stardew's 100-based clock is still afternoon.
+    plan = GoalRouter().plan({"type": "sleep"}, StubContext(minutes=1300))
+    assert plan.blocked_reason == "too_early"
+
+
+def test_sleep_is_allowed_at_eight_pm():
+    plan = GoalRouter().plan({"type": "sleep"}, StubContext(minutes=2000))
+    assert plan.blocked_reason is None

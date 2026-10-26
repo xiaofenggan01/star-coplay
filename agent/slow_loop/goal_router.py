@@ -30,7 +30,7 @@ _ITEM_ALIASES = {
 GATHER_SKILLS = {"Wood": "chop_trees"}
 
 LATE_NIGHT_MINUTES = 2400  # midnight; after this a normal player goes to bed
-EARLY_SLEEP_MINUTES = 1200  # 20:00; going to bed before this is suspicious
+EARLY_SLEEP_MINUTES = 2000  # 20:00 in Stardew's 100-based clock
 MIN_STAMINA_FOR_WORK = 20.0
 MIN_STAMINA_FOR_WATERING = 10.0
 

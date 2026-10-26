@@ -18,7 +18,7 @@
       "y": 10,
       "stamina": 0
     },
-    "start_minutes": 1410
+    "start_minutes": 2330
   },
   "expect": {
     "success": true,

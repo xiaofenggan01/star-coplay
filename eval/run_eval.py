@@ -59,6 +59,7 @@ def _write_transcript(directory: Path, result: dict, run_index: int) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="StarCoPlay deterministic eval set")
     parser.add_argument("--scenarios", default=str(SCENARIO_DIR), help="scenario directory")
+    parser.add_argument("--mode", choices=["skill", "goal"], default=None, help="only run scenarios in this mode")
     parser.add_argument("--tag", action="append", default=[], help="only run scenarios with this tag")
     parser.add_argument("--id", action="append", default=[], help="only run these scenario ids")
     parser.add_argument("--json", dest="json_path", help="write a JSON report to this path")
@@ -87,6 +88,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     scenarios = load_scenarios(Path(args.scenarios))
+    if args.mode:
+        scenarios = [s for s in scenarios if (s.get("mode") or "skill") == args.mode]
     if args.tag:
         scenarios = [s for s in scenarios if set(args.tag) & set(s.get("tags") or [])]
     if args.id:

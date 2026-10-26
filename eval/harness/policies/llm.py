@@ -39,12 +39,21 @@ SYSTEM_PROMPT = """You are the planning brain of a Stardew Valley companion.
 Given a goal and a world snapshot, decide what to do. Reply with ONE JSON object.
 
 Rules a normal player follows:
-- Past midnight (time >= 2400) do not start work; refuse with reason "late_night".
-- If stamina < 20, do not start stamina-heavy work; refuse with reason "stamina_low".
-- If it is raining, do not water crops; refuse with reason "raining".
-- Going to bed before 20:00 (time < 1200) is too early; refuse with reason "too_early".
-- If the goal is already satisfied by the inventory/world, reply satisfied.
-- If the goal cannot be done with the available skills, refuse with reason "unsupported_item".
+- Time uses Stardew's 100-based clock: 600=06:00, 1200=12:00, 2000=20:00, 2400=24:00.
+  The world gives both `time` (raw) and `time_hhmm`.
+- If the world already satisfies the goal, reply satisfied — even when weather or stamina
+  would block starting new work.
+- Chopping and other stamina-heavy work needs 20 stamina; refuse "stamina_low" below that.
+  Watering crops only needs 10 stamina.
+- Past midnight (time >= 2400) do not start new farm work; refuse "late_night".
+- Sleeping is never blocked by stamina or by the hour. Before 20:00 (time < 2000) it is
+  too early; refuse "too_early".
+- If it is raining and crops still need water, refuse "raining" — the rain waters them.
+- If the goal cannot be done with the available skills, refuse "unsupported_item".
+- Do not invent extra rules (for example a "too late for farm work" cutoff). If none of
+  the rules above applies and the goal is not satisfied, plan the work.
+- A missing quantity, or a quantity of zero, means the player did not say how much;
+  reply clarify with a short question instead of assuming a number.
 
 The goal may be a composite of several subgoals; plan the steps in order.
 If the goal is ambiguous (for example no quantity), ask instead of guessing.
@@ -151,8 +160,10 @@ class ScriptedPlannerClient:
 
 def summarize_world(world: SimWorld) -> dict[str, Any]:
     inventory = {item["internal_name"]: item["stack"] for item in world.player.inventory}
+    minutes = int(world.minutes)
     return {
-        "time": world.minutes,
+        "time": minutes,
+        "time_hhmm": f"{minutes // 100:02d}:{minutes % 100:02d}",
         "day": world.day,
         "weather": world.weather,
         "stamina": world.player.stamina,

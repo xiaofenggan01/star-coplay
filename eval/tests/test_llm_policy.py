@@ -12,7 +12,7 @@ for path in (str(REPO_ROOT / "agent"), str(EVAL_DIR)):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from harness.policies.llm import LlmConfig, LlmPolicy, ScriptedPlannerClient, parse_plan  # noqa: E402
+from harness.policies.llm import LlmConfig, LlmPolicy, ScriptedPlannerClient, parse_plan, summarize_world  # noqa: E402
 from harness.runner import run_scenario  # noqa: E402
 
 
@@ -80,3 +80,12 @@ def test_invalid_json_triggers_one_repair_round():
     out = run_scenario(spec, policy="llm", llm_policy=policy)
     assert out["status"] == "passed", [c for c in out["checks"] if not c["ok"]]
     assert out["metrics"]["llm_calls"] == 2
+
+
+def test_world_summary_formats_the_stardew_clock():
+    from harness.sim_world import build_world
+
+    world = build_world({"player": {"x": 10, "y": 10}, "start_minutes": 2200})
+    summary = summarize_world(world)
+    assert summary["time"] == 2200
+    assert summary["time_hhmm"] == "22:00"

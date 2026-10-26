@@ -177,6 +177,16 @@ total=44  runnable=37  passed=37  gaps=0  failed=0  skipped=7
 - 1 个多轮 agent 场景；
 - 7 个 `planned` 场景：语义规格。
 
+### 真实模型（本地手动，2026-10-26）
+
+| 策略 | 通过 | tokens / 场景 | 延迟 |
+|---|---|---|---|
+| routing | 23/23 | 0 | ~0 ms |
+| llm | 23/23 | 713 ± 24 | 913 ± 253 ms |
+| agent | 23/23 | 767 ± 21 | 930 ± 195 ms |
+
+细节与“评估集抓到的 6 个问题”见 [LIVE-RESULTS.md](LIVE-RESULTS.md)。
+
 M4 修掉的四个缺陷（保留场景做回归）：
 
 | 场景 | 现在的行为 |
