@@ -42,6 +42,19 @@ namespace StarCoPlay
         /// </summary>
         public Dictionary<string, string> WarpDirectionOverrides { get; set; } = new();
 
+        /// <summary>游戏内常驻任务条（由 DSH 插件推送），默认开启。</summary>
+        public bool TaskHudEnabled { get; set; } = true;
+
+        public int TaskHudX { get; set; } = 16;
+
+        public int TaskHudY { get; set; } = 16;
+
+        /// <summary>最多显示几条任务（1-3）。</summary>
+        public int TaskHudMaxLines { get; set; } = 2;
+
+        /// <summary>任务条背景不透明度（0.3-1.0）。</summary>
+        public float TaskHudOpacity { get; set; } = 0.78f;
+
         public string EffectiveWsUrl()
         {
             var u = WsUrl?.Trim();

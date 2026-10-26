@@ -8,6 +8,7 @@ import { computeCapabilitySnapshotDigest, type CapabilityEntry } from './digest.
 import {
   buildLocalCommand,
   buildLocalControl,
+  fenceOf,
   isLocalCommandResult,
   isLocalIdentity,
   isTerminalState,
@@ -238,6 +239,24 @@ export class StarCoPlayRouteServer {
     }
     this.httpServer = undefined
     this.removeOwnedRendezvous()
+  }
+
+  /** Push a task-board snapshot to the mod for the in-game HUD. Best effort. */
+  syncTaskBoard(snapshot: unknown): boolean {
+    const connection = this.connection
+    if (!connection?.ready || connection.socket.readyState !== WebSocket.OPEN) return false
+    const frame = {
+      type: 'local_task_board',
+      fence: fenceOf(this.material),
+      board: snapshot,
+    }
+    try {
+      connection.socket.send(JSON.stringify(frame))
+      return true
+    } catch (error) {
+      this.log('task board sync failed: ' + (error instanceof Error ? error.message : String(error)))
+      return false
+    }
   }
 
   command(

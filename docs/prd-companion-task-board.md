@@ -4,7 +4,7 @@
 
 | 项 | 内容 |
 |---|---|
-| 状态 | 草案（待评审） |
+| 状态 | P1 已实现（插件任务板 + Mod HUD），待实机验收 |
 | 范围 | 任务板（P1）、RAG 上下文（P2）、技能库（P3）、反应层与记忆（P4） |
 | 主入口 | DSH 插件（装完即用，零配置） |
 | 游戏内形态 | SMAPI Mod 常驻 HUD 任务条（左上角，无需按键） |
@@ -102,7 +102,7 @@
 
 - 插件是任务板的唯一数据源；Mod 只做展示缓存；
 - 同步时机：任务变更、进入游戏、重连、定时（30s 兜底）；
-- 消息：`task_board_sync`，载荷为精简快照（id、标题、状态、进度文本、阻塞原因、revision）；
+- 消息：`local_task_board`（local_direct 帧），载荷为精简快照（id、标题、状态、进度文本、阻塞原因、revision）；
 - Mod 按 `revision` 去重，旧 revision 丢弃；
 - 断线时 Mod 继续显示最后一次快照，并标注“离线”；
 - 不传敏感信息（不传玩家 id、不传完整 goal）。
@@ -245,7 +245,7 @@
 }
 ```
 
-存储位置：DSH 插件数据目录下 `tasks/<save_id>.json`；后续 agent 侧复用同一 schema。
+存储位置：插件进程写入 `~/.starcoplay/tasks/<player_unique_id>.json`（原子写、损坏留档）；后续 agent 侧复用同一 schema。
 
 ## 7. 架构与集成
 

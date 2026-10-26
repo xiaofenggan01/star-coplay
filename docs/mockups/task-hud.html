@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>StarCoPlay · 游戏内任务条 HUD 草图</title>
+<style>
+  :root {
+    --hud-opacity: 0.78;
+    --hud-lines: 2;
+    --hud-offset-x: 16px;
+    --hud-offset-y: 16px;
+    --ink: #f6e8c8;
+    --muted: rgba(246, 232, 200, 0.58);
+    --panel: rgba(22, 18, 14, 0.82);
+    --edge: rgba(255, 255, 255, 0.18);
+    --active: #7fc46a;
+    --queued: #9a938a;
+    --blocked: #e8c04a;
+    --done: #b9e6a5;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #141417;
+    color: #e8e6e3;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", ui-monospace, monospace;
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  /* ── 舞台：模拟游戏画面 ─────────────────────────────── */
+  .stage {
+    position: relative;
+    width: 1024px;
+    height: 576px;
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+    flex: 0 0 auto;
+    user-select: none;
+  }
+
+  .scene { position: absolute; inset: 0; }
+
+  .sky {
+    position: absolute; inset: 0 0 42% 0;
+    background: linear-gradient(180deg, #9ed5f0 0%, #cfe9f4 55%, #e8f3d8 100%);
+  }
+  .sun {
+    position: absolute; top: 42px; right: 120px;
+    width: 46px; height: 46px; border-radius: 50%;
+    background: #ffe9a8;
+    box-shadow: 0 0 40px rgba(255, 233, 168, 0.75);
+  }
+  .hill {
+    position: absolute; bottom: 38%; left: -10%; width: 120%; height: 90px;
+    background: #8fbf7a;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    opacity: 0.55;
+  }
+  .hill.two { bottom: 36%; left: -30%; height: 70px; background: #79ae68; opacity: 0.45; }
+
+  .ground {
+    position: absolute; inset: 58% 0 0 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0 2px, transparent 2px 16px),
+      linear-gradient(180deg, #6f9a52 0%, #5c8244 60%, #4f7039 100%);
+  }
+
+  .plot {
+    position: absolute; left: 140px; top: 300px;
+    width: 330px; height: 190px;
+    background: #6b4a2f;
+    border: 3px solid #4d3421;
+    box-shadow: inset 0 0 0 3px rgba(0,0,0,0.15);
+  }
+  .plot .row {
+    position: absolute; left: 8px; right: 8px; height: 18px;
+    background: #7d5736; border-radius: 2px;
+  }
+  .plot .row:nth-child(1) { top: 14px; }
+  .plot .row:nth-child(2) { top: 52px; }
+  .plot .row:nth-child(3) { top: 90px; }
+  .plot .row:nth-child(4) { top: 128px; }
+  .plot .sprout {
+    position: absolute; width: 8px; height: 12px;
+    background: #9ad46f; top: -8px; border-radius: 2px 2px 0 0;
+  }
+
+  .tree { position: absolute; }
+  .tree .trunk {
+    position: absolute; left: 18px; bottom: 0;
+    width: 16px; height: 54px; background: #6d4a2c;
+  }
+  .tree .leaves {
+    position: absolute; left: 0; top: 0;
+    width: 52px; height: 64px;
+    background: #3f7d3a;
+    border-radius: 10px;
+    box-shadow: inset -8px -10px 0 rgba(0,0,0,0.18), inset 6px 6px 0 rgba(255,255,255,0.08);
+  }
+  .tree.one { left: 700px; top: 250px; }
+  .tree.two { left: 800px; top: 300px; transform: scale(0.85); }
+  .tree.three { left: 560px; top: 210px; transform: scale(0.7); }
+
+  .house {
+    position: absolute; right: 90px; bottom: 130px;
+    width: 190px; height: 130px;
+  }
+  .house .body {
+    position: absolute; bottom: 0; left: 14px;
+    width: 162px; height: 92px; background: #d9b98c;
+    border: 3px solid #8a6a45;
+  }
+  .house .roof {
+    position: absolute; bottom: 86px; left: 0;
+    width: 190px; height: 58px; background: #a24f3f;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+  .house .door {
+    position: absolute; bottom: 0; left: 80px;
+    width: 30px; height: 48px; background: #6d4a2c;
+  }
+  .house .window {
+    position: absolute; bottom: 52px; left: 34px;
+    width: 24px; height: 24px; background: #ffe9a8; border: 2px solid #8a6a45;
+  }
+
+  .player {
+    position: absolute; left: 490px; top: 360px;
+    width: 22px; height: 40px;
+  }
+  .player .head {
+    position: absolute; top: 0; left: 4px; width: 14px; height: 14px;
+    background: #f0c79a; border-radius: 3px;
+  }
+  .player .body {
+    position: absolute; top: 13px; left: 2px; width: 18px; height: 18px;
+    background: #4f7bd9;
+  }
+  .player .legs {
+    position: absolute; top: 30px; left: 4px; width: 14px; height: 10px;
+    background: #3b4a6b;
+  }
+
+  /* ── 游戏原生 HUD（示意）────────────────────────────── */
+  .clock {
+    position: absolute; top: 14px; right: 14px;
+    background: #d9b98c; border: 3px solid #8a6a45;
+    padding: 6px 10px; color: #4a3a29;
+    font-size: 12px; line-height: 1.5; text-align: center;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.18);
+  }
+  .clock b { font-size: 14px; display: block; }
+
+  .energy {
+    position: absolute; right: 18px; bottom: 84px;
+    width: 160px; height: 14px; background: rgba(0,0,0,0.45);
+    border: 2px solid #8a6a45;
+  }
+  .energy i { display: block; height: 100%; width: 62%; background: #7fc46a; }
+
+  .toolbar {
+    position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+    display: flex; gap: 4px;
+  }
+  .toolbar span {
+    width: 44px; height: 44px; background: #d9b98c;
+    border: 3px solid #8a6a45; box-shadow: inset 0 -6px 0 rgba(0,0,0,0.08);
+  }
+
+  /* ── 任务条 HUD ─────────────────────────────────────── */
+  .task-hud {
+    position: absolute;
+    left: var(--hud-offset-x);
+    top: var(--hud-offset-y);
+    width: 316px;
+    padding: 10px 12px;
+    background: var(--panel);
+    border: 2px solid var(--edge);
+    border-radius: 7px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    opacity: var(--hud-opacity);
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.35;
+    backdrop-filter: blur(2px);
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .task-hud[data-position="right"] {
+    left: auto; right: var(--hud-offset-x);
+  }
+  .task-hud[data-position="bottom-left"] {
+    top: auto; bottom: 76px;
+  }
+  .task-hud.is-hidden { opacity: 0; transform: translateY(-4px); pointer-events: none; }
+
+  .hud-head { display: flex; align-items: center; gap: 8px; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--active); flex: 0 0 auto;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.25);
+  }
+  .task-hud[data-state="queued"] .dot { background: var(--queued); }
+  .task-hud[data-state="blocked"] .dot { background: var(--blocked); }
+  .task-hud[data-state="done"] .dot { background: var(--done); }
+
+  .hud-title {
+    font-size: 14px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex: 1 1 auto;
+  }
+  .hud-count { font-size: 12px; color: var(--muted); flex: 0 0 auto; }
+
+  .hud-sub {
+    margin: 3px 0 0 17px;
+    font-size: 12px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .task-hud[data-state="blocked"] .hud-sub { color: #e8c04a; }
+  .task-hud[data-state="done"] .hud-title { color: var(--done); }
+
+  .hud-bar {
+    margin: 7px 0 0 17px;
+    height: 4px; background: rgba(255,255,255,0.14);
+    border-radius: 2px; overflow: hidden;
+  }
+  .hud-bar i {
+    display: block; height: 100%; width: 40%;
+    background: linear-gradient(90deg, #6da85c, #9ad46f);
+    border-radius: 2px;
+    transition: width 200ms ease;
+  }
+  .task-hud[data-state="blocked"] .hud-bar i { background: linear-gradient(90deg, #b8902e, #e8c04a); }
+  .task-hud[data-state="queued"] .hud-bar { display: none; }
+  .task-hud[data-state="done"] .hud-bar { display: none; }
+
+  .hud-queue {
+    margin: 7px 0 0 17px; padding-top: 6px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+    font-size: 11.5px; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .task-hud[data-lines="1"] .hud-queue { display: none; }
+  .task-hud[data-lines="2"] .hud-queue .next { display: none; }
+  .task-hud[data-lines="3"] .hud-queue .next { display: block; margin-top: 2px; }
+
+  /* 模拟打开背包：HUD 隐藏 */
+  .menu-overlay {
+    position: absolute; inset: 0; display: none;
+    background: rgba(20, 14, 10, 0.55);
+    align-items: center; justify-content: center;
+  }
+  .menu-overlay .window {
+    width: 420px; height: 300px;
+    background: #e5c99a; border: 4px solid #8a6a45;
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 6px; padding: 18px;
+  }
+  .menu-overlay .window i { background: #f3e2c2; border: 2px solid #b99a6e; }
+  body.menu-open .menu-overlay { display: flex; }
+  body.menu-open .task-hud { opacity: 0; }
+
+  /* ── 控制面板 ───────────────────────────────────────── */
+  .panel {
+    width: 360px; flex: 0 0 auto;
+    background: #1d1d22; border: 1px solid #2c2c33;
+    border-radius: 10px; padding: 18px;
+    font-size: 13px;
+  }
+  .panel h1 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+  .panel .hint { color: #8b8b94; font-size: 12px; margin: 0 0 16px; line-height: 1.5; }
+  .panel .group { margin-bottom: 16px; }
+  .panel label { display: block; color: #b9b9c2; margin-bottom: 6px; font-size: 12px; }
+  .panel .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .panel button {
+    background: #26262d; color: #ddd; border: 1px solid #35353e;
+    border-radius: 6px; padding: 6px 10px; font: inherit; cursor: pointer;
+  }
+  .panel button:hover { background: #2f2f38; }
+  .panel button.is-on { background: #3b5b3a; border-color: #5b8a57; color: #eaf5e4; }
+  .panel input[type="range"] { width: 100%; }
+  .panel .val { color: #8b8b94; font-size: 12px; }
+  .panel .note {
+    margin-top: 16px; padding-top: 12px; border-top: 1px solid #2c2c33;
+    color: #8b8b94; font-size: 12px; line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scene">
+      <div class="sky"></div>
+      <div class="sun"></div>
+      <div class="hill"></div>
+      <div class="hill two"></div>
+      <div class="ground"></div>
+
+      <div class="plot">
+        <div class="row"><span class="sprout" style="left:20px"></span><span class="sprout" style="left:80px"></span><span class="sprout" style="left:140px"></span></div>
+        <div class="row"><span class="sprout" style="left:44px"></span><span class="sprout" style="left:104px"></span></div>
+        <div class="row"><span class="sprout" style="left:20px"></span><span class="sprout" style="left:188px"></span></div>
+        <div class="row"><span class="sprout" style="left:68px"></span><span class="sprout" style="left:260px"></span></div>
+      </div>
+
+      <div class="tree one"><div class="leaves"></div><div class="trunk"></div></div>
+      <div class="tree two"><div class="leaves"></div><div class="trunk"></div></div>
+      <div class="tree three"><div class="leaves"></div><div class="trunk"></div></div>
+
+      <div class="house">
+        <div class="roof"></div>
+        <div class="body"></div>
+        <div class="door"></div>
+        <div class="window"></div>
+      </div>
+
+      <div class="player"><div class="head"></div><div class="body"></div><div class="legs"></div></div>
+    </div>
+
+    <!-- 任务条 HUD -->
+    <div class="task-hud" id="hud" data-state="active" data-lines="2" data-position="left">
+      <div class="hud-head">
+        <span class="dot"></span>
+        <span class="hud-title" id="title">砍木头</span>
+        <span class="hud-count" id="count">48 / 120</span>
+      </div>
+      <div class="hud-bar"><i id="bar" style="width:40%"></i></div>
+      <div class="hud-sub" id="sub">正在去最近的树</div>
+      <div class="hud-queue" id="queue">
+        <div class="main">还有 2 个任务</div>
+        <div class="next">下一个：做 20 个箱子</div>
+      </div>
+    </div>
+
+    <!-- 游戏原生 HUD 示意 -->
+    <div class="clock"><b>春 12</b>08:40</div>
+    <div class="energy"><i></i></div>
+    <div class="toolbar"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+    <div class="menu-overlay"><div class="window">
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+    </div></div>
+  </div>
+
+  <aside class="panel">
+    <h1>任务条 HUD 草图</h1>
+    <p class="hint">静态模拟，用来看位置、密度和状态表达。不是最终美术。</p>
+
+    <div class="group">
+      <label>状态</label>
+      <div class="row" id="states">
+        <button data-state="active" class="is-on">进行中</button>
+        <button data-state="blocked">卡住</button>
+        <button data-state="queued">排队</button>
+        <button data-state="done">完成</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>显示行数</label>
+      <div class="row" id="lines">
+        <button data-lines="1">1 行</button>
+        <button data-lines="2" class="is-on">2 行</button>
+        <button data-lines="3">3 行</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>位置</label>
+      <div class="row" id="positions">
+        <button data-position="left" class="is-on">左上</button>
+        <button data-position="right">右上（会挡时钟）</button>
+        <button data-position="bottom-left">左下</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>语言</label>
+      <div class="row" id="langs">
+        <button data-lang="zh" class="is-on">中文</button>
+        <button data-lang="en">English</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>不透明度 <span class="val" id="opacity-val">0.78</span></label>
+      <input type="range" id="opacity" min="0.3" max="1" step="0.02" value="0.78" />
+    </div>
+
+    <div class="group">
+      <label>场景</label>
+      <div class="row" id="modes">
+        <button id="menu-toggle">打开背包（HUD 应隐藏）</button>
+        <button id="done-demo">播放“完成 3 秒”</button>
+      </div>
+    </div>
+
+    <pre id="diag" style="display:none"></pre>
+
+    <div class="note">
+      设计约束：不接收输入、不挡时钟/体力/快捷栏、打开菜单自动隐藏；
+      中文长标题截断显示省略号。
+    </div>
+  </aside>
+
+<script>
+  const hud = document.getElementById('hud');
+  const titleEl = document.getElementById('title');
+  const countEl = document.getElementById('count');
+  const subEl = document.getElementById('sub');
+  const barEl = document.getElementById('bar');
+  const queueEl = document.getElementById('queue');
+  const opacityInput = document.getElementById('opacity');
+  const opacityVal = document.getElementById('opacity-val');
+
+  const COPY = {
+    zh: {
+      active: { title: '砍木头', count: '48 / 120', sub: '正在去最近的树', bar: 40 },
+      blocked: { title: '砍木头', count: '48 / 120', sub: '体力不足，先吃饭或睡觉', bar: 40 },
+      queued: { title: '做 20 个箱子', count: '排队中', sub: '等砍木头完成', bar: 0 },
+      done: { title: '做 20 个箱子', count: '完成', sub: '奖励：20 个箱子', bar: 100 },
+      queue: { main: '还有 2 个任务', next: '下一个：给 Abigail 送花' },
+      longTitle: '为社区中心准备春季作物收集包',
+    },
+    en: {
+      active: { title: 'Chop wood', count: '48 / 120', sub: 'Walking to the nearest tree', bar: 40 },
+      blocked: { title: 'Chop wood', count: '48 / 120', sub: 'Not enough stamina', bar: 40 },
+      queued: { title: 'Craft 20 chests', count: 'Queued', sub: 'Waiting for wood', bar: 0 },
+      done: { title: 'Craft 20 chests', count: 'Done', sub: '20 chests crafted', bar: 100 },
+      queue: { main: '2 more tasks', next: 'Next: gift Abigail' },
+      longTitle: 'Prepare the Spring Crops Bundle',
+    },
+  };
+
+  let state = { state: 'active', lines: 2, lang: 'zh', longTitle: false };
+
+  function render() {
+    const copy = COPY[state.lang];
+    const data = copy[state.state];
+    hud.dataset.state = state.state;
+    hud.dataset.lines = state.lines;
+    titleEl.textContent = state.longTitle ? copy.longTitle : data.title;
+    countEl.textContent = data.count;
+    subEl.textContent = data.sub;
+    barEl.style.width = data.bar + '%';
+    queueEl.querySelector('.main').textContent = copy.queue.main;
+    queueEl.querySelector('.next').textContent = copy.queue.next;
+  }
+
+  function bindSingle(id, key, cast, after) {
+    document.getElementById(id).addEventListener('click', (event) => {
+      const btn = event.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#' + id + ' button').forEach((b) => b.classList.remove('is-on'));
+      btn.classList.add('is-on');
+      state[key] = cast ? cast(btn.dataset[key]) : btn.dataset[key];
+      render();
+      if (after) after();
+    });
+  }
+
+  bindSingle('states', 'state');
+  bindSingle('lines', 'lines', Number);
+  bindSingle('positions', 'position', null, () => {
+    hud.dataset.position = state.position;
+  });
+  bindSingle('langs', 'lang');
+
+  opacityInput.addEventListener('input', () => {
+    const value = Number(opacityInput.value);
+    document.documentElement.style.setProperty('--hud-opacity', value);
+    opacityVal.textContent = value.toFixed(2);
+  });
+
+  document.getElementById('menu-toggle').addEventListener('click', (event) => {
+    document.body.classList.toggle('menu-open');
+    event.target.classList.toggle('is-on');
+  });
+
+  document.getElementById('done-demo').addEventListener('click', () => {
+    state.state = 'done';
+    document.querySelectorAll('#states button').forEach((b) => b.classList.toggle('is-on', b.dataset.state === 'done'));
+    render();
+    hud.style.opacity = '1';
+    setTimeout(() => { hud.style.opacity = '0'; }, 3000);
+    setTimeout(() => {
+      state.state = 'active';
+      document.querySelectorAll('#states button').forEach((b) => b.classList.toggle('is-on', b.dataset.state === 'active'));
+      render();
+      hud.style.opacity = '';
+    }, 3600);
+  });
+
+  // 长标题检查
+  document.getElementById('langs').addEventListener('dblclick', () => {
+    state.longTitle = !state.longTitle;
+    render();
+  });
+
+  // 支持 ?state=blocked&lang=en&lines=3&position=right&long=1 便于截图
+  const params = new URLSearchParams(location.search);
+  if (params.get('state')) state.state = params.get('state');
+  if (params.get('lang')) state.lang = params.get('lang');
+  if (params.get('lines')) state.lines = Number(params.get('lines'));
+  if (params.get('position')) state.position = params.get('position');
+  if (params.get('long') === '1') state.longTitle = true;
+  hud.dataset.position = state.position;
+
+  function diagnose() {
+    const rect = (el) => el.getBoundingClientRect();
+    const hudRect = rect(hud);
+    const clockRect = rect(document.querySelector('.clock'));
+    const toolbarRect = rect(document.querySelector('.toolbar'));
+    const energyRect = rect(document.querySelector('.energy'));
+    const overlaps = (a, b) => !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+    document.getElementById('diag').textContent = JSON.stringify({
+      state: state.state,
+      lang: state.lang,
+      lines: state.lines,
+      position: state.position,
+      hud: { x: Math.round(hudRect.x), y: Math.round(hudRect.y), w: Math.round(hudRect.width), h: Math.round(hudRect.height) },
+      titleTruncated: titleEl.scrollWidth > titleEl.clientWidth + 1,
+      overlapClock: overlaps(hudRect, clockRect),
+      overlapToolbar: overlaps(hudRect, toolbarRect),
+      overlapEnergy: overlaps(hudRect, energyRect),
+    });
+  }
+
+  render();
+  requestAnimationFrame(() => setTimeout(diagnose, 50));
+  document.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => setTimeout(diagnose, 20)));
+</script>
+</body>
+</html>

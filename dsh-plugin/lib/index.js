@@ -1,8 +1,8 @@
 // src/index.ts
-import { join as join4 } from "path";
-import { homedir as homedir2 } from "os";
-import { appendFileSync, mkdirSync as mkdirSync3 } from "fs";
-import { randomUUID as randomUUID2 } from "crypto";
+import { join as join5 } from "path";
+import { homedir as homedir3 } from "os";
+import { appendFileSync, mkdirSync as mkdirSync4 } from "fs";
+import { randomUUID as randomUUID3 } from "crypto";
 
 // src/game/paths.ts
 import { existsSync, readFileSync, readdirSync } from "fs";
@@ -31,9 +31,9 @@ function parseLibraryFolders(steamRoot) {
   const vdf = join(steamRoot, "steamapps", "libraryfolders.vdf");
   if (!existsSync(vdf)) return [];
   try {
-    const text = readFileSync(vdf, "utf8");
+    const text2 = readFileSync(vdf, "utf8");
     const paths = [];
-    for (const match of text.matchAll(/"path"\s+"([^"]+)"/g)) {
+    for (const match of text2.matchAll(/"path"\s+"([^"]+)"/g)) {
       paths.push(match[1].replace(/\\\\/g, "\\"));
     }
     return paths;
@@ -388,6 +388,23 @@ var StarCoPlayRouteServer = class {
     this.httpServer = void 0;
     this.removeOwnedRendezvous();
   }
+  /** Push a task-board snapshot to the mod for the in-game HUD. Best effort. */
+  syncTaskBoard(snapshot) {
+    const connection = this.connection;
+    if (!connection?.ready || connection.socket.readyState !== WebSocket.OPEN) return false;
+    const frame = {
+      type: "local_task_board",
+      fence: fenceOf(this.material),
+      board: snapshot
+    };
+    try {
+      connection.socket.send(JSON.stringify(frame));
+      return true;
+    } catch (error) {
+      this.log("task board sync failed: " + (error instanceof Error ? error.message : String(error)));
+      return false;
+    }
+  }
   command(capability, params = {}, timeoutMs = 3e4) {
     const run = this.queue.then(
       () => this.executeCommand(capability, params, timeoutMs),
@@ -651,9 +668,9 @@ var EMOTES = ["happy", "sad", "angry", "heart", "exclamation", "question", "slee
 var DIRECTIONS = ["up", "down", "left", "right"];
 var FACE_DIRECTIONS = ["north", "south", "east", "west"];
 function compactValue(value, limit = 4e3) {
-  const text = typeof value === "string" ? value : JSON.stringify(value, null, 2);
-  if (!text) return "";
-  return text.length > limit ? text.slice(0, limit) + "\n... (truncated)" : text;
+  const text2 = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+  if (!text2) return "";
+  return text2.length > limit ? text2.slice(0, limit) + "\n... (truncated)" : text2;
 }
 function distanceFrom(entity, position) {
   const point = entity?.position ?? {};
@@ -709,8 +726,8 @@ function renderObservation(data) {
       lines.push(`\u25B8 ${type}${list.length > 1 ? "\xD7" + list.length : ""}: ` + shown.map((e) => renderEntity(e, position)).join(" ") + more);
     }
   }
-  const text = lines.join("\n");
-  return text.length > 2600 ? text.slice(0, 2600) + "\n\u2026(truncated)" : text;
+  const text2 = lines.join("\n");
+  return text2.length > 2600 ? text2.slice(0, 2600) + "\n\u2026(truncated)" : text2;
 }
 function formatGameResult(result) {
   const output = result.output;
@@ -895,15 +912,601 @@ function registerGameTools(ctx, route) {
   });
 }
 
-// src/tools/setup.ts
+// src/tools/tasks.ts
 import { defineTool as defineTool3 } from "@deepseek-ai/dsh-tools";
+
+// src/tasks/model.ts
+var COMPLETION_TYPES = [
+  "inventory_at_least",
+  "gold_at_least",
+  "manual_confirm"
+];
+function emptyBoard(playerId) {
+  return {
+    schema_version: 1,
+    player_id: playerId,
+    revision: 0,
+    tasks: [],
+    archived: []
+  };
+}
+function sanitizePlayerId(playerId) {
+  const cleaned = String(playerId || "").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 64);
+  return cleaned || "unknown";
+}
+function normalizeCompletion(raw) {
+  const value = raw ?? {};
+  const type = String(value.type ?? "");
+  if (!COMPLETION_TYPES.includes(type)) {
+    throw new Error(
+      "completion.type must be one of: " + COMPLETION_TYPES.join(", ")
+    );
+  }
+  if (type === "inventory_at_least") {
+    const item = String(value.item ?? "").trim();
+    const qty = Number(value.qty ?? 0);
+    if (!item) throw new Error("completion.item is required for inventory_at_least");
+    if (!Number.isFinite(qty) || qty <= 0) {
+      throw new Error("completion.qty must be a positive number");
+    }
+    return { type, item, qty: Math.floor(qty) };
+  }
+  if (type === "gold_at_least") {
+    const qty = Number(value.qty ?? 0);
+    if (!Number.isFinite(qty) || qty <= 0) {
+      throw new Error("completion.qty must be a positive number");
+    }
+    return { type, qty: Math.floor(qty) };
+  }
+  return { type: "manual_confirm" };
+}
+function statusLabel(status) {
+  switch (status) {
+    case "active":
+      return "\u8FDB\u884C\u4E2D";
+    case "proposed":
+      return "\u6392\u961F";
+    case "paused":
+      return "\u5DF2\u6682\u505C";
+    case "blocked":
+      return "\u5361\u4F4F";
+    case "done":
+      return "\u5B8C\u6210";
+    case "failed":
+      return "\u5931\u8D25";
+    case "cancelled":
+      return "\u5DF2\u53D6\u6D88";
+    default:
+      return status;
+  }
+}
+
+// src/tools/tasks.ts
+function text(value) {
+  return {
+    schema: { type: "string" },
+    render: (_args, output) => [{ type: "text", text: output }]
+  };
+}
+function formatTask(task) {
+  const parts = [
+    `${task.id} \xB7 ${task.title}`,
+    `\u72B6\u6001\uFF1A${statusLabel(task.status)}`,
+    `\u5B8C\u6210\u6761\u4EF6\uFF1A${describeCompletion(task)}`
+  ];
+  if (task.progress_text) parts.push(`\u8FDB\u5EA6\uFF1A${task.progress_text}`);
+  if (task.blocked_reason) parts.push(`\u5361\u4F4F\uFF1A${task.blocked_reason}`);
+  if (task.constraints.length) parts.push(`\u7EA6\u675F\uFF1A${task.constraints.join("\uFF1B")}`);
+  return parts.join("\n");
+}
+function describeCompletion(task) {
+  const completion = task.completion;
+  if (completion.type === "inventory_at_least") {
+    return `\u80CC\u5305 ${completion.item} \u2265 ${completion.qty}`;
+  }
+  if (completion.type === "gold_at_least") return `\u91D1\u5E01 \u2265 ${completion.qty}`;
+  return "\u9700\u8981\u73A9\u5BB6\u786E\u8BA4";
+}
+function registerTaskTools(ctx, route, board) {
+  ctx.tools.register(defineTool3({
+    name: "starcoplay_task_add",
+    description: [
+      "\u628A\u73A9\u5BB6\u5E03\u7F6E\u7684\u4E8B\u60C5\u8BB0\u8FDB\u4EFB\u52A1\u677F\u3002\u73A9\u5BB6\u8BF4\u201C\u5E2E\u6211\u505A X / \u53BB Y / \u5F04 Z \u4E2A\u201D\u65F6\u8C03\u7528\u3002",
+      "\u5FC5\u987B\u7ED9\u51FA\u53EF\u9A8C\u8BC1\u7684 completion\uFF1A\u80CC\u5305\u6570\u91CF\u3001\u91D1\u5E01\uFF0C\u6216 manual_confirm\u3002",
+      "\u8BB0\u4E0B\u540E\u7528 starcoplay_say \u5411\u73A9\u5BB6\u590D\u8FF0\u4E00\u53E5\uFF0C\u7136\u540E\u5F00\u59CB\u6267\u884C\u3002"
+    ].join(" "),
+    parameters: {
+      title: { type: "string", required: true, description: "\u4E00\u53E5\u8BDD\u4EFB\u52A1\u540D\uFF0C\u4F8B\u5982\u201C\u505A 20 \u4E2A\u7BB1\u5B50\u201D" },
+      goal: { type: "object", required: true, additionalProperties: true, description: '\u7ED3\u6784\u5316\u76EE\u6807\uFF0C\u4F8B\u5982 {"type":"craft","item":"Chest","qty":20}' },
+      completion: {
+        type: "object",
+        required: true,
+        additionalProperties: true,
+        description: '\u5B8C\u6210\u5224\u5B9A\uFF0C\u4F8B\u5982 {"type":"inventory_at_least","item":"Chest","qty":20} \u6216 {"type":"gold_at_least","qty":5000}'
+      },
+      constraints: { type: "array", description: '\u7EA6\u675F\uFF0C\u4F8B\u5982 ["\u4E0D\u5356\u5DE5\u5177"]' },
+      priority: { type: "number", description: "\u4F18\u5148\u7EA7\uFF0C\u6570\u5B57\u8D8A\u5927\u8D8A\u9760\u524D\uFF0C\u9ED8\u8BA4 5" },
+      deadline: { type: "object", additionalProperties: true, description: '\u53EF\u9009\u622A\u6B62\u6761\u4EF6\uFF0C\u4F8B\u5982 {"season":"spring","day":28}' },
+      derived: { type: "array", description: '\u6D3E\u751F\u9700\u6C42\uFF0C\u4F8B\u5982 [{"type":"acquire","item":"Wood","qty":120}]' }
+    },
+    output: text(""),
+    async execute(args) {
+      const result = await board.add({
+        title: String(args.title ?? ""),
+        goal: args.goal ?? {},
+        completion: args.completion ?? {},
+        constraints: Array.isArray(args.constraints) ? args.constraints.map(String) : [],
+        priority: Number(args.priority ?? 5),
+        deadline: args.deadline ?? void 0,
+        derived: Array.isArray(args.derived) ? args.derived : void 0
+      });
+      if (!result.ok || !result.task) return "\u4EFB\u52A1\u672A\u8BB0\u5F55\uFF1A" + (result.error || "\u672A\u77E5\u9519\u8BEF");
+      return "\u5DF2\u8BB0\u5F55\u4EFB\u52A1\u3002\n" + formatTask(result.task) + "\n\u4E0B\u4E00\u6B65\uFF1A\u7528 starcoplay_say \u5411\u73A9\u5BB6\u590D\u8FF0\uFF0C\u7136\u540E\u5F00\u59CB\u6267\u884C\u3002";
+    }
+  }));
+  ctx.tools.register(defineTool3({
+    name: "starcoplay_task_list",
+    description: "\u5217\u51FA\u4EFB\u52A1\u677F\uFF1A\u8FDB\u884C\u4E2D\u3001\u6392\u961F\u3001\u5361\u4F4F\u7684\u4EFB\u52A1\u3002\u73A9\u5BB6\u95EE\u201C\u8FD8\u6709\u4EC0\u4E48\u6CA1\u505A\u5B8C\u201D\u65F6\u8C03\u7528\u3002",
+    parameters: {},
+    output: text(""),
+    async execute() {
+      const tasks = board.list();
+      if (!tasks.length) return "\u4EFB\u52A1\u677F\u662F\u7A7A\u7684\u3002";
+      return tasks.map(formatTask).join("\n\n");
+    }
+  }));
+  ctx.tools.register(defineTool3({
+    name: "starcoplay_task_update",
+    description: "\u4FEE\u6539\u4EFB\u52A1\uFF1Apause\uFF08\u6682\u505C\uFF09\u3001resume\uFF08\u7EE7\u7EED\uFF09\u3001cancel\uFF08\u53D6\u6D88\uFF09\u3001activate\uFF08\u5207\u6362\u4E3A\u5F53\u524D\u4EFB\u52A1\uFF09\u3001modify\uFF08\u6539\u6807\u9898/\u4F18\u5148\u7EA7/\u5B8C\u6210\u6761\u4EF6\uFF09\u3002",
+    parameters: {
+      id: { type: "string", required: true, description: "\u4EFB\u52A1 id\uFF0C\u4F8B\u5982 task_1a2b3c4d" },
+      action: {
+        type: "string",
+        required: true,
+        description: "pause | resume | cancel | activate | modify"
+      },
+      title: { type: "string", description: "modify \u65F6\u7684\u65B0\u6807\u9898" },
+      priority: { type: "number", description: "modify \u65F6\u7684\u65B0\u4F18\u5148\u7EA7" },
+      completion: { type: "object", additionalProperties: true, description: "modify \u65F6\u7684\u65B0\u5B8C\u6210\u6761\u4EF6" }
+    },
+    output: text(""),
+    async execute(args) {
+      const result = board.update(
+        String(args.id ?? ""),
+        String(args.action ?? ""),
+        {
+          title: args.title,
+          priority: args.priority,
+          completion: args.completion
+        }
+      );
+      if (!result.ok || !result.task) return "\u4FEE\u6539\u5931\u8D25\uFF1A" + (result.error || "\u672A\u77E5\u9519\u8BEF");
+      return "\u5DF2\u66F4\u65B0\u3002\n" + formatTask(result.task);
+    }
+  }));
+  ctx.tools.register(defineTool3({
+    name: "starcoplay_task_report",
+    description: [
+      "\u62A5\u544A\u4EFB\u52A1\u8FDB\u5C55\uFF1A\u8FDB\u5EA6\u6587\u672C\u3001\u7ED3\u6784\u5316\u8FDB\u5EA6\u3001\u8BC1\u636E\u3001\u5361\u4F4F\u539F\u56E0\u3002",
+      "\u6BCF\u6B21\u6267\u884C\u5B8C\u4E00\u6BB5\u52A8\u4F5C\u540E\u8C03\u7528\uFF0C\u8BA9\u4EFB\u52A1\u677F\u548C\u6E38\u620F\u5185 HUD \u4FDD\u6301\u540C\u6B65\u3002",
+      "completed=true \u65F6\u63D2\u4EF6\u4F1A\u53BB\u6E38\u620F\u91CC\u6838\u5BF9\u5B8C\u6210\u6761\u4EF6\uFF0C\u4E0D\u901A\u8FC7\u4E0D\u4F1A\u6807\u8BB0\u5B8C\u6210\u3002"
+    ].join(" "),
+    parameters: {
+      id: { type: "string", required: true, description: "\u4EFB\u52A1 id" },
+      progress_text: { type: "string", description: "\u7ED9\u73A9\u5BB6\u770B\u7684\u4E00\u884C\u8FDB\u5EA6\uFF0C\u4F8B\u5982\u201C\u6728\u5934 48/120\u201D" },
+      progress: { type: "object", additionalProperties: true, description: '\u7ED3\u6784\u5316\u8FDB\u5EA6\uFF0C\u4F8B\u5982 {"wood":48}' },
+      evidence: { type: "string", description: "\u8FD9\u6B21\u505A\u4E86\u4EC0\u4E48\uFF0C\u4F8B\u5982\u201Cchop_trees wood_gained=24\u201D" },
+      blocked_reason: { type: "string", description: "\u5361\u4F4F\u539F\u56E0\uFF1B\u6E05\u7A7A\u65F6\u4F20\u7A7A\u5B57\u7B26\u4E32" },
+      completed: { type: "boolean", description: "\u8BA4\u4E3A\u5DF2\u5B8C\u6210\u65F6\u4F20 true\uFF0C\u63D2\u4EF6\u4F1A\u6838\u5BF9\u4E16\u754C\u72B6\u6001" }
+    },
+    output: text(""),
+    async execute(args) {
+      const id = String(args.id ?? "");
+      const blocked = args.blocked_reason === void 0 ? void 0 : String(args.blocked_reason || "") || null;
+      const report = board.report(id, {
+        progress_text: typeof args.progress_text === "string" ? args.progress_text : void 0,
+        progress: args.progress ?? void 0,
+        evidence: typeof args.evidence === "string" ? args.evidence : void 0,
+        blocked_reason: blocked
+      });
+      if (!report.ok || !report.task) return "\u62A5\u544A\u5931\u8D25\uFF1A" + (report.error || "\u672A\u77E5\u9519\u8BEF");
+      if (args.completed === true) {
+        const checked = await board.check(id, route);
+        if (checked.ok) {
+          return "\u5B8C\u6210\u6761\u4EF6\u5DF2\u6838\u5BF9\u901A\u8FC7\uFF1A" + checked.detail + "\n\u4EFB\u52A1\u5DF2\u5B8C\u6210\uFF0C\u5411\u73A9\u5BB6\u62A5\u544A\u7ED3\u679C\u3002";
+        }
+        return "\u8FD8\u5DEE\u4E00\u70B9\uFF1A" + checked.detail + "\n\u4EFB\u52A1\u4FDD\u6301\u8FDB\u884C\u4E2D\uFF0C\u7EE7\u7EED\u6216\u62A5\u544A\u5361\u4F4F\u539F\u56E0\u3002";
+      }
+      return "\u5DF2\u66F4\u65B0\u8FDB\u5EA6\u3002\n" + formatTask(report.task);
+    }
+  }));
+  ctx.tools.register(defineTool3({
+    name: "starcoplay_task_check",
+    description: "\u6838\u5BF9\u67D0\u4E2A\u4EFB\u52A1\u7684\u5B8C\u6210\u6761\u4EF6\u3002\u53EA\u8BFB\uFF0C\u4E0D\u6539\u53D8\u6E38\u620F\u72B6\u6001\u3002",
+    parameters: {
+      id: { type: "string", required: true, description: "\u4EFB\u52A1 id" }
+    },
+    output: text(""),
+    async execute(args) {
+      const checked = await board.check(String(args.id ?? ""), route);
+      return (checked.ok ? "\u5DF2\u5B8C\u6210\uFF1A" : "\u672A\u5B8C\u6210\uFF1A") + checked.detail;
+    }
+  }));
+}
+
+// src/tasks/board.ts
+import { randomUUID as randomUUID2 } from "crypto";
+
+// src/tasks/verify.ts
+function succeeded(result) {
+  return result.state === "SUCCEEDED" || result.state === "OK";
+}
+function findItems(value, depth = 0) {
+  if (depth > 6 || value === null || typeof value !== "object") return [];
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      const found = findItems(entry, depth + 1);
+      if (found.length) return found;
+    }
+    return [];
+  }
+  const record = value;
+  if (Array.isArray(record.items)) {
+    return record.items.filter((entry) => typeof entry === "object" && entry !== null);
+  }
+  for (const entry of Object.values(record)) {
+    const found = findItems(entry, depth + 1);
+    if (found.length) return found;
+  }
+  return [];
+}
+function findNumber(value, keys, depth = 0) {
+  if (depth > 6 || value === null || typeof value !== "object") return null;
+  const record = value;
+  for (const key of keys) {
+    const candidate = record[key];
+    if (typeof candidate === "number" && Number.isFinite(candidate)) return candidate;
+  }
+  for (const entry of Object.values(record)) {
+    const found = findNumber(entry, keys, depth + 1);
+    if (found !== null) return found;
+  }
+  return null;
+}
+function normalize(value) {
+  return String(value ?? "").toLowerCase().replace(/[\s_\-()[\]（）]/g, "");
+}
+function itemTokens(item) {
+  return ["item_id", "qualified_item_id", "internal_name", "display_name", "name"].map((key) => normalize(item[key])).filter(Boolean);
+}
+function matchesItem(item, target) {
+  const wanted = normalize(target);
+  if (!wanted) return false;
+  return itemTokens(item).some((token) => token === wanted || token.includes(wanted) || wanted.includes(token));
+}
+function stackOf(item) {
+  const raw = item.stack ?? item.count ?? item.quantity ?? 1;
+  const value = Number(raw);
+  return Number.isFinite(value) && value > 0 ? value : 1;
+}
+async function checkCompletion(route, completion) {
+  try {
+    if (completion.type === "inventory_at_least") {
+      const result = await route.command(
+        "query_inventory_snapshot",
+        { container_kind: "player", include_empty_slots: false, include_details: true },
+        15e3
+      );
+      if (!succeeded(result)) {
+        return { ok: false, detail: "\u80CC\u5305\u67E5\u8BE2\u5931\u8D25\uFF1A" + (result.error_code || result.state) };
+      }
+      const items = findItems(result.output);
+      const count = items.filter((item) => matchesItem(item, completion.item || "")).reduce((sum, item) => sum + stackOf(item), 0);
+      const need = completion.qty || 0;
+      return {
+        ok: count >= need,
+        detail: `${completion.item} ${count}/${need}`
+      };
+    }
+    if (completion.type === "gold_at_least") {
+      const result = await route.command(
+        "query_runtime_snapshot",
+        { include_player: true, include_world_time: false, include_weather: false, include_menu_state: false },
+        15e3
+      );
+      if (!succeeded(result)) {
+        return { ok: false, detail: "\u91D1\u5E01\u67E5\u8BE2\u5931\u8D25\uFF1A" + (result.error_code || result.state) };
+      }
+      const money = findNumber(result.output, ["money", "gold", "total_money"]);
+      if (money === null) return { ok: false, detail: "\u65E0\u6CD5\u4ECE\u6E38\u620F\u72B6\u6001\u8BFB\u53D6\u91D1\u5E01" };
+      const need = completion.qty || 0;
+      return { ok: money >= need, detail: `\u91D1\u5E01 ${money}/${need}` };
+    }
+    return { ok: false, detail: "\u8BE5\u4EFB\u52A1\u9700\u8981\u73A9\u5BB6\u786E\u8BA4\u5B8C\u6210\uFF08manual_confirm\uFF09" };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, detail: "\u65E0\u6CD5\u9A8C\u8BC1\uFF1A" + message };
+  }
+}
+
+// src/tasks/board.ts
+var HUD_LIMIT = 8;
+var ACTIVE_STATUSES = ["active", "blocked", "paused", "proposed"];
+function sortForDisplay(tasks) {
+  const rank = { active: 0, blocked: 1, paused: 2, proposed: 3 };
+  return [...tasks].sort((a, b) => {
+    const byStatus = (rank[a.status] ?? 9) - (rank[b.status] ?? 9);
+    if (byStatus !== 0) return byStatus;
+    if (a.priority !== b.priority) return b.priority - a.priority;
+    return a.created_at.localeCompare(b.created_at);
+  });
+}
+var TaskBoardService = class {
+  constructor(options) {
+    this.options = options;
+  }
+  options;
+  board = null;
+  lastCompleted = null;
+  notifyTimer = null;
+  clock() {
+    return this.options.now ? this.options.now() : /* @__PURE__ */ new Date();
+  }
+  ensure() {
+    const playerId = this.options.getPlayerId();
+    if (!playerId) return null;
+    if (!this.board || this.board.player_id !== playerId) {
+      this.board = this.options.store.load(playerId);
+    }
+    return this.board;
+  }
+  status() {
+    const board = this.ensure();
+    return {
+      connected: board !== null,
+      player_id: board?.player_id ?? null,
+      tasks: board?.tasks.length ?? 0
+    };
+  }
+  async add(input) {
+    const board = this.ensure();
+    if (!board) return { ok: false, error: "\u6E38\u620F\u5C1A\u672A\u8FDE\u63A5\uFF1A\u5148\u8BFB\u6863\u518D\u5E03\u7F6E\u4EFB\u52A1\u3002" };
+    const title = String(input.title || "").trim();
+    if (!title) return { ok: false, error: "title \u4E0D\u80FD\u4E3A\u7A7A" };
+    if (!input.goal || typeof input.goal !== "object") {
+      return { ok: false, error: "goal \u5FC5\u987B\u662F\u5BF9\u8C61" };
+    }
+    let completion;
+    try {
+      completion = normalizeCompletion(input.completion);
+    } catch (error) {
+      return { ok: false, error: error instanceof Error ? error.message : String(error) };
+    }
+    const now = this.clock().toISOString();
+    const hasActive = board.tasks.some((task2) => task2.status === "active");
+    const task = {
+      id: "task_" + randomUUID2().slice(0, 8),
+      title,
+      source: "player",
+      goal: input.goal,
+      derived: Array.isArray(input.derived) ? input.derived : void 0,
+      completion,
+      constraints: Array.isArray(input.constraints) ? input.constraints.map(String) : [],
+      priority: Number.isFinite(input.priority) ? Number(input.priority) : 5,
+      deadline: input.deadline,
+      status: hasActive ? "proposed" : "active",
+      progress: {},
+      progress_text: "",
+      blocked_reason: null,
+      evidence: [],
+      created_at: now,
+      updated_at: now
+    };
+    board.tasks.push(task);
+    this.persist(board);
+    return { ok: true, task };
+  }
+  list() {
+    const board = this.ensure();
+    if (!board) return [];
+    return sortForDisplay(board.tasks.filter((task) => !["done", "failed", "cancelled"].includes(task.status)));
+  }
+  update(id, action, patch = {}) {
+    const board = this.ensure();
+    if (!board) return { ok: false, error: "\u6E38\u620F\u5C1A\u672A\u8FDE\u63A5" };
+    const task = board.tasks.find((entry) => entry.id === id);
+    if (!task) return { ok: false, error: "\u627E\u4E0D\u5230\u4EFB\u52A1 " + id };
+    const now = this.clock().toISOString();
+    switch (action) {
+      case "pause":
+        if (task.status === "active") task.status = "paused";
+        break;
+      case "resume":
+        if (task.status === "paused" || task.status === "blocked") {
+          this.pauseOthers(board, task.id);
+          task.status = "active";
+          task.blocked_reason = null;
+        }
+        break;
+      case "cancel":
+        task.status = "cancelled";
+        break;
+      case "activate":
+        this.pauseOthers(board, task.id);
+        task.status = "active";
+        task.blocked_reason = null;
+        break;
+      case "modify":
+        if (typeof patch.title === "string" && patch.title.trim()) task.title = patch.title.trim();
+        if (Number.isFinite(Number(patch.priority))) task.priority = Number(patch.priority);
+        if (patch.deadline && typeof patch.deadline === "object") {
+          task.deadline = patch.deadline;
+        }
+        if (patch.completion) {
+          try {
+            task.completion = normalizeCompletion(patch.completion);
+          } catch (error) {
+            return { ok: false, error: error instanceof Error ? error.message : String(error) };
+          }
+        }
+        break;
+      default:
+        return { ok: false, error: "\u672A\u77E5\u64CD\u4F5C\uFF1A" + action };
+    }
+    task.updated_at = now;
+    if (task.status === "cancelled") this.activateNext(board);
+    this.persist(board);
+    return { ok: true, task };
+  }
+  report(id, input) {
+    const board = this.ensure();
+    if (!board) return { ok: false, error: "\u6E38\u620F\u5C1A\u672A\u8FDE\u63A5" };
+    const task = board.tasks.find((entry) => entry.id === id);
+    if (!task) return { ok: false, error: "\u627E\u4E0D\u5230\u4EFB\u52A1 " + id };
+    if (typeof input.progress_text === "string") task.progress_text = input.progress_text;
+    if (input.progress && typeof input.progress === "object") {
+      task.progress = { ...task.progress, ...input.progress };
+    }
+    if (typeof input.evidence === "string" && input.evidence.trim()) {
+      task.evidence.push(input.evidence.trim());
+      if (task.evidence.length > 20) task.evidence.shift();
+    }
+    if (input.blocked_reason !== void 0) {
+      task.blocked_reason = input.blocked_reason;
+      if (input.blocked_reason) {
+        task.status = "blocked";
+      } else if (task.status === "blocked") {
+        task.status = "active";
+      }
+    }
+    task.updated_at = this.clock().toISOString();
+    this.persist(board);
+    return { ok: true, task };
+  }
+  async check(id, route) {
+    const board = this.ensure();
+    if (!board) return { ok: false, detail: "\u6E38\u620F\u5C1A\u672A\u8FDE\u63A5" };
+    const task = board.tasks.find((entry) => entry.id === id);
+    if (!task) return { ok: false, detail: "\u627E\u4E0D\u5230\u4EFB\u52A1 " + id };
+    const result = await checkCompletion(route, task.completion);
+    const now = this.clock().toISOString();
+    task.updated_at = now;
+    if (result.ok) {
+      task.status = "done";
+      task.progress_text = task.progress_text || result.detail;
+      this.lastCompleted = { title: task.title, at: now };
+      board.archived.push(task);
+      board.tasks = board.tasks.filter((entry) => entry.id !== task.id);
+      this.activateNext(board);
+    } else if (task.status !== "blocked") {
+      task.blocked_reason = result.detail;
+    }
+    this.persist(board);
+    return { ok: result.ok, detail: result.detail, task };
+  }
+  snapshot() {
+    const board = this.ensure();
+    if (!board) return null;
+    const lines = sortForDisplay(
+      board.tasks.filter((task) => ACTIVE_STATUSES.includes(task.status))
+    ).slice(0, HUD_LIMIT).map((task) => ({
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      progress_text: task.progress_text || statusLabel(task.status),
+      blocked_reason: task.blocked_reason ?? null
+    }));
+    return {
+      type: "task_board",
+      revision: board.revision,
+      updated_at: this.clock().toISOString(),
+      tasks: lines,
+      last_completed: this.lastCompleted
+    };
+  }
+  pauseOthers(board, keepId) {
+    for (const entry of board.tasks) {
+      if (entry.id !== keepId && entry.status === "active") entry.status = "paused";
+    }
+  }
+  activateNext(board) {
+    if (board.tasks.some((entry) => entry.status === "active")) return;
+    const next = sortForDisplay(board.tasks.filter((entry) => entry.status === "proposed"))[0];
+    if (next) {
+      next.status = "active";
+      next.updated_at = this.clock().toISOString();
+    }
+  }
+  persist(board) {
+    board.revision += 1;
+    this.options.store.save(board);
+    this.scheduleNotify();
+  }
+  scheduleNotify() {
+    if (!this.options.onChange || this.notifyTimer) return;
+    this.notifyTimer = setTimeout(() => {
+      this.notifyTimer = null;
+      const snapshot = this.snapshot();
+      if (snapshot) this.options.onChange?.(snapshot);
+    }, 50);
+    this.notifyTimer.unref?.();
+  }
+};
+
+// src/tasks/store.ts
+import { existsSync as existsSync3, mkdirSync as mkdirSync2, readFileSync as readFileSync3, renameSync as renameSync2, writeFileSync as writeFileSync2 } from "fs";
+import { homedir as homedir2 } from "os";
+import { join as join3 } from "path";
+var DEFAULT_DIR = join3(homedir2(), ".starcoplay", "tasks");
+var TaskStore = class {
+  constructor(dir = DEFAULT_DIR) {
+    this.dir = dir;
+  }
+  dir;
+  pathFor(playerId) {
+    return join3(this.dir, sanitizePlayerId(playerId) + ".json");
+  }
+  load(playerId) {
+    const path = this.pathFor(playerId);
+    if (!existsSync3(path)) return emptyBoard(playerId);
+    try {
+      const parsed = JSON.parse(readFileSync3(path, "utf8"));
+      if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.tasks)) {
+        throw new Error("invalid task board shape");
+      }
+      return {
+        schema_version: 1,
+        player_id: playerId,
+        revision: Number.isFinite(parsed.revision) ? Number(parsed.revision) : 0,
+        tasks: parsed.tasks,
+        archived: Array.isArray(parsed.archived) ? parsed.archived : []
+      };
+    } catch {
+      try {
+        renameSync2(path, path + ".corrupt-" + Date.now());
+      } catch {
+      }
+      return emptyBoard(playerId);
+    }
+  }
+  save(board) {
+    mkdirSync2(this.dir, { recursive: true });
+    const path = this.pathFor(board.player_id);
+    const tmp = path + ".tmp";
+    writeFileSync2(tmp, JSON.stringify(board, null, 2), "utf8");
+    renameSync2(tmp, path);
+  }
+};
+
+// src/tools/setup.ts
+import { defineTool as defineTool4 } from "@deepseek-ai/dsh-tools";
 
 // src/game/install.ts
 import AdmZip from "adm-zip";
 import { execFile } from "child_process";
-import { existsSync as existsSync3, mkdirSync as mkdirSync2, mkdtempSync, readFileSync as readFileSync3, rmSync as rmSync2, writeFileSync as writeFileSync2 } from "fs";
+import { existsSync as existsSync4, mkdirSync as mkdirSync3, mkdtempSync, readFileSync as readFileSync4, rmSync as rmSync2, writeFileSync as writeFileSync3 } from "fs";
 import { tmpdir } from "os";
-import { dirname as dirname2, join as join3, resolve, sep } from "path";
+import { dirname as dirname2, join as join4, resolve, sep } from "path";
 import { promisify } from "util";
 var execFileAsync = promisify(execFile);
 var DEFAULT_MOD_ZIP_URL = "https://github.com/xiaofenggan01/star-coplay/releases/download/mod-latest/StarCoPlay.zip";
@@ -945,11 +1548,11 @@ function safeRelative(relative) {
   return !normalized.split("/").includes("..");
 }
 function mergeConfig(modRoot, modsDir, warnings) {
-  const configPath = join3(modRoot, "config.json");
+  const configPath = join4(modRoot, "config.json");
   let config = {};
-  if (existsSync3(configPath)) {
+  if (existsSync4(configPath)) {
     try {
-      const parsed = JSON.parse(readFileSync3(configPath, "utf8"));
+      const parsed = JSON.parse(readFileSync4(configPath, "utf8"));
       if (parsed && typeof parsed === "object") config = parsed;
     } catch {
       warnings.push("\u5DF2\u6709 config.json \u65E0\u6CD5\u89E3\u6790\uFF0C\u5C06\u4F7F\u7528\u9ED8\u8BA4\u914D\u7F6E");
@@ -969,7 +1572,7 @@ function mergeConfig(modRoot, modsDir, warnings) {
       warnings.push("\u8FD8\u6CA1\u6709\u627E\u5230\u73A9\u5BB6 ID\uFF1A\u9996\u6B21\u8BFB\u6863\u540E\u8BF7\u5728\u6E38\u620F\u5185\u6267\u884C /agent_control\uFF0C\u6216\u518D\u6B21\u8FD0\u884C\u5B89\u88C5");
     }
   }
-  writeFileSync2(configPath, JSON.stringify(config, null, 2) + "\n", { mode: 384 });
+  writeFileSync3(configPath, JSON.stringify(config, null, 2) + "\n", { mode: 384 });
 }
 function describeError(error) {
   if (error instanceof Error) {
@@ -980,8 +1583,8 @@ function describeError(error) {
   return String(error);
 }
 async function downloadWithCurl(url) {
-  const dir = mkdtempSync(join3(tmpdir(), "starcoplay-mod-"));
-  const file = join3(dir, "StarCoPlay.zip");
+  const dir = mkdtempSync(join4(tmpdir(), "starcoplay-mod-"));
+  const file = join4(dir, "StarCoPlay.zip");
   try {
     await execFileAsync("curl", [
       "--noproxy",
@@ -994,7 +1597,7 @@ async function downloadWithCurl(url) {
       file,
       url
     ]);
-    return readFileSync3(file);
+    return readFileSync4(file);
   } finally {
     rmSync2(dir, { recursive: true, force: true });
   }
@@ -1040,9 +1643,9 @@ async function installMod(options = {}) {
     if (options.zipBuffer) {
       buffer = options.zipBuffer;
     } else if (options.zipPath) {
-      buffer = readFileSync3(options.zipPath);
+      buffer = readFileSync4(options.zipPath);
     } else if (envZip) {
-      buffer = readFileSync3(envZip);
+      buffer = readFileSync4(envZip);
     } else {
       buffer = await downloadZip(
         options.url || DEFAULT_MOD_ZIP_URL,
@@ -1075,8 +1678,8 @@ async function installMod(options = {}) {
       warnings
     };
   }
-  const modRoot = join3(paths.modsDir, "StarCoPlay");
-  mkdirSync2(modRoot, { recursive: true });
+  const modRoot = join4(paths.modsDir, "StarCoPlay");
+  mkdirSync3(modRoot, { recursive: true });
   let skipped = 0;
   for (const entry of entries) {
     if (entry.isDirectory) continue;
@@ -1095,8 +1698,8 @@ async function installMod(options = {}) {
       skipped += 1;
       continue;
     }
-    mkdirSync2(dirname2(target), { recursive: true });
-    writeFileSync2(target, entry.getData());
+    mkdirSync3(dirname2(target), { recursive: true });
+    writeFileSync3(target, entry.getData());
   }
   if (skipped > 0) {
     warnings.push("\u6709 " + skipped + " \u4E2A\u6587\u4EF6\u56E0\u8DEF\u5F84\u4E0D\u5B89\u5168\u88AB\u8DF3\u8FC7\u3002");
@@ -1126,7 +1729,7 @@ function formatInstallResult(result) {
   return lines.join("\n");
 }
 function registerInstallModTool(ctx, getStatus, install = installMod) {
-  ctx.tools.register(defineTool3({
+  ctx.tools.register(defineTool4({
     name: "starcoplay_install_mod",
     description: [
       "Install or update the StarCoPlay mod into the Stardew Valley Mods folder.",
@@ -1181,9 +1784,9 @@ function registerInstallModTool(ctx, getStatus, install = installMod) {
 }
 
 // src/tools/launch.ts
-import { defineTool as defineTool4 } from "@deepseek-ai/dsh-tools";
+import { defineTool as defineTool5 } from "@deepseek-ai/dsh-tools";
 function registerLaunchGameTool(ctx, launcher) {
-  ctx.tools.register(defineTool4({
+  ctx.tools.register(defineTool5({
     name: "starcoplay_launch_game",
     description: [
       "Launch a SECOND Stardew Valley instance through SMAPI on this machine.",
@@ -1340,6 +1943,22 @@ var SYSTEM_PROMPT = [
   "If the route is not connected, ask the player to load a save and make sure",
   "the StarCoPlay mod is enabled.",
   "",
+  "TASKS: the player can hand you work that lasts beyond one reply.",
+  "- When the player asks for something durable (build/craft N, collect N,",
+  "  clear an area, earn gold, gift someone), call starcoplay_task_add.",
+  "  Give a short title, a structured goal, and a completion you can verify:",
+  "  inventory_at_least, gold_at_least, or manual_confirm when the world cannot",
+  "  be checked automatically. Record derived needs (e.g. 20 chests need wood).",
+  "- Confirm in one sentence with starcoplay_say, then start working.",
+  "- After each meaningful step call starcoplay_task_report with progress_text",
+  '  (e.g. "\u6728\u5934 48/120"), evidence (what you did), and blocked_reason when',
+  "  stuck (no stamina, night, missing tool). The in-game HUD mirrors this.",
+  "- When you think the task is done, call starcoplay_task_report with",
+  '  completed=true. The plugin checks the world; if it reports "\u8FD8\u5DEE\u4E00\u70B9",',
+  "  the task is NOT done \u2014 continue or explain why.",
+  '- "\u4EFB\u52A1" / "\u8FDB\u5EA6" -> starcoplay_task_list. Pause/cancel/resume ->',
+  "  starcoplay_task_update. Only one task is active at a time.",
+  "",
   "If the player wants a second AI window for co-op, call",
   "starcoplay_launch_game only after their own co-op save is already running.",
   "It launches a second SMAPI instance. The player still joins the host game in",
@@ -1348,10 +1967,13 @@ var SYSTEM_PROMPT = [
   "Setup tools: starcoplay_status, starcoplay_install_mod,",
   "starcoplay_launch_game.",
   "",
+  "Task tools: starcoplay_task_add, starcoplay_task_list,",
+  "starcoplay_task_update, starcoplay_task_report, starcoplay_task_check.",
+  "",
   "Available game tools: starcoplay_observe, starcoplay_say, starcoplay_emote,",
   "starcoplay_face, starcoplay_move_to, starcoplay_go_to, starcoplay_do,",
   "starcoplay_use_tool, starcoplay_equip, starcoplay_go_bed,",
-  "starcoplay_water_crops, starcoplay_harvest_crops.",
+  "starcoplay_water_crops, starcoplay_harvest_crops, starcoplay_chop_trees.",
   "",
   "Call starcoplay_observe before deciding. Never invent coordinates, item",
   "names, or map ids. Prefer one concrete action at a time, and report briefly",
@@ -1361,13 +1983,13 @@ var SYSTEM_PROMPT = [
 ].join("\n");
 
 // src/version.ts
-var VERSION = "0.3.0";
+var VERSION = "0.4.0";
 
 // src/index.ts
-var DIAG_DIR = join4(homedir2(), ".starcoplay");
-var DIAG_PATH = join4(DIAG_DIR, "dsh-plugin.log");
-async function buildUserMessage(text) {
-  const content = [{ type: "text", text }];
+var DIAG_DIR = join5(homedir3(), ".starcoplay");
+var DIAG_PATH = join5(DIAG_DIR, "dsh-plugin.log");
+async function buildUserMessage(text2) {
+  const content = [{ type: "text", text: text2 }];
   const source = { kind: "starcoplay-dsh" };
   try {
     const specifier = "@deepseek-ai/dsh-llm";
@@ -1379,7 +2001,7 @@ async function buildUserMessage(text) {
   } catch (error) {
     diag("[message] dsh-llm import failed: " + (error instanceof Error ? error.message : String(error)));
   }
-  return { id: randomUUID2(), role: "user", content, source };
+  return { id: randomUUID3(), role: "user", content, source };
 }
 var V0_CAPABILITIES = [
   ["observe_current_view", "observe"],
@@ -1415,7 +2037,7 @@ function logInfo(ctx, message) {
 function diag(message) {
   const line = "[" + (/* @__PURE__ */ new Date()).toISOString() + "] " + message + "\n";
   try {
-    mkdirSync3(DIAG_DIR, { recursive: true });
+    mkdirSync4(DIAG_DIR, { recursive: true });
     appendFileSync(DIAG_PATH, line);
   } catch {
   }
@@ -1423,7 +2045,7 @@ function diag(message) {
 var name = "starcoplay-dsh";
 var inject = ["tools", "systemPrompt", "userQuestions"];
 async function apply(ctx, config = {}) {
-  const rendezvousPath = config.rendezvousPath || join4(homedir2(), ".starcoplay", "local-direct", "rendezvous.json");
+  const rendezvousPath = config.rendezvousPath || join5(homedir3(), ".starcoplay", "local-direct", "rendezvous.json");
   const route = new StarCoPlayRouteServer({
     rendezvousPath,
     capabilityEntries: V0_CAPABILITIES,
@@ -1451,6 +2073,25 @@ async function apply(ctx, config = {}) {
   registerInstallModTool(ctx, getStatus);
   registerLaunchGameTool(ctx, launcher);
   registerGameTools(ctx, route);
+  const taskBoard = new TaskBoardService({
+    store: new TaskStore(),
+    getPlayerId: () => getStatus().route.identity?.player_unique_id ?? null,
+    onChange: (snapshot) => {
+      try {
+        route.syncTaskBoard(snapshot);
+      } catch {
+      }
+    }
+  });
+  registerTaskTools(ctx, route, taskBoard);
+  const taskSyncTimer = setInterval(() => {
+    try {
+      const snapshot = taskBoard.snapshot();
+      if (snapshot) route.syncTaskBoard(snapshot);
+    } catch {
+    }
+  }, 5e3);
+  taskSyncTimer.unref?.();
   let agentsApi;
   try {
     if (typeof ctx.inject === "function") {
@@ -1484,10 +2125,10 @@ async function apply(ctx, config = {}) {
   route.onGameEvent((event) => {
     diag("[event] type=" + event.type + " keys=" + Object.keys(event.data).join(","));
     if (event.type !== "chat_received") return;
-    const text = typeof event.data.message === "string" ? event.data.message.trim() : "";
-    if (!text) return;
+    const text2 = typeof event.data.message === "string" ? event.data.message.trim() : "";
+    if (!text2) return;
     const name2 = typeof event.data.player_name === "string" ? event.data.player_name : "\u73A9\u5BB6";
-    logInfo(ctx, "in-game chat from " + name2 + ": " + text);
+    logInfo(ctx, "in-game chat from " + name2 + ": " + text2);
     const { agent, reason } = pickLiveAgent();
     diag("[deliver] agent=" + Boolean(agent) + " reason=" + reason);
     if (!agent) {
@@ -1497,7 +2138,7 @@ async function apply(ctx, config = {}) {
     void (async () => {
       try {
         const message = await buildUserMessage(
-          "[\u661F\u9732\u8C37\u6E38\u620F\u5185\u804A\u5929] " + name2 + "\uFF1A" + text + "\n\uFF08\u73A9\u5BB6\u662F\u5728\u6E38\u620F\u91CC\u8BF4\u7684\u3002\u7528 starcoplay_say \u5728\u6E38\u620F\u804A\u5929\u91CC\u7B80\u77ED\u56DE\u4E00\u53E5\uFF0C\u4E0D\u8981\u53EA\u5728 DSH \u91CC\u56DE\u590D\u3002\uFF09"
+          "[\u661F\u9732\u8C37\u6E38\u620F\u5185\u804A\u5929] " + name2 + "\uFF1A" + text2 + "\n\uFF08\u73A9\u5BB6\u662F\u5728\u6E38\u620F\u91CC\u8BF4\u7684\u3002\u7528 starcoplay_say \u5728\u6E38\u620F\u804A\u5929\u91CC\u7B80\u77ED\u56DE\u4E00\u53E5\uFF0C\u4E0D\u8981\u53EA\u5728 DSH \u91CC\u56DE\u590D\u3002\uFF09"
         );
         agent.followup(message);
         diag("[deliver] followup() accepted id=" + String(message?.id));

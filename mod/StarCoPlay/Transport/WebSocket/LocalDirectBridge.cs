@@ -301,6 +301,15 @@ namespace StarCoPlay.Bridge
                 try { _pendingControls.Enqueue(AgentControlSnapshot.Normalize(enabled, target, revision)); }
                 catch (Exception ex) { _monitor?.Log("local_control rejected: " + ex.Message, LogLevel.Warn); }
             }
+            else if (type == "local_task_board")
+            {
+                if (!root.TryGetProperty("fence", out var boardFence))
+                    return;
+                if (!ParseFence(boardFence).Equals(ExpectedFence()))
+                    return;
+                if (root.TryGetProperty("board", out var board))
+                    TaskBoardState.Apply(board);
+            }
             else if (type == "local_cancel")
             {
                 var commandId = root.GetProperty("command_id").GetString() ?? "";

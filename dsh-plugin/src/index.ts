@@ -7,6 +7,9 @@ import { detectGamePaths, listBridgePlayerIds } from './game/paths.js'
 import { StarCoPlayRouteServer } from './route/server.js'
 import { registerStatusTool, type StatusSnapshot } from './tools/status.js'
 import { registerGameTools } from './tools/game.js'
+import { registerTaskTools } from './tools/tasks.js'
+import { TaskBoardService } from './tasks/board.js'
+import { TaskStore } from './tasks/store.js'
 import { registerInstallModTool } from './tools/setup.js'
 import { registerLaunchGameTool } from './tools/launch.js'
 import { GameLauncher } from './game/launcher.js'
@@ -114,6 +117,23 @@ export async function apply(ctx: any, config: any = {}): Promise<void> {
   registerInstallModTool(ctx, getStatus)
   registerLaunchGameTool(ctx, launcher)
   registerGameTools(ctx, route)
+
+  // Task board: persistent per farmer, mirrored to the mod's in-game HUD.
+  const taskBoard = new TaskBoardService({
+    store: new TaskStore(),
+    getPlayerId: () => getStatus().route.identity?.player_unique_id ?? null,
+    onChange: (snapshot) => {
+      try { route.syncTaskBoard(snapshot) } catch { /* mod not connected yet */ }
+    },
+  })
+  registerTaskTools(ctx, route, taskBoard)
+  const taskSyncTimer = setInterval(() => {
+    try {
+      const snapshot = taskBoard.snapshot()
+      if (snapshot) route.syncTaskBoard(snapshot)
+    } catch { /* best effort */ }
+  }, 5000)
+  taskSyncTimer.unref?.()
 
   // In-game chat is the real interface: the mod forwards chat_received over
   // local_direct, and we deliver it to the live agent so it can answer with

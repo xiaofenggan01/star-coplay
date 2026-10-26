@@ -59,6 +59,7 @@ namespace StarCoPlay
         private DebugReporter _reporter = null!;
         private TestCommands _commands = null!;
         private HudOverlay _hud = null!;
+        private TaskBoardHud _taskHud = null!;
         private ChatCommandHandler _chatHandler = null!;
 
         /*── L0 InputBridge 层 ──*/
@@ -414,6 +415,7 @@ namespace StarCoPlay
             _hud = new HudOverlay(Monitor, helper.Translation, _state, _actions, _commandProcessor,
                 _stuckDetector, _stuckRecovery, () => _bridgeActive, () => _wsBridgeRef,
                 BuildIndicatorContext);
+            _taskHud = new TaskBoardHud(helper.Translation, () => _config);
             _chatHandler = new ChatCommandHandler(Monitor, _state, _actions, _reporter, helper,
                 () => _config,
                 () => helper.WriteConfig(_config),
@@ -455,6 +457,7 @@ namespace StarCoPlay
 
             // HUD 事件
             helper.Events.Display.RenderedHud += _hud.OnRenderedHud;
+            helper.Events.Display.RenderedHud += _taskHud.OnRenderedHud;
             helper.Events.Input.ButtonPressed += _hud.OnButtonPressed;
 
             // GMCM 注册（GameLaunched 时机确保 GMCM 已加载）

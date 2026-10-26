@@ -3,9 +3,10 @@
 DeepSeek Harness plugin that lets DSH play Stardew Valley with you.
 
 Status: early preview. The plugin loads in DSH, starts a token-gated local
-route, exposes 13 native game tools, installs the StarCoPlay mod after a native
-confirmation dialog, launches a second SMAPI instance for co-op, and claims the
-AI player automatically after it joins. Automatic co-op join is still deferred;
+route, exposes 18 native tools (13 game + 5 task), keeps a per-farmer task
+board, mirrors it to the in-game HUD, installs the StarCoPlay mod after a
+native confirmation dialog, launches a second SMAPI instance for co-op, and
+claims the AI player automatically after it joins. Automatic co-op join is still deferred;
 Windows is not verified.
 
 ## What it does
@@ -59,6 +60,25 @@ Game:
 - starcoplay_water_crops
 - starcoplay_harvest_crops
 - starcoplay_chop_trees
+
+Tasks:
+- starcoplay_task_add: record a player task with a verifiable completion.
+- starcoplay_task_list: list active/queued/blocked tasks.
+- starcoplay_task_update: pause, resume, cancel, activate or modify a task.
+- starcoplay_task_report: write progress/evidence/blocked reason.
+- starcoplay_task_check: verify a task's completion against the world.
+
+## Task board
+
+Tasks are stored per farmer at `~/.starcoplay/tasks/<player_unique_id>.json`
+and survive plugin/game restarts. Each task carries a completion predicate
+(`inventory_at_least`, `gold_at_least`, or `manual_confirm`); the plugin checks
+it against the live game before marking the task done, so "done" is never
+self-reported.
+
+The board is mirrored to the mod as a compact snapshot over local_direct
+(`local_task_board`). The mod renders it as a read-only top-left HUD strip and
+falls back to nothing when the mod is missing or too old.
 
 ## Co-op second window (V2)
 
