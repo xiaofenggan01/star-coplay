@@ -1,0 +1,61 @@
+{
+  "id": "goal-001-acquire-wood",
+  "title": "目标 Acquire(Wood,10)：路由到砍树并达成",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "acquire"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "wood",
+    "qty": 10
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 10
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied",
+      "goal_satisfied": true,
+      "blocked_reason": null
+    },
+    "world": {
+      "inventory.Wood": {
+        "min": 10
+      }
+    },
+    "commands": {
+      "must_include": [
+        "use_tool"
+      ]
+    }
+  }
+}

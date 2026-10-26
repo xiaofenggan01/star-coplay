@@ -1,0 +1,54 @@
+{
+  "id": "goal-004-low-stamina",
+  "title": "体力不足：拒绝而不是硬砍",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "energy"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "wood",
+    "qty": 10
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 12
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 10
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "data": {
+      "blocked_reason": "stamina_low"
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    }
+  }
+}

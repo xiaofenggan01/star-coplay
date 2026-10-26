@@ -9,7 +9,6 @@ access.
 from __future__ import annotations
 
 import asyncio
-import importlib
 import json
 import tempfile
 import time
@@ -26,17 +25,12 @@ from v2_skills.context import SkillContext  # noqa: E402
 
 from .sim_bridge import SimBridge  # noqa: E402
 from .sim_world import build_world  # noqa: E402
+from .skills import load_skill  # noqa: E402
 
 
 SKILL_TIMEOUT_S = 20.0
 
 
-def load_skill(name: str):
-    module = importlib.import_module(f"v2_skills.builtin.{name}.script")
-    func = getattr(module, name, None)
-    if func is None:
-        raise AttributeError(f"skill module {module.__name__} has no callable {name!r}")
-    return func
 
 
 def _game_state_stub(world) -> Path:
@@ -73,6 +67,11 @@ def build_metrics(world, bridge: SimBridge, result: dict[str, Any]) -> dict[str,
         "game_minutes": snap["game_minutes"],
         "player_x": snap["player"]["x"],
         "player_y": snap["player"]["y"],
+        "crops_total": snap["crops_total"],
+        "watered_crops": snap["watered_crops"],
+        "unwatered_crops": snap["unwatered_crops"],
+        "day": snap["day"],
+        "weather": snap["weather"],
         "commands_total": len(bridge.commands),
         "failed_commands": len(bridge.failed_commands()),
         "use_tool_calls": counts.get("use_tool", 0),
@@ -80,6 +79,9 @@ def build_metrics(world, bridge: SimBridge, result: dict[str, Any]) -> dict[str,
         "command_counts": counts,
         "result_status": result.get("status"),
         "result_success": result.get("success"),
+        "goal_status": (result.get("data") or {}).get("goal_status"),
+        "goal_satisfied": bool((result.get("data") or {}).get("goal_satisfied")),
+        "blocked_reason": (result.get("data") or {}).get("blocked_reason"),
     }
     return metrics
 
@@ -110,8 +112,19 @@ def run_scenario(spec: dict[str, Any], *, verbose: bool = False) -> dict[str, An
     error: str | None = None
     trace: str | None = None
     try:
-        skill = load_skill(str(spec["skill"]))
-        result = asyncio.run(asyncio.wait_for(skill(ctx, **(spec.get("params") or {})), timeout=SKILL_TIMEOUT_S))
+        if spec.get("mode") == "goal":
+            from .policies.routing import RoutingPolicy
+
+            policy = RoutingPolicy()
+            result = asyncio.run(
+                asyncio.wait_for(
+                    policy.run(spec.get("goal") or {}, ctx, world),
+                    timeout=SKILL_TIMEOUT_S,
+                )
+            )
+        else:
+            skill = load_skill(str(spec["skill"]))
+            result = asyncio.run(asyncio.wait_for(skill(ctx, **(spec.get("params") or {})), timeout=SKILL_TIMEOUT_S))
         if not isinstance(result, dict):
             result = {"success": False, "status": "error", "data": {"raw": repr(result)}}
     except asyncio.TimeoutError:

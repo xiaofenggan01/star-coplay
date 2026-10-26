@@ -1,0 +1,40 @@
+{
+  "id": "goal-008-all-watered",
+  "title": "作物都已浇水：跳过，不重复劳动",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "water"
+  ],
+  "goal": {
+    "type": "water_crops"
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "crops": [
+      {
+        "x": 11,
+        "y": 10,
+        "watered": true
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied"
+    },
+    "commands": {
+      "must_exclude": [
+        "water_crops"
+      ]
+    }
+  }
+}

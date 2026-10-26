@@ -1,0 +1,62 @@
+{
+  "id": "goal-002-already-satisfied",
+  "title": "目标已满足：不产生任何动作",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "guard"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "wood",
+    "qty": 10
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      },
+      {
+        "item": "Wood",
+        "qty": 20,
+        "slot": 2
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied",
+      "goal_satisfied": true
+    },
+    "budget": {
+      "commands_total": {
+        "equals": 0
+      },
+      "use_tool_calls": {
+        "equals": 0
+      }
+    },
+    "world": {
+      "mature_trees_left": {
+        "equals": 1
+      }
+    }
+  }
+}

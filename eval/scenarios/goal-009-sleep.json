@@ -1,0 +1,47 @@
+{
+  "id": "goal-009-sleep",
+  "title": "22:00 睡觉：推进到第二天并回满体力",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "sleep"
+  ],
+  "goal": {
+    "type": "sleep"
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 40
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "start_minutes": 2200
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied",
+      "goal_satisfied": true
+    },
+    "world": {
+      "day": {
+        "equals": 2
+      }
+    },
+    "commands": {
+      "must_include": [
+        "go_to_bed"
+      ]
+    }
+  }
+}

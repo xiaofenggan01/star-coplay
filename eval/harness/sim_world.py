@@ -99,6 +99,16 @@ class LooseItem:
     qty: int = 1
 
 
+@dataclass
+class Crop:
+    x: int
+    y: int
+    seed: str = "Parsnip"
+    watered: bool = False
+    ready: bool = False
+    dead: bool = False
+
+
 class SimWorld:
     """A tiny tile world with deterministic mechanics."""
 
@@ -107,18 +117,24 @@ class SimWorld:
         *,
         player: Player,
         trees: list[Tree],
+        crops: list[Crop] | None = None,
         loose_items: list[LooseItem] | None = None,
         blocked: set[tuple[int, int]] | None = None,
         map_name: str = "Farm",
+        weather: str = "sunny",
+        day: int = 1,
         minutes_per_action: int = 10,
         stamina_per_strike: float = 3.0,
         start_minutes: int = 900,
     ):
         self.player = player
         self.trees = {(t.x, t.y): t for t in trees}
+        self.crops = {(c.x, c.y): c for c in (crops or [])}
         self.loose_items = {(i.x, i.y): i for i in (loose_items or [])}
         self.blocked = set(blocked or set())
         self.map_name = map_name
+        self.weather = weather
+        self.day = day
         self.minutes = start_minutes
         self.minutes_per_action = minutes_per_action
         self.stamina_per_strike = stamina_per_strike
@@ -160,6 +176,10 @@ class SimWorld:
             return self._use_tool(params)
         if capability == "interact":
             return self._interact(params)
+        if capability == "water_crops":
+            return self._water_crops(params)
+        if capability == "go_to_bed":
+            return self._go_to_bed(params)
         # Unknown action: accept as a no-op so scripts that use extra atoms are not
         # silently blocked; the command log still records it.
         return True, {"ok": True}, None, "ok"
@@ -231,6 +251,58 @@ class SimWorld:
 
     # ── helpers ──────────────────────────────────────────────────────────
 
+    def _water_crops(self, params: dict[str, Any]) -> tuple[bool, dict[str, Any], str | None, str]:
+        limit = int(params.get("max_count") or 0)
+        candidates = [
+            crop
+            for crop in self.crops.values()
+            if not crop.dead and not crop.watered
+        ]
+        candidates.sort(key=lambda c: (abs(c.x - self.player.x) + abs(c.y - self.player.y), c.x, c.y))
+        if limit > 0:
+            candidates = candidates[:limit]
+
+        watered = 0
+        stopped = "all_done"
+        for crop in candidates:
+            if self.player.stamina < 2:
+                stopped = "stamina_low"
+                break
+            self.player.stamina -= 2
+            self.energy_spent += 2
+            self._tick()
+            crop.watered = True
+            watered += 1
+
+        remaining = len([c for c in self.crops.values() if not c.dead and not c.watered])
+        if remaining and stopped == "all_done":
+            stopped = "remaining_unwatered"
+        return (
+            True,
+            {"watered": watered, "skipped": 0, "refilled": 0, "stopped_reason": stopped},
+            None,
+            f"watered {watered} crops",
+        )
+
+    def _go_to_bed(self, params: dict[str, Any]) -> tuple[bool, dict[str, Any], str | None, str]:
+        self.day += 1
+        self.minutes = 600
+        self.player.stamina = self.player.max_stamina
+        return (
+            True,
+            {
+                "used_tp": False,
+                "day_advanced": True,
+                "sleep_confirmed": True,
+                "sleep_prompt_seen": True,
+                "decision_required": False,
+                "phase": "done",
+                "bed_position": {"x": self.player.x, "y": self.player.y},
+            },
+            None,
+            "slept",
+        )
+
     def _tick(self) -> None:
         self.minutes += self.minutes_per_action
         self.minutes_spent += self.minutes_per_action
@@ -280,9 +352,11 @@ class SimWorld:
                 "stamina": self.player.stamina,
                 "max_stamina": self.player.max_stamina,
                 "time_of_day": self.minutes,
-                "day": 1,
+                "day": self.day,
                 "season": "spring",
                 "day_of_week": "Mon",
+                "weather": self.weather,
+                "is_currently_raining": self.weather in ("rain", "rainy", "storm"),
             }
         }
 
@@ -333,6 +407,24 @@ class SimWorld:
                             "loose_item": {"can_be_grabbed": True, "display_name": item.name, "stack": item.qty},
                         }
                     )
+        if not types or "crop" in types:
+            for (x, y), crop in self.crops.items():
+                if abs(x - cx) <= radius and abs(y - cy) <= radius:
+                    entities.append(
+                        {
+                            "ref": {"value": f"world_entity:crop:{self.map_name.lower()}:{x}:{y}#crop"},
+                            "type": "crop",
+                            "fact_kind": "crop",
+                            "position": {"map_id": self.map_name, "x": x, "y": y},
+                            "summary": f"{crop.seed} crop",
+                            "crop": {
+                                "seed": crop.seed,
+                                "watered": crop.watered,
+                                "ready": crop.ready,
+                                "dead": crop.dead,
+                            },
+                        }
+                    )
 
         tiles: list[dict[str, Any]] = []
         if params.get("include_tiles"):
@@ -373,6 +465,11 @@ class SimWorld:
             "game_minutes": self.minutes_spent,
             "drops_spawned": dict(self.drops_spawned),
             "items_collected": dict(self.items_collected),
+            "crops_total": len([c for c in self.crops.values() if not c.dead]),
+            "watered_crops": len([c for c in self.crops.values() if c.watered and not c.dead]),
+            "unwatered_crops": len([c for c in self.crops.values() if not c.watered and not c.dead]),
+            "day": self.day,
+            "weather": self.weather,
         }
 
 
@@ -419,14 +516,28 @@ def build_world(config: dict[str, Any]) -> SimWorld:
         LooseItem(int(i.get("x", 0)), int(i.get("y", 0)), str(i.get("item", "Wood")), int(i.get("qty", 1)))
         for i in config.get("loose_items") or []
     ]
+    crops = [
+        Crop(
+            x=int(c.get("x", 0)),
+            y=int(c.get("y", 0)),
+            seed=str(c.get("seed", "Parsnip")),
+            watered=bool(c.get("watered", False)),
+            ready=bool(c.get("ready", False)),
+            dead=bool(c.get("dead", False)),
+        )
+        for c in config.get("crops") or []
+    ]
     blocked = {(int(p[0]), int(p[1])) for p in config.get("blocked") or []}
 
     return SimWorld(
         player=player,
         trees=trees,
+        crops=crops,
         loose_items=loose,
         blocked=blocked,
         map_name=str(config.get("map", "Farm")),
+        weather=str(config.get("weather", "sunny")),
+        day=int(config.get("day", 1)),
         minutes_per_action=int(config.get("minutes_per_action", 10)),
         stamina_per_strike=float(config.get("stamina_per_strike", 3)),
         start_minutes=int(config.get("start_minutes", 900)),

@@ -51,6 +51,18 @@ eval/
 `SkillContext`，只把 bridge 换成 `SimBridge`，因此 `chop_trees` 的每一次查询和挥砍
 都走真实实现。
 
+## 两种运行模式
+
+| 模式 | 场景字段 | 跑什么 | 评估什么 |
+|---|---|---|---|
+| `skill`（默认） | `skill` + `params` | 直接调用一个 L3 skill | 单个动作的语义与守卫 |
+| `goal` | `mode: "goal"` + `goal` + `policy` | `GoalRouter` 把目标拆成 skill 调用 | 目标分解、前置检查、后置校验 |
+
+`goal` 模式接的是 [`agent/slow_loop/goal_router.py`](../agent/slow_loop/goal_router.py)
+——一个确定性的保底规划器，属于生产代码而非测试替身。它负责“正常玩家会不会做这件事”
+（目标已满足？太晚了？体力够吗？下雨吗），skill 负责“怎么做”。
+后续 LLM / HTN 规划器只要实现同一条 `Policy` 接口，就能与它做 A/B 对比。
+
 ## 场景 schema
 
 ```json
@@ -58,9 +70,13 @@ eval/
   "id": "chop-001-basic",
   "title": "人类可读的意图",
   "status": "runnable",            // runnable | planned
+  "mode": "skill",                 // skill | goal
   "tags": ["chop", "drops"],
-  "skill": "chop_trees",           // v2_skills.builtin.<name>
+  "skill": "chop_trees",           // mode=skill 时必填
   "params": {"target_wood": 5},
+  // mode=goal 时改为：
+  // "goal": {"type": "acquire", "item": "wood", "qty": 10},
+  // "policy": "routing",
   "world": {
     "player": {"x": 10, "y": 10, "stamina": 270, "axe_level": 0},
     "inventory": [{"item": "Axe", "qty": 1, "slot": 1}],
@@ -108,8 +124,12 @@ eval/
 ## 当前基线（2026-10-26）
 
 ```
-total=21  runnable=14  passed=10  gaps=4  failed=0  skipped=7
+total=31  runnable=24  passed=20  gaps=4  failed=0  skipped=7
 ```
+
+- 14 个 `skill` 场景：10 通过、4 个 gap；
+- 10 个 `goal` 场景：全部通过，覆盖 Acquire / Water / Sleep 的目标分解与前置检查；
+- 7 个 `planned` 场景：语义规格。
 
 四个已知 gap，都是真实缺陷，不是测试写错：
 
@@ -136,15 +156,17 @@ agent/.venv/bin/python eval/run_eval.py --id <new-id> --verbose
 
 ## 局限
 
-- 目前只有 `chop_trees` 是 Python 侧原子编排，可以真实运行；`harvest_crops` /
-  `water_crops` / `ship_items` 仍委托 mod compound handler，暂不能在此评估。
+- `chop_trees` / `water_crops` / `go_bed` 可在仿真里真实运行；`harvest_crops` /
+  `ship_items` 仍委托 mod compound handler，仿真尚未覆盖。
+- `goal` 模式用的是确定性 `GoalRouter`，不是 LLM 规划；它定义“正确行为”的基线，
+  而不是验证模型能力。
 - 没有模拟 LLM 决策：评估的是 L3 skill 的语义，不是“玩家一句话 → 计划”。
 - 仿真简化：单地图、无天气/季节/作物生长、掉落散射简化为固定环。
 - 时间粒度 10 分钟/动作，用于预算断言，不是精确游戏时钟。
 
 ## 下一步
 
-1. **policy 模式**：场景从 `skill` 改为 `goal`（如 `Acquire(Wood, 10)`），接确定性规划器，
-   评估 L4/L5 的目标分解。
+1. **LLM 规划器对比**：把真实 agent 作为 `policy` 接入，和 `GoalRouter` 跑同一批目标，
+   比较成功率、动作数、澄清次数。
 2. **trace 回放**：把真实运行记录成 trace，离线重放，替代手工构造期望。
-3. **覆盖扩展**：等 harvest/water 迁到 Python 侧后补场景；加入天气、季节、背包满等状态。
+3. **覆盖扩展**：`harvest_crops` / `ship_items`、背包满、季节与体力恢复。

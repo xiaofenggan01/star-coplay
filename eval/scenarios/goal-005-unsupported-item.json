@@ -1,0 +1,42 @@
+{
+  "id": "goal-005-unsupported-item",
+  "title": "目标物品无法采集：明确说做不到",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "guard"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "Iridium Bar",
+    "qty": 1
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ]
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "data": {
+      "blocked_reason": "unsupported_item"
+    },
+    "budget": {
+      "commands_total": {
+        "equals": 0
+      }
+    }
+  }
+}
