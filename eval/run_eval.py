@@ -51,6 +51,11 @@ def main(argv: list[str] | None = None) -> int:
         wanted = set(args.id)
         scenarios = [s for s in scenarios if s.get("id") in wanted]
 
+    if not scenarios:
+        # A CI run that silently evaluates nothing must not look green.
+        print(f"no scenarios matched under {args.scenarios}", file=sys.stderr)
+        return 2
+
     if args.list:
         for spec in scenarios:
             print(f"{spec.get('id'):<28} {spec.get('status', 'runnable'):<9} {spec.get('title', '')}")

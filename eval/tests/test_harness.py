@@ -112,3 +112,10 @@ def test_planned_scenario_is_skipped():
     spec = json.loads((EVAL_DIR / "scenarios" / "planned-001-evening-watering.json").read_text(encoding="utf-8"))
     out = run_scenario(spec)
     assert out["status"] == "skipped"
+
+
+def test_empty_scenario_dir_fails_loudly(tmp_path):
+    """A CI run that evaluates nothing must not look green."""
+    import run_eval
+
+    assert run_eval.main(["--scenarios", str(tmp_path)]) == 2
