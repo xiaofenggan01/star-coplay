@@ -1,0 +1,7 @@
+{
+  "commandId": "fixture-open-menu-ok",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "open_menu",
+  "openMenu": {}
+}

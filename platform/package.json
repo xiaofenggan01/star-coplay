@@ -1,0 +1,13 @@
+{
+  "name": "star-coplay-platform-root",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev-all.cjs",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "db:reset": "npx supabase db reset",
+    "fn:serve": "node scripts/serve-functions.cjs",
+    "web:dev": "npm run dev --prefix web",
+    "web:build": "npm run build --prefix web"
+  }
+}

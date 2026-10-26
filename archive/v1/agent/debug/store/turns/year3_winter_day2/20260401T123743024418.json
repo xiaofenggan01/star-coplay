@@ -1,0 +1,333 @@
+{
+  "turn_id": "20260401T123743024418",
+  "day_key": "year3_winter_day2",
+  "state_mtime": 1775047062.732669,
+  "context_summary": "location=Farm,time=1220,water_targets=0,harvest_targets=0,block_water=False,energy=430/440,equipped=银河剑",
+  "started_at": "2026-04-01T12:37:43.024418+00:00",
+  "status": "running",
+  "stages": [
+    {
+      "stage": "ceo_context",
+      "timestamp": "2026-04-01T12:37:43.029420+00:00",
+      "data": {
+        "context_tags": [
+          "machines_ready",
+          "machines_processing",
+          "location=Farm"
+        ],
+        "knowledge_ids": [
+          "core/weather",
+          "core/energy",
+          "intent/machines"
+        ],
+        "matched_rule_count": 0,
+        "working_memory_count": 10,
+        "short_term_counts": {
+          "player_dialogue": 1,
+          "special_event": 1,
+          "action_result": 4,
+          "decision_trace": 3,
+          "emotion_response": 0
+        },
+        "long_term_counts": {
+          "player_dialogues": 1,
+          "special_events": 1,
+          "action_results": 3,
+          "emotion_responses": 0
+        },
+        "force_switch": false
+      }
+    }
+  ],
+  "state": {
+    "status": "running",
+    "game_day_started": true,
+    "world": {
+      "time": 1220,
+      "time_display": "12:20",
+      "day": 2,
+      "season": "winter",
+      "year": 3,
+      "day_of_week": "Tuesday",
+      "weather": {
+        "current": "snowy",
+        "is_raining": false,
+        "is_snowing": true,
+        "is_lightning": false,
+        "tomorrow_forecast": null
+      },
+      "is_festival_day": false,
+      "festival_name": null
+    },
+    "player": {
+      "name": "AT",
+      "location": "Farm",
+      "tile": {
+        "x": 69,
+        "y": 14
+      },
+      "facing_direction": "right",
+      "energy": {
+        "current": 430,
+        "max": 440
+      },
+      "health": {
+        "current": 165,
+        "max": 165
+      },
+      "gold": 936568,
+      "equipped_item": {
+        "name": "银河剑",
+        "type": "weapon",
+        "item_id": "(W)4",
+        "water_level": null,
+        "water_capacity": null
+      },
+      "current_tool_index": 0,
+      "skills": {
+        "farming": 10,
+        "mining": 10,
+        "foraging": 10,
+        "fishing": 7,
+        "combat": 10
+      },
+      "status_effects": {
+        "is_exhausted": false,
+        "is_swimming": false,
+        "is_riding_horse": false,
+        "can_move": true
+      }
+    },
+    "inventory": {
+      "slots_used": 9,
+      "slots_total": 36,
+      "items": [
+        {
+          "slot": 0,
+          "name": "银河剑",
+          "item_id": "(W)4",
+          "stack": 1,
+          "quality": 0,
+          "type": "weapon",
+          "quality_name": null
+        },
+        {
+          "slot": 1,
+          "name": "铱十字镐",
+          "item_id": "(T)IridiumPickaxe",
+          "stack": 1,
+          "quality": 0,
+          "type": "tool",
+          "quality_name": null
+        },
+        {
+          "slot": 2,
+          "name": "矮人锤",
+          "item_id": "(W)55",
+          "stack": 1,
+          "quality": 0,
+          "type": "weapon",
+          "quality_name": null
+        },
+        {
+          "slot": 3,
+          "name": "铱斧头",
+          "item_id": "(T)IridiumAxe",
+          "stack": 1,
+          "quality": 0,
+          "type": "tool",
+          "quality_name": null
+        },
+        {
+          "slot": 4,
+          "name": "铱锄头",
+          "item_id": "(T)IridiumHoe",
+          "stack": 1,
+          "quality": 0,
+          "type": "tool",
+          "quality_name": null
+        },
+        {
+          "slot": 5,
+          "name": "铱喷壶",
+          "item_id": "(T)IridiumWateringCan",
+          "stack": 1,
+          "quality": 0,
+          "type": "tool",
+          "quality_name": null
+        },
+        {
+          "slot": 6,
+          "name": "铱金鱼竿",
+          "item_id": "(T)IridiumRod",
+          "stack": 1,
+          "quality": 0,
+          "type": "tool",
+          "quality_name": null
+        },
+        {
+          "slot": 7,
+          "name": "翡翠",
+          "item_id": "(O)70",
+          "stack": 14,
+          "quality": 0,
+          "type": "object",
+          "quality_name": null
+        },
+        {
+          "slot": 8,
+          "name": "沙鱼",
+          "item_id": "(O)164",
+          "stack": 2,
+          "quality": 0,
+          "type": "object",
+          "quality_name": null
+        }
+      ]
+    },
+    "farm_summary": {
+      "crops": {
+        "total_planted": 0,
+        "unwatered_count": 0,
+        "harvestable_count": 0,
+        "empty_tilled_tiles": 1
+      },
+      "animals": {
+        "total": 0,
+        "unpetted": 0,
+        "product_ready": 0
+      },
+      "machines": {
+        "ready_to_collect": 229,
+        "processing": 15,
+        "empty": 129
+      }
+    },
+    "surroundings": {
+      "radius": 8,
+      "objects": [
+        {
+          "tile": {
+            "x": 76,
+            "y": 12
+          },
+          "name": "珍奇乌鸦",
+          "type": "(BC)110"
+        },
+        {
+          "tile": {
+            "x": 75,
+            "y": 12
+          },
+          "name": "珍奇乌鸦",
+          "type": "(BC)113"
+        },
+        {
+          "tile": {
+            "x": 74,
+            "y": 12
+          },
+          "name": "珍奇乌鸦",
+          "type": "(BC)126"
+        },
+        {
+          "tile": {
+            "x": 73,
+            "y": 12
+          },
+          "name": "珍奇乌鸦",
+          "type": "(BC)136"
+        },
+        {
+          "tile": {
+            "x": 74,
+            "y": 19
+          },
+          "name": "迷你点唱机",
+          "type": "(BC)209"
+        },
+        {
+          "tile": {
+            "x": 73,
+            "y": 19
+          },
+          "name": "长笛块",
+          "type": "(O)464"
+        },
+        {
+          "tile": {
+            "x": 70,
+            "y": 16
+          },
+          "name": "宝箱",
+          "type": "(BC)130"
+        },
+        {
+          "tile": {
+            "x": 75,
+            "y": 11
+          },
+          "name": "珍奇乌鸦",
+          "type": "(BC)139"
+        },
+        {
+          "tile": {
+            "x": 76,
+            "y": 11
+          },
+          "name": "珍奇乌鸦",
+          "type": "(BC)140"
+        },
+        {
+          "tile": {
+            "x": 72,
+            "y": 19
+          },
+          "name": "鼓块",
+          "type": "(O)463"
+        },
+        {
+          "tile": {
+            "x": 75,
+            "y": 19
+          },
+          "name": "宝箱",
+          "type": "(BC)130"
+        },
+        {
+          "tile": {
+            "x": 74,
+            "y": 11
+          },
+          "name": "珍奇乌鸦",
+          "type": "(BC)138"
+        },
+        {
+          "truncated": 2
+        }
+      ],
+      "crops": [],
+      "npcs": [
+        {
+          "name": "Grover",
+          "tile": {
+            "x": 74,
+            "y": 16
+          },
+          "hearts": 0,
+          "distance": 5.3851647
+        },
+        {
+          "name": "Kim",
+          "tile": {
+            "x": 51,
+            "y": 9
+          },
+          "hearts": 0,
+          "distance": 18.681541
+        }
+      ],
+      "terrain": []
+    }
+  }
+}

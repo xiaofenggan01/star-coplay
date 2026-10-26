@@ -1,0 +1,30 @@
+id: stardew.advanced.observe
+version: 1.0.0
+description: Inspect a compact current view or one requested fact category
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    detail:
+      type: string
+      enum: [crops, animals, npcs, containers, inventory, objects, exits]
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed, partial, failed]}
+    summary: {type: string, maxLength: 2000}
+    data_json: {type: string, maxLength: 5000}
+    truncated: {type: boolean}
+  required: [status, summary, data_json, truncated]
+  additionalProperties: false
+requires:
+  capabilities:
+    - {id: observe_current_view, version: ">=2.4.5,<3.0.0"}
+    - {id: query_world_region, version: ">=2.4.5,<3.0.0"}
+risk: []
+timeout_seconds: 30
+cancellable: false
+retry: never
+failure_codes: [capability_failed, timeout, cancelled]

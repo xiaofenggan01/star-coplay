@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-say-invalid-empty",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "say",
+  "say": {
+    "content": ""
+  }
+}

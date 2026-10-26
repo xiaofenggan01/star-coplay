@@ -1,0 +1,43 @@
+id: stardew.advanced.go_shopping
+version: 1.0.0
+description: Travel to a supported shop and buy a concrete item list
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    shop:
+      type: string
+      enum: [SeedShop, FishShop, Saloon, Blacksmith, AnimalShop, Carpenter, Hospital, JojaMart]
+    items:
+      type: array
+      minItems: 1
+      maxItems: 20
+      items:
+        type: object
+        properties:
+          item: {type: string, minLength: 1, maxLength: 120}
+          qty: {type: integer, minimum: 1, maximum: 999}
+        required: [item, qty]
+        additionalProperties: false
+  required: [shop, items]
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed, partial, failed]}
+    summary: {type: string, maxLength: 2000}
+    data_json: {type: string, maxLength: 5000}
+    truncated: {type: boolean}
+  required: [status, summary, data_json, truncated]
+  additionalProperties: false
+requires:
+  capabilities:
+    - {id: go_to, version: ">=2.4.5,<3.0.0"}
+    - {id: buy_items, version: ">=2.4.5,<3.0.0"}
+risk: [changes_save, spends_money]
+timeout_seconds: 180
+cancellable: true
+retry: never
+failure_codes: [capability_failed, timeout, cancelled]
+execution_mode: background

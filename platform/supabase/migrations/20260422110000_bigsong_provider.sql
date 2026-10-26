@@ -1,0 +1,3 @@
+-- Legacy direct LLM provider seed removed.
+-- Kept as a no-op tombstone so already-applied Supabase migration history
+-- continues to match local migration versions.

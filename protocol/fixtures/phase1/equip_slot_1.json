@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-equip-slot-1",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "equip",
+  "equip": {
+    "slot": 1
+  }
+}

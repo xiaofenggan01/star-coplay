@@ -1,0 +1,13 @@
+{
+  "commandId": "fixture-move-to-ok-edge-warp",
+  "timeoutMs": 30000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "move_to",
+  "moveTo": {
+    "mode": "MOVE_TO_EDGE_WARP",
+    "x": 65,
+    "y": 0,
+    "direction": "DIRECTION_UP",
+    "timeoutFrames": 1800
+  }
+}

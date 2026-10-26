@@ -1,0 +1,13 @@
+{
+  "commandId": "fixture-go-to-farm-64-15",
+  "timeoutMs": 60000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "go_to",
+  "goTo": {
+    "mapId": "Farm",
+    "x": 64,
+    "y": 15,
+    "arrivalMode": "ARRIVAL_EXACT",
+    "timeoutFrames": 3600
+  }
+}

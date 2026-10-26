@@ -1,0 +1,11 @@
+{
+  "commandId": "fixture-move-to-invalid-mode",
+  "timeoutMs": 30000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "move_to",
+  "moveTo": {
+    "mode": "MOVE_TO_MODE_UNSPECIFIED",
+    "x": 65,
+    "y": 15
+  }
+}

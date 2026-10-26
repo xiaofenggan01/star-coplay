@@ -1,0 +1,113 @@
+<!-- ============ 邮件 HTML 开始（② 邀请加入） ============ -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fdf6e3;font-family:'Courier New',Courier,'PingFang SC','Microsoft YaHei',sans-serif;color:#6b4226;">
+  <tr>
+    <td align="center" style="padding:0;">
+
+      <!-- Hero Banner（紫粉黄昏渐变） -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#b8a9c9;background:linear-gradient(180deg,#7b68ae 0%,#b8a9c9 35%,#e8a0bf 75%,#f4c58e 100%);">
+        <tr>
+          <td align="center" style="padding:32px 20px 24px 20px;">
+            <img src="https://star-coplay.luosea.cn/logo-new.png" alt="Star CoPlay" width="220" height="auto" style="display:block;max-width:80%;height:auto;border:0;outline:none;text-decoration:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+            <p style="margin:14px 0 0 0;font-family:'Courier New',monospace;font-size:13px;color:#ffffff;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,0.3);">星 露 谷 中 永 远 在 线 的 搭 子</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Parchment Card -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td style="padding:24px 24px 0 24px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5e6c8;background:linear-gradient(135deg,#f5e6c8 0%,#eed9a4 50%,#e8cc8c 100%);border:3px solid #8b6914;border-radius:12px;">
+              <tr>
+                <td align="center" style="padding:32px 28px 8px 28px;">
+                  <img src="https://star-coplay.luosea.cn/assets/icons/Achievements_Icon.png" alt="" width="56" height="56" style="display:block;border:0;outline:none;image-rendering:pixelated;">
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:0 28px 8px 28px;">
+                  <h1 style="margin:0;font-family:'Courier New',monospace;font-size:20px;line-height:1.4;color:#5a3e0a;letter-spacing:1px;">你被邀请加入<br>StarCoPlay 内测</h1>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:12px 28px 16px 28px;">
+                  <p style="margin:0;font-size:14px;line-height:1.8;color:#6b4226;">
+                    嗨 <strong style="color:#5a3e0a;">{{ .Email }}</strong>，<br>
+                    经过审核，你已获得 <strong style="color:#7b68ae;">早鸟内测席位</strong>。<br>
+                    一个永不掉线的 AI 搭子在星露谷等你 ——<br>陪你种田、探矿、过节。
+                  </p>
+                </td>
+              </tr>
+
+              <!-- 稀缺性提示条 -->
+              <tr>
+                <td style="padding:0 28px 16px 28px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#7b68ae;border-radius:6px;">
+                    <tr>
+                      <td align="center" style="padding:8px 12px;">
+                        <p style="margin:0;font-family:'Courier New',monospace;font-size:11px;color:#ffd700;letter-spacing:1px;">★ LIMITED · 限定席位 · LIMITED ★</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- CTA Button -->
+              <tr>
+                <td align="center" style="padding:4px 28px 24px 28px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td align="center" bgcolor="#8b6914" style="border-radius:8px;background:#8b6914;background:linear-gradient(180deg,#c4a35a 0%,#8b6914 100%);border:3px solid #5a3e0a;box-shadow:0 3px 0 #5a3e0a;">
+                        <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 36px;min-height:24px;font-family:'Courier New',monospace;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;letter-spacing:1px;text-shadow:1px 1px 2px rgba(0,0,0,0.5);">✦ 接 受 邀 请 ✦</a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- Fallback -->
+              <tr>
+                <td style="padding:0 28px 24px 28px;">
+                  <p style="margin:0 0 6px 0;font-size:12px;color:#8b6914;">如按钮无法点击，请复制以下链接：</p>
+                  <p style="margin:0;font-size:12px;line-height:1.6;color:#4a90d9;word-break:break-all;background:#fff;border:1px dashed #c4a35a;padding:8px 10px;border-radius:6px;">{{ .ConfirmationURL }}</p>
+                </td>
+              </tr>
+
+              <!-- 福利 box -->
+              <tr>
+                <td style="padding:0 28px 28px 28px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf6e3;border:2px solid #c4a35a;border-radius:8px;">
+                    <tr>
+                      <td style="padding:12px 14px;">
+                        <p style="margin:0 0 6px 0;font-size:12px;line-height:1.7;color:#6b4226;"><strong style="color:#7ab648;">内测福利：</strong></p>
+                        <p style="margin:0;font-size:12px;line-height:1.7;color:#6b4226;">
+                          • 优先体验全部 Mod 与平台功能<br>
+                          • 直连开发者反馈通道<br>
+                          • 正式版上线后保留早鸟身份标识
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Footer -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td align="center" style="padding:24px 24px 32px 24px;">
+            <p style="margin:0 0 6px 0;font-family:'Courier New',monospace;font-size:11px;color:#8b6914;letter-spacing:0.5px;">— Star CoPlay · AI Co-Player for Stardew Valley —</p>
+            <p style="margin:0 0 6px 0;font-size:11px;color:#8b6914;">本邮件由系统自动发送，请勿直接回复。</p>
+            <p style="margin:0;font-size:10px;color:#c4a35a;">Powered by Star CoPlay · {{ .SiteURL }}</p>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+<!-- ============ 邮件 HTML 结束（② 邀请加入） ============ -->
+
+      </div>

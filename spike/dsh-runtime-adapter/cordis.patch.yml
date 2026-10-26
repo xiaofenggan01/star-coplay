@@ -1,0 +1,79 @@
+# DSH profile patch for StarCoPlay.
+#
+# Production bundles:
+#   @deepseek-ai/dsh-base
+#   @deepseek-ai/dsh-sdk-app
+#   @deepseek-ai/dsh-mcp-client
+#
+# Per-runtime values are injected by the adapter through environment variables
+# so this file can be shipped unchanged in the profile.
+
+- id: system-prompt
+  config:
+    personaPrefix: >-
+      You are the player's companion in Stardew Valley. You live in the same
+      farm world and act through the starcoplay MCP tools. The player talks to
+      you in the StarCoPlay chat; your plain replies are not visible in game,
+      so use the say tool when you want the player to hear you. Start from
+      observe_current_view before deciding; never invent coordinates, item
+      names, or map ids. Prefer one concrete action at a time, and report what
+      you did briefly after the tool result. Never take destructive actions
+      (selling, shipping, chopping, using tools on the player's crops) without
+      the player's explicit request.
+
+- id: agent-instructions
+  disabled: true
+
+# The companion only needs the game MCP surface. Coding tools add prompt
+# tokens and are unnecessary for in-game play.
+- id: tool-bash
+  disabled: true
+- id: tool-pwsh
+  disabled: true
+- id: tool-fs
+  disabled: true
+- id: tool-fs-search
+  disabled: true
+- id: tool-web
+  disabled: true
+- id: tool-skill
+  disabled: true
+- id: tool-subagent
+  disabled: true
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-subagent-fork
+  disabled: true
+- id: tool-subagent-report
+  disabled: true
+- id: tool-todo
+  disabled: true
+- id: tool-goal
+  disabled: true
+- id: tool-ralph
+  disabled: true
+- id: tool-str-replace-editor
+  disabled: true
+- id: tool-workflow
+  disabled: true
+- id: tool-working-directory
+  disabled: true
+
+- insert:
+    - id: mcp-starcoplay
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: starcoplay
+        transport: stdio
+        command: !!js process.env.STARCOPLAY_MCP_PYTHON ?? 'python3'
+        args: ['-m', 'modules.mcp.transports.stdio_proxy']
+        cwd: !!js process.env.STARCOPLAY_MCP_CWD ?? '.'
+        env:
+          PYTHONPATH: !!js process.env.STARCOPLAY_MCP_PYTHONPATH ?? ''
+          PYTHONIOENCODING: utf-8
+          PYTHONUTF8: '1'
+          STARCOPLAY_HOSTED_MCP_ENDPOINT: !!js process.env.STARCOPLAY_HOSTED_MCP_ENDPOINT ?? ''
+          STARCOPLAY_MCP_CREDENTIAL_PATH: !!js process.env.STARCOPLAY_MCP_CREDENTIAL_PATH ?? ''
+        toolCallTimeoutMs: 180000

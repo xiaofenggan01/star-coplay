@@ -1,0 +1,7 @@
+{
+  "commandId": "fixture-interact-invalid-missing-target",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "interact",
+  "interact": {}
+}

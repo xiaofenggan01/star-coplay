@@ -1,0 +1,38 @@
+id: stardew.navigation.go_to_place
+version: 1.0.0
+description: Resolve any Stardew map name or natural place alias and walk there as one cancellable background job. Runtime map data chooses safe coordinates for general places and modded maps. This never teleports; prefer it over guessed coordinates or chained move_to calls.
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    place:
+      type: string
+      minLength: 1
+      maxLength: 120
+      description: A runtime map id, unique in-game display name, or natural alias, for example Greenhouse, 温室, 商店, or 城镇.
+    arrival:
+      type: string
+      enum: [auto, counter, safe_point]
+      description: Optional preference. Known shops use their counter; other maps use the runtime safe point.
+  required: [place]
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed]}
+    place_id: {type: string, minLength: 1, maxLength: 120}
+    map_id: {type: string, minLength: 1, maxLength: 120}
+    arrival: {type: string, enum: [counter, safe_point]}
+    observation: {type: string, maxLength: 2000}
+  required: [status, place_id, map_id, arrival, observation]
+  additionalProperties: false
+requires:
+  capabilities:
+    - {id: go_to, version: ">=2.4.5,<3.0.0"}
+risk: []
+timeout_seconds: 180
+cancellable: true
+retry: never
+failure_codes: [unknown_place, capability_failed, timeout, cancelled]
+execution_mode: background

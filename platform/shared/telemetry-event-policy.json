@@ -1,0 +1,6 @@
+{
+  "dropped_event_types": ["ai.llm_call", "ai.error", "ai.action"],
+  "dropped_event_prefixes": ["error."],
+  "persisted_examples": ["player.message", "session.heartbeat", "session.end", "user_report"],
+  "dropped_examples": ["ai.llm_call", "ai.error", "ai.action", "error.traceback", "error.runtime"]
+}

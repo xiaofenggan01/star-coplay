@@ -1,0 +1,97 @@
+<!-- ============ 邮件 HTML 开始（① 注册激活） ============ -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fdf6e3;font-family:'Courier New',Courier,'PingFang SC','Microsoft YaHei',sans-serif;color:#6b4226;">
+  <tr>
+    <td align="center" style="padding:0;">
+
+      <!-- Hero Banner（金色渐变） -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffd700;background:linear-gradient(180deg,#f7d794 0%,#ffd700 60%,#c4a35a 100%);">
+        <tr>
+          <td align="center" style="padding:32px 20px 24px 20px;">
+            <img src="https://star-coplay.luosea.cn/logo-new.png" alt="Star CoPlay" width="220" height="auto" style="display:block;max-width:80%;height:auto;border:0;outline:none;text-decoration:none;filter:drop-shadow(0 2px 4px rgba(90,62,10,0.3));">
+            <p style="margin:14px 0 0 0;font-family:'Courier New',monospace;font-size:13px;color:#5a3e0a;letter-spacing:1px;text-shadow:0 1px 0 rgba(255,255,255,0.4);">星 露 谷 中 永 远 在 线 的 搭 子</p>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Parchment Card -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td style="padding:24px 24px 0 24px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5e6c8;background:linear-gradient(135deg,#f5e6c8 0%,#eed9a4 50%,#e8cc8c 100%);border:3px solid #8b6914;border-radius:12px;">
+              <tr>
+                <td align="center" style="padding:32px 28px 8px 28px;">
+                  <!-- Junimo Icon -->
+                  <img src="https://star-coplay.luosea.cn/assets/icons/Junimo_Icon.png" alt="" width="56" height="56" style="display:block;border:0;outline:none;image-rendering:pixelated;">
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:0 28px 8px 28px;">
+                  <h1 style="margin:0;font-family:'Courier New',monospace;font-size:22px;line-height:1.4;color:#5a3e0a;letter-spacing:1px;">欢迎加入 StarCoPlay</h1>
+                </td>
+              </tr>
+              <tr>
+                <td align="center" style="padding:8px 28px 20px 28px;">
+                  <p style="margin:0;font-size:14px;line-height:1.8;color:#6b4226;">
+                    你好 <strong style="color:#5a3e0a;">{{ .Email }}</strong>，<br>
+                    很高兴你来到星露谷。请点击下方按钮激活账号，<br>开启与 AI 搭子的种田之旅。
+                  </p>
+                </td>
+              </tr>
+
+              <!-- CTA Button (Bulletproof) -->
+              <tr>
+                <td align="center" style="padding:8px 28px 24px 28px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td align="center" bgcolor="#8b6914" style="border-radius:8px;background:#8b6914;background:linear-gradient(180deg,#c4a35a 0%,#8b6914 100%);border:3px solid #5a3e0a;box-shadow:0 3px 0 #5a3e0a;">
+                        <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 36px;min-height:24px;font-family:'Courier New',monospace;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;letter-spacing:1px;text-shadow:1px 1px 2px rgba(0,0,0,0.5);">✦ 激 活 账 号 ✦</a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <!-- Fallback URL -->
+              <tr>
+                <td style="padding:0 28px 24px 28px;">
+                  <p style="margin:0 0 6px 0;font-size:12px;color:#8b6914;">如按钮无法点击，请复制以下链接到浏览器：</p>
+                  <p style="margin:0;font-size:12px;line-height:1.6;color:#4a90d9;word-break:break-all;background:#fff;border:1px dashed #c4a35a;padding:8px 10px;border-radius:6px;">{{ .ConfirmationURL }}</p>
+                </td>
+              </tr>
+
+              <!-- Tip box -->
+              <tr>
+                <td style="padding:0 28px 28px 28px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf6e3;border:2px solid #c4a35a;border-radius:8px;">
+                    <tr>
+                      <td style="padding:12px 14px;">
+                        <p style="margin:0;font-size:12px;line-height:1.7;color:#6b4226;">
+                          <strong style="color:#7ab648;">小提示：</strong>该链接 24 小时内有效。如非本人注册，请忽略此邮件。
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <!-- Footer -->
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+        <tr>
+          <td align="center" style="padding:24px 24px 32px 24px;">
+            <p style="margin:0 0 6px 0;font-family:'Courier New',monospace;font-size:11px;color:#8b6914;letter-spacing:0.5px;">— Star CoPlay · AI Co-Player for Stardew Valley —</p>
+            <p style="margin:0 0 6px 0;font-size:11px;color:#8b6914;">本邮件由系统自动发送，请勿直接回复。</p>
+            <p style="margin:0;font-size:10px;color:#c4a35a;">Powered by Star CoPlay · {{ .SiteURL }}</p>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+<!-- ============ 邮件 HTML 结束（① 注册激活） ============ -->
+
+      </div>

@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "platform:dev": "npm run dev --prefix platform"
+  },
+  "devDependencies": {
+    "supabase": "^2.84.6"
+  }
+}

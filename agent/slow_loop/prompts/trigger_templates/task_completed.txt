@@ -1,0 +1,7 @@
+【当前触发：任务完成】
+已完成：{task_id}
+执行结果：{result_summary}
+观察：{observations}
+
+请决定下一步行动，通过工具调用来执行。
+如果结果值得和{player_name}分享，调用 say 工具说一句。

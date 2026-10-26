@@ -1,0 +1,5 @@
+【当前触发：发生了重要事情】
+事件类型：{event_type}
+事件内容：{event_description}
+
+请决定如何响应：可以调用 say 工具对{player_name}说话、调用游戏工具执行动作，或两者都做。

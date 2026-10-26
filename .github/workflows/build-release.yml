@@ -1,0 +1,93 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version override (e.g. 2.4.5)'
+        required: false
+
+jobs:
+  # ── Mod 编译（.NET，跨平台 DLL）────────────────────────────────────
+  build-mod:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout game reference assemblies
+        run: |
+          git clone --depth 1 https://github.com/StardewModders/mod-reference-assemblies.git "$HOME/StardewValley"
+
+      - name: Build Mod
+        shell: bash
+        run: |
+          cd mod/StarCoPlay
+          dotnet build -c Release \
+            -p:GamePath="$HOME/StardewValley" \
+            -p:EnableModDeploy=false \
+            -p:EnableModZip=false
+
+      - name: Package Mod
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          MOD_DIR="dist/StarCoPlay"
+          BUILD_OUT="mod/StarCoPlay/bin/Release/net6.0"
+          mkdir -p "$MOD_DIR"
+          # 第三方依赖须与 StarCoPlay.dll 一并分发（Newtonsoft.Json、Google.Protobuf 等）
+          cp "$BUILD_OUT"/*.dll "$MOD_DIR/"
+          cp "$BUILD_OUT"/*.pdb "$MOD_DIR/" 2>/dev/null || true
+          cp mod/StarCoPlay/manifest.json "$MOD_DIR/"
+          sed -i "s/\"Version\": \"[^\"]*\"/\"Version\": \"${VERSION}\"/" "$MOD_DIR/manifest.json"
+          cp -r mod/StarCoPlay/i18n "$MOD_DIR/"
+          cd dist
+          zip -r "StarCoPlay-Mod-v${VERSION}.zip" StarCoPlay/
+          unzip -l "StarCoPlay-Mod-v${VERSION}.zip" | grep -q 'StarCoPlay/Newtonsoft.Json.dll'
+          unzip -l "StarCoPlay-Mod-v${VERSION}.zip" | grep -q 'StarCoPlay/Google.Protobuf.dll'
+
+      - name: Upload Mod artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StarCoPlay-Mod-v${{ steps.version.outputs.version }}
+          path: dist/StarCoPlay-Mod-v${{ steps.version.outputs.version }}.zip
+
+  # ── Release（发布 Mod 产物）────────────────────────────────────────
+  release:
+    needs: [build-mod]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*.zip
+          generate_release_notes: true
+          draft: false

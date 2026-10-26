@@ -1,0 +1,125 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+*.sln.docstates
+
+# C# / .NET (Mod)
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+*.nupkg
+packages/
+
+# Node.js (Landing / Agent)
+node_modules/
+dist/
+.next/
+.nuxt/
+.output/
+
+# Python (Agent)
+agent/memory/store_history/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build artifacts
+build/
+release/
+*.zip
+
+# 虚拟环境与依赖
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ECS 本机部署脚本运行时（PID、日志）
+.runtime/
+.local/
+
+# 运行时数据（统一存放在 data/ 下）
+data/logs/
+data/llm/
+data/bug_reports/
+data/telemetry/
+
+# 旧目录（已迁移到 data/）
+workspace/
+data/
+agent/data
+
+# 旧日志位置（迁移前遗留）
+agent.log
+llm_responses.jsonl
+*.pid
+
+# FileBridge 运行时产物（R1 清理后防再提交）
+commands.jsonl
+**/commands.jsonl
+mod/bridge/
+
+# Local upstream NewAPI checkout used while adapting deploy config.
+# Commit star-coplay-owned deploy files under deploy/newapi instead.
+/new-api/
+
+/package-lock.json
+v2/Miniconda3-latest-Linux-x86_64.sh
+
+# 本地 AI 工具产物（skills/agents 运行时文件，不入仓库）
+.agents/
+.claude/
+skills-lock.json
+
+# Codex-Claude Driver 本地会话状态（正式证据另存 spike/**/evidence/）
+.driver/
+DRIVER.md
+DRIVER_STATE.json
+.gstack/
+
+# 本地 .NET / NuGet 缓存
+.dotnet-home/
+.nuget-packages/
+
+# 迁移前的上游 git 历史备份（仅本地保留）
+.git.upstream/
+
+# 安装包备份（仅本地保留）
+backup/
+
+# 本地工具状态
+.libtv/
+.pnpm-store/

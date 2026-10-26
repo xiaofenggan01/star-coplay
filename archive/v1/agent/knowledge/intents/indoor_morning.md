@@ -1,0 +1,3 @@
+在室内（FarmHouse等）时无法获取农场作物状态。
+白天应优先使用navigate_to出门到Farm，然后根据实际farm_summary决定浇水或收获。
+不要在室内反复query或idle，室内surroundings不包含农田数据。

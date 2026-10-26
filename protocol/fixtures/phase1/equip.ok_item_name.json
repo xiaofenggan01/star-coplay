@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-equip-ok-item-name",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "equip",
+  "equip": {
+    "itemName": "Axe"
+  }
+}

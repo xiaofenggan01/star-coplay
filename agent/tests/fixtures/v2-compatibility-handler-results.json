@@ -1,0 +1,9 @@
+{
+  "say": {"arguments": {"message": "hello"}, "source_data": {"message": "hello"}},
+  "emote": {"arguments": {"emote_type": "happy"}, "source_data": {"emote": "happy"}},
+  "face": {"arguments": {"direction": "up"}, "source_data": {"intent": "face(0)"}},
+  "interact": {"arguments": {"x": 1, "y": 2}, "source_data": {"intent": "interact"}},
+  "open_menu": {"arguments": {}, "source_data": {"intent": "open_menu"}},
+  "menu_click": {"arguments": {"component_id": 1, "component_source": "page"}, "source_data": {"intent": "menu_click(page:1)"}},
+  "menu_close": {"arguments": {}, "source_data": {"already_closed": true}}
+}

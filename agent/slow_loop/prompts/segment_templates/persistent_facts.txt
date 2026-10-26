@@ -1,0 +1,12 @@
+【关于{player_name}】
+- 偏好：{likes}
+- 习惯：{habits}
+- 不喜欢：{dislikes}
+
+【我们的关系】
+关系阶段：{stage}（在一起 {days_together} 天）
+我对他的印象：{my_impression}
+一起经历过的高光：{shared_highlights}
+未解决的事：{unresolved}
+
+{world_section}

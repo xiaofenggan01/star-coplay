@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableModDeploy>false</EnableModDeploy>
+    <EnableModZip>false</EnableModZip>
+    <!--
+      注意：StarCoPlay 依赖 Pathoschild.Stardew.ModBuildConfig，
+      该包会拉取 SMAPI + XNA stubs，只有在装有 SDV + SMAPI 的机器上才能正常编译。
+      在没有 SDV 的容器内，此测试项目将无法直接 dotnet build / dotnet test。
+      推荐在 Mac 本地（已安装 SDV + SMAPI）运行，或配置 NuGet 本地 feed。
+      详见 summary：/workspace/group/handoff/2026-05-03-goto-W6.1-unittest-summary.md
+    -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.4.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 引用被测主项目 -->
+    <ProjectReference Include="..\StarCoPlay\StarCoPlay.csproj">
+      <AdditionalProperties>EnableModDeploy=false;EnableModZip=false</AdditionalProperties>
+    </ProjectReference>
+  </ItemGroup>
+
+</Project>

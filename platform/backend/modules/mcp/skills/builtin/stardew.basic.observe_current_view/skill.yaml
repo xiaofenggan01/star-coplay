@@ -1,0 +1,37 @@
+id: stardew.basic.observe_current_view
+version: 1.0.0
+description: Builtin observe current view
+game: stardew-valley
+entrypoint: implementation:run
+input_schema: {type: object, additionalProperties: false}
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed]}
+    observations:
+      type: object
+      properties:
+        runtime: {type: string}
+        inventory: {type: string}
+        ui: {type: string}
+        world: {type: string}
+        inspected_refs: {type: string}
+      required: [runtime, inventory, ui, world, inspected_refs]
+      additionalProperties: false
+  required: [status, observations]
+  additionalProperties: false
+requires:
+  capabilities:
+    - id: query_runtime_snapshot
+      version: ">=2.4.5,<3.0.0"
+    - id: query_inventory_snapshot
+      version: ">=2.4.5,<3.0.0"
+    - id: query_ui_snapshot
+      version: ">=2.4.5,<3.0.0"
+    - id: query_world_region
+      version: ">=2.4.5,<3.0.0"
+risk: []
+timeout_seconds: 120
+cancellable: true
+retry: never
+failure_codes: [capability_failed, timeout, cancelled]

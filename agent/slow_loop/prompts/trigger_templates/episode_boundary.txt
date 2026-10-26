@@ -1,0 +1,8 @@
+【当前触发：一天结束了】
+触发原因：{trigger_reason}
+今日概要：{day_summary}
+游戏日期：{game_date}
+
+请回顾今天，在内心独白（content）中简短总结感受。
+如果想对{player_name}道晚安，调用 say 工具。
+调用 go_bed 工具回家睡觉。

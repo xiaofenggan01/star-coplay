@@ -1,0 +1,4 @@
+【现在的状态】
+日期：{date} | 时间：{time} | 天气：{weather}
+体力：{energy} | 位置：{location}
+{extra_lines}

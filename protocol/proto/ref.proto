@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+import "common.proto";
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// RefId 是协议层对具体实体的可重新解析引用。
+//
+// 表层字符串格式：
+//   ref_type:type:locator#identity_guard
+//
+// 结构分隔符只允许 ':' 和 '#'。所有 segment 必须是 safe token。
+message RefId {
+  // @required 原始 RefId 字符串，例如 "world_entity:tree:farm:41:12#wt_1"。
+  string value = 1;
+
+  // 以下字段是可选的解析缓存。请求方可以只填 value；Mod 侧仍以 value 为准重新 parse。
+  string ref_type = 2;                 // world_entity / character / inventory / ui_element / quest
+  string type = 3;                     // tree / npc / item / option ...
+  repeated string locator_segments = 4; // 已按 ':' 拆分的 locator segment
+  string identity_guard = 5;           // '#' 右侧 safe token
+}
+
+// RefId 解析/定位结果状态。
+enum RefResolveStatus {
+  REF_RESOLVE_STATUS_UNSPECIFIED = 0;
+  REF_RESOLVED = 1;                  // locator 找到候选实体，type 与 identity_guard 均匹配
+  REF_RESOLVED_DEGRADED = 2;         // 同一生命周期链上的退化状态，例如树变 stump
+  REF_MISSING = 3;                   // locator 指向的位置、slot 或记录不存在
+  REF_STALE_TYPE_MISMATCH = 4;       // locator 找到实体，但 type 不匹配
+  REF_STALE_GUARD_MISMATCH = 5;      // type 匹配，但 identity_guard 不匹配
+  REF_STALE_CONTEXT_MISMATCH = 6;    // UI/menu 等短生命周期上下文已切换
+  REF_AMBIGUOUS = 7;                 // locator 或 token 映射无法唯一解析
+  REF_UNSUPPORTED = 8;               // 格式合法，但当前实现不支持该 ref_type/type
+  REF_MALFORMED_REF = 9;             // Ref 字符串不符合协议语法
+}
+
+// RefId 解析/定位 envelope。成功时 fact 由 query_facts.proto 的 typed fact 承载。
+message RefResolution {
+  RefId ref = 1;
+  RefResolveStatus status = 2;
+  string ref_type = 3;
+  string type = 4;
+  string fact_kind = 5;
+  string summary = 6;
+  string debug_reason = 7;
+  Error error = 8;
+  repeated StringPair debug = 20;
+}

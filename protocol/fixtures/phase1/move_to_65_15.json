@@ -1,0 +1,12 @@
+{
+  "commandId": "fixture-move-to-65-15",
+  "timeoutMs": 30000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "move_to",
+  "moveTo": {
+    "mode": "MOVE_TO_EXACT",
+    "x": 65,
+    "y": 15,
+    "timeoutFrames": 1800
+  }
+}

@@ -1,0 +1,204 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+import "common.proto";
+import "capability_params.proto";
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// 各能力的执行结果定义。
+// 每个 Result 对应一个 Params，通过 CommandResult.oneof data 返回。
+
+// ============================================================
+// 社交/表达
+// ============================================================
+
+// say 执行结果。
+message SayResult {
+  int32 content_length = 1;  // 实际发送的文本长度
+}
+
+// emote 执行结果。
+message EmoteResult {
+  EmoteType emote_type = 1;  // 实际触发的表情类型
+}
+
+// face 执行结果。
+message FaceResult {
+  Direction final_direction = 1;  // 执行后的实际朝向
+  bool already_facing = 2;        // 是否执行前已面朝该方向（无需操作）
+}
+
+// ============================================================
+// 移动/导航
+// ============================================================
+
+// move_to 执行结果（L1 同地图移动）。
+message MoveToResult {
+  MoveToMode mode = 1;                       // 使用的移动模式
+  LocationSnapshot start = 2;                // 移动前位置快照
+  int32 target_x = 3;                        // 请求的目标 X
+  int32 target_y = 4;                        // 请求的目标 Y
+  int32 resolved_destination_x = 5;          // 实际解析的目的地 X（adjacent 模式可能与 target 不同）
+  int32 resolved_destination_y = 6;          // 实际解析的目的地 Y
+  LocationSnapshot final = 7;                // 移动后位置快照
+  Direction requested_direction = 8;         // 请求的 warp 方向（edge_warp 模式）
+  Direction requested_face_direction = 9;    // 请求的到达后朝向（exact 模式）
+  Direction stand_side = 10;                 // 请求的站位侧（adjacent 模式）
+  bool reached_destination = 11;             // 是否成功到达目的地
+  bool warp_triggered = 12;                  // 是否触发了地图 warp
+  ExecutionTiming timing = 13;               // 执行计时
+}
+
+// go_to 执行结果（L2 跨地图移动）。
+message GoToResult {
+  LocationSnapshot start = 1;                // 出发位置快照
+  string target_map = 2;                     // 目标地图 ID
+  int32 target_x = 3;                        // 目标 tile X
+  int32 target_y = 4;                        // 目标 tile Y
+  LocationSnapshot final = 5;                // 最终位置快照
+  ArrivalMode arrival_mode = 6;              // 使用的到达模式
+  Direction stand_side = 7;                  // 请求的站位侧（adjacent 模式）
+  Direction face_direction = 8;              // 请求的到达后朝向（exact 模式）
+  repeated string route_maps = 9;            // 规划的地图路线，如 ["Farm", "BusStop", "Town"]
+  int32 steps_total = 10;                    // 路线总步数（含最终定位）
+  int32 steps_completed = 11;                // 已完成步数
+  int32 failed_step_index = 12;              // 失败的步骤索引（-1 或 0 表示无失败）
+  MoveToResult failed_step_result = 13;      // 失败步骤的详细结果（如有）
+  MoveToResult final_move_result = 14;       // 最终定位步骤的结果
+  ExecutionTiming timing = 15;               // 总执行计时
+}
+
+// go_to_bed 执行结果（L2 睡觉流程）。
+message GoToBedResult {
+  string date_before = 1;                    // 睡前日期，如 "Spring 5, Year 1"
+  string date_after = 2;                     // 醒来日期
+  int32 time_before = 3;                     // 睡前游戏时间（分钟数）
+  int32 time_after = 4;                      // 醒来游戏时间
+  LocationSnapshot location_before = 5;      // 睡前位置
+  LocationSnapshot location_after = 6;       // 醒来位置
+  ResourceDelta stamina = 7;                 // 体力变化
+  int32 money_before = 8;                    // 睡前金钱
+  int32 money_after = 9;                     // 醒来金钱（可能因出货/税收变化）
+  TilePosition bed_position = 10;            // 床的位置
+  bool used_tp = 11;                         // 是否使用了内部 tp 到床附近
+  MoveToResult move_to_bed_result = 12;      // 移动到床的结果
+  bool sleep_prompt_seen = 13;               // 是否看到了睡觉确认弹窗
+  bool sleep_confirmed = 14;                 // 是否成功确认睡觉
+  int32 post_sleep_ui_steps = 15;            // 睡后自动推进的 UI 步数
+  bool decision_required = 16;               // 是否遇到需要决策的 UI（如选职业）
+  bool day_advanced = 17;                    // 日期是否成功推进
+  bool player_can_move_after = 18;           // 醒来后玩家是否可操作
+  ExecutionTiming timing = 19;               // 总执行计时
+  string decision_kind = 20;                 // e.g. "skill_profession_choice", "unknown_menu_choice"
+  string blocking_menu_type = 21;            // e.g. "LevelUpMenu", "DialogueBox"
+  string phase = 22;                         // terminal phase e.g. "completed", "waiting_level_up_choice"
+}
+
+// interact 执行结果（按 X 交互）。
+message InteractResult {
+  TileEffectResult effect = 1;  // 交互效果（目标 tile + 体力变化 + 计时）
+}
+
+// use_tool 执行结果（按 C 使用工具）。
+message UseToolResult {
+  TileEffectResult effect = 1;   // 工具效果（目标 tile + 体力变化 + 计时）
+  string tool_name = 2;          // 执行时手持的工具名称
+  int32 charge_level = 3;        // 实际使用的蓄力等级
+}
+
+// equip 执行结果（切换手持物品）。
+message EquipResult {
+  string selected_by = 1;            // 实际采用的选择器："slot" / "item_name" / "item_category"
+  int32 slot = 2;                    // 最终装备物品所在槽位（1-based）
+  string item_name = 3;             // 物品内部名
+  string item_display_name = 4;     // 物品显示名
+  ItemCategory item_category = 5;   // 物品大类
+  string method = 6;                // 执行方式，如 "direct_api" / "keypress"
+  bool swapped = 7;                 // 是否发生了背包交换
+  int32 from_slot = 8;              // 交换前物品原槽位
+  int32 to_slot = 9;                // 交换后物品目标槽位
+  string swapped_out = 10;          // 被换出的物品名（如有交换）
+}
+
+// ============================================================
+// 菜单操作
+// ============================================================
+
+// open_menu / menu_click / menu_close 共用的结果。
+message MenuResult {
+  string action = 1;                    // 执行的动作："open" / "click" / "close"
+  MenuTransition transition = 2;        // 菜单状态转换
+  ExecutionTiming timing = 3;           // 执行计时
+  int32 component_id = 8;              // menu_click 时点击的组件 ID
+  MenuComponentSource source = 9;      // menu_click 时的组件来源
+  bool already_closed = 10;            // menu_close 时是否本来就没有菜单
+  int32 click_count = 11;              // 回显实际执行的点击次数
+}
+
+// query_menu 返回的菜单快照。
+message MenuSnapshot {
+  string menu_type = 1;                    // 当前菜单类型名（空字符串表示无菜单）
+  string active_tab = 2;                   // 当前激活的 tab 名称
+  repeated MenuComponent components = 3;   // 可交互组件列表
+  string snapshot_id = 4;                  // 快照 ID（未来可用于乐观锁校验）
+}
+
+// 菜单中的单个可交互组件。
+message MenuComponent {
+  int32 component_id = 1;          // 组件唯一 ID（myID），用于 menu_click
+  MenuComponentSource source = 2;  // 组件来源（page 内 or tab 栏）
+  string label = 3;                // 组件显示文本
+  bool visible = 4;                // 是否可见
+  bool enabled = 5;                // 是否可交互
+  string item_name = 6;            // 槽位内物品的 DisplayName（无物品时为空）
+  int32 item_stack = 7;            // 物品堆叠数量（无物品时为 0）
+  int32 price = 8;                 // 商店场景下的价格（非商店为 0）
+}
+
+// ============================================================
+// 查询
+// ============================================================
+
+// query_inventory 结果。
+message QueryInventoryResult {
+  repeated ItemStack items = 1;  // 背包物品列表
+  int32 slots_used = 2;          // 已使用槽位数
+  int32 slots_total = 3;         // 总槽位数
+}
+
+// query_location 结果。
+message QueryLocationResult {
+  LocationSnapshot location = 1;  // 当前玩家位置快照
+}
+
+// query_map_exits 结果。
+message QueryMapExitsResult {
+  repeated MapExit exits = 1;  // 当前地图的所有出口
+}
+
+// 单个地图出口信息。
+message MapExit {
+  string target_location = 1;  // 目标地图名称
+  string display_name = 2;     // 出口显示名（如 "去镇上"）
+  Direction direction = 3;     // 出口方向（相对于当前地图）
+  int32 exit_x = 4;           // 出口 tile X
+  int32 exit_y = 5;           // 出口 tile Y
+}
+
+// ============================================================
+// 内部能力
+// ============================================================
+
+// tp 执行结果（内部强制传送）。
+message TpResult {
+  TeleportReason reason = 1;         // 传送原因
+  LocationSnapshot from = 2;         // 传送前位置
+  TilePosition target = 3;          // 请求的目标位置
+  LocationSnapshot final = 4;        // 传送后实际位置
+  Direction face_direction = 5;      // 传送后朝向
+  bool authorized = 6;              // 是否通过授权校验
+  string used_by = 7;               // 调用方标识（如 "go_to_bed"、"recovery"）
+  ExecutionTiming timing = 8;        // 执行计时
+}

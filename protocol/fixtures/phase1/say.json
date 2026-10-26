@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-say-ok",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "say",
+  "say": {
+    "content": "hello from protocol replay"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-emote-invalid-unspecified",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "emote",
+  "emote": {
+    "emoteType": "EMOTE_TYPE_UNSPECIFIED"
+  }
+}

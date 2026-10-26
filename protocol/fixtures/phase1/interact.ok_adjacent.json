@@ -1,0 +1,12 @@
+{
+  "commandId": "fixture-interact-ok-adjacent",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "interact",
+  "interact": {
+    "targetTile": {
+      "x": 64,
+      "y": 16
+    }
+  }
+}

@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+import "common.proto";
+import "capability_params.proto";
+import "capability_results.proto";
+import "query.proto";
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// 命令生命周期与能力请求/结果消息。
+// 这是 Capability Contract 的核心：定义命令如何被发起、确认、执行、完成或失败。
+
+// 命令来源，标识谁发起了这条命令。
+enum CommandSource {
+  COMMAND_SOURCE_UNSPECIFIED = 0;      // 未指定（无效）
+  COMMAND_SOURCE_LLM = 1;             // LLM tool_call 发起
+  COMMAND_SOURCE_AGENT_RUNTIME = 2;   // Agent 运行时内部发起（如 L3 Skill 编排）
+  COMMAND_SOURCE_USER = 3;            // 用户直接操作发起
+  COMMAND_SOURCE_DIAGNOSTIC = 4;      // 诊断/调试工具发起
+}
+
+// 命令状态机。终态：COMPLETED / REJECTED / FAILED / TIMEOUT / CANCELLED。
+enum CommandStatus {
+  COMMAND_STATUS_UNSPECIFIED = 0;   // 未指定
+  COMMAND_STATUS_ACCEPTED = 1;     // 已接受，等待执行
+  COMMAND_STATUS_RUNNING = 2;      // 正在执行中
+  COMMAND_STATUS_COMPLETED = 10;   // 执行成功完成
+  COMMAND_STATUS_REJECTED = 11;    // 被拒绝（参数错误、能力不可用等）
+  COMMAND_STATUS_FAILED = 12;      // 执行失败（运行时异常）
+  COMMAND_STATUS_TIMEOUT = 13;     // 执行超时
+  COMMAND_STATUS_CANCELLED = 14;   // 被主动取消
+}
+
+// Agent→Mod: 命令请求。每个请求必须最终收到一个 CommandResult。
+message CommandRequest {
+  // @required 会话内唯一的命令 ID，用于关联 Result/Cancel。
+  string command_id = 1;
+  // @required 超时时间（毫秒），必须 > 0。Mod 超时后应返回 TIMEOUT 状态。
+  int64 timeout_ms = 2;
+  // @required 命令来源，不可为 UNSPECIFIED。
+  CommandSource source = 3;
+  // @required 能力名称，必须与下方 oneof params 中选中的分支对应。
+  string capability = 4;
+
+  // 能力参数，每次请求只能选择一个分支。
+  oneof params {
+    // --- 社交/表达 ---
+    SayParams say = 10;              // 发送聊天文本
+    EmoteParams emote = 11;          // 触发表情气泡
+    FaceParams face = 12;            // 转向指定方向
+
+    // --- 移动/导航 ---
+    MoveToParams move_to = 20;       // 同地图内移动（L1）
+    GoToParams go_to = 21;           // 跨地图移动（L2，内部编排多次 move_to）
+    GoToBedParams go_to_bed = 22;    // 睡觉流程（L2，tp+交互+日结等待）
+    InteractParams interact = 23;    // 对目标 tile 按 X 交互
+    UseToolParams use_tool = 24;     // 对目标 tile 使用当前工具（按 C）
+    EquipParams equip = 25;          // 切换手持物品
+
+    // --- 菜单操作 ---
+    OpenMenuParams open_menu = 30;   // 打开 GameMenu（按 E）
+    QueryMenuParams query_menu = 31; // 查询当前菜单快照（只读）
+    MenuClickParams menu_click = 32; // DPad 导航到组件并确认
+    MenuCloseParams menu_close = 33; // 关闭当前菜单（按 ESC）
+
+    // --- 查询 ---
+    QueryInventoryParams query_inventory = 40;   // 查询背包物品
+    QueryLocationParams query_location = 41;     // 查询当前位置
+    QueryMapExitsParams query_map_exits = 42;    // 查询当前地图出口
+
+    // --- Query v2 / RefId inspect ---
+    QueryRuntimeSnapshotParams query_runtime_snapshot = 43;       // 查询运行时快照
+    QueryWorldRegionParams query_world_region = 44;               // 查询地图区域 Fact
+    QueryInventorySnapshotParams query_inventory_snapshot = 45;   // 查询库存快照 Fact
+    QueryUiSnapshotParams query_ui_snapshot = 46;                 // 查询当前 UI Fact
+    QueryInspectRefsParams query_inspect_refs = 47;               // inspect(ref) 批量解析
+
+    // --- 内部 ---
+    TpParams tp = 90;                // 强制传送（内部兜底，不暴露给 LLM）
+  }
+}
+
+// Mod→Agent: 命令已被接受确认（本期不实现，预留）。
+message CommandAccepted {
+  string command_id = 1;       // 对应的命令 ID
+  int64 accepted_at_ms = 2;    // 接受时间戳（毫秒）
+  int64 timeout_ms = 3;        // Mod 实际采用的超时时间
+  bool cancellable = 4;        // 该命令是否支持取消
+}
+
+// Mod→Agent: 执行进度通知（本期不实现，预留）。
+message CommandProgress {
+  string command_id = 1;         // 对应的命令 ID
+  CommandStatus status = 2;      // 当前状态
+  Observation observation = 3;   // 进度观测摘要
+  string message = 4;            // 进度描述文本
+}
+
+// Mod→Agent: 命令执行结果。每个 CommandRequest 必须且只能收到一个 CommandResult。
+message CommandResult {
+  string command_id = 1;         // 对应的命令 ID
+  bool success = 2;              // 是否成功（status==COMPLETED 时为 true）
+  CommandStatus status = 3;      // 终态状态
+  Observation observation = 4;   // 执行结果的自然语言摘要（供 LLM 理解）
+  Error error = 5;               // 失败时的错误详情（success=true 时为空）
+  string capability = 6;         // 执行的能力名称（冗余，便于日志）
+
+  // 能力特定的结果数据，与 CommandRequest.params 对应。
+  oneof data {
+    SayResult say = 20;
+    EmoteResult emote = 21;
+    FaceResult face = 22;
+
+    MoveToResult move_to = 30;
+    GoToResult go_to = 31;
+    GoToBedResult go_to_bed = 32;
+    InteractResult interact = 33;
+    UseToolResult use_tool = 34;
+    EquipResult equip = 35;
+
+    MenuResult menu = 40;              // open_menu / menu_click / menu_close 共用
+    MenuSnapshot menu_snapshot = 41;   // query_menu 返回
+
+    QueryInventoryResult query_inventory = 50;
+    QueryLocationResult query_location = 51;
+    QueryMapExitsResult query_map_exits = 52;
+
+    QueryRuntimeSnapshotResult query_runtime_snapshot = 53;
+    QueryWorldRegionResult query_world_region = 54;
+    QueryInventorySnapshotResult query_inventory_snapshot = 55;
+    QueryUiSnapshotResult query_ui_snapshot = 56;
+    QueryInspectRefsResult query_inspect_refs = 57;
+
+    TpResult tp = 90;
+  }
+}
+
+// Agent→Mod: 取消正在执行的命令。Mod 收到后应尽快终止并返回 CANCELLED 状态的 CommandResult。
+message CommandCancel {
+  string command_id = 1;  // 要取消的命令 ID
+  string reason = 2;      // 取消原因（供日志）
+}
+
+// Agent→Mod: 查询某个命令的当前状态（本期不实现，预留）。
+message CommandStatusRequest {
+  string command_id = 1;  // 要查询的命令 ID
+}
+
+// Mod→Agent: 命令状态查询响应（本期不实现，预留）。
+message CommandStatusResponse {
+  string command_id = 1;         // 对应的命令 ID
+  CommandStatus status = 2;      // 当前状态
+  bool terminal = 3;             // 是否为终态（true 表示不会再变化）
+  Observation observation = 4;   // 状态摘要
+  Error error = 5;               // 如果已失败，附带错误信息
+}

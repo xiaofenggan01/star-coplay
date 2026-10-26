@@ -1,0 +1,15 @@
+{
+  "name": "dsh-profile-starcoplay",
+  "private": true,
+  "dependencies": {
+    "@deepseek-ai/dsh-mcp-client": "0.2.1-rc.2"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-sdk-app"
+      ]
+    }
+  }
+}

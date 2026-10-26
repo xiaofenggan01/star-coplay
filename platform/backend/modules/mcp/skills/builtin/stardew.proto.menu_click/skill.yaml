@@ -1,0 +1,16 @@
+id: stardew.proto.menu_click
+version: 1.0.0
+description: Builtin Proto menu_click capability wrapper
+game: stardew-valley
+entrypoint: implementation:run
+input_schema: {type: object, additionalProperties: false}
+output_schema: {type: object, additionalProperties: false}
+requires:
+  capabilities:
+    - id: menu_click
+      version: ">=2.4.5,<3.0.0"
+risk: [changes_save, consumes_item, spends_money]
+timeout_seconds: 30
+cancellable: false
+retry: never
+failure_codes: [capability_failed, timeout, cancelled]

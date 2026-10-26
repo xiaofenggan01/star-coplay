@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+import "common.proto";
+import "capability.proto";
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// WebSocket 传输层信封。每个 WS binary frame 承载一个 Envelope。
+// 职责：消息识别、追踪、关联、路由。不关心具体能力语义。
+
+message Envelope {
+  // @required 协议版本号，必须匹配运行时协议门控，如 "2.4.5"。
+  string protocol_version = 1;
+  // @required 本帧唯一 ID，用于日志追踪和去重。
+  string message_id = 2;
+  // 请求/响应关联 ID。CommandResult 的 request_id 应与对应 CommandRequest 一致。
+  string request_id = 3;
+  // 会话 ID，由 HelloAck 分配，后续所有消息携带。
+  string session_id = 4;
+  // 发送方时间戳（毫秒），仅用于诊断，不作为可信时间源。
+  int64 timestamp_ms = 5;
+
+  // 消息体，每帧只能是以下类型之一。
+  oneof body {
+    Hello hello = 10;                              // Agent→Mod: 握手请求
+    HelloAck hello_ack = 11;                       // Mod→Agent: 握手响应
+
+    CommandRequest command_request = 20;            // Agent→Mod: 发起命令
+    CommandAccepted command_accepted = 21;          // Mod→Agent: 命令已接受（本期不实现）
+    CommandProgress command_progress = 22;          // Mod→Agent: 执行进度（本期不实现）
+    CommandResult command_result = 23;              // Mod→Agent: 命令执行结果
+    CommandCancel command_cancel = 24;              // Agent→Mod: 取消命令
+    CommandStatusRequest command_status_request = 25;   // Agent→Mod: 查询命令状态（本期不实现）
+    CommandStatusResponse command_status_response = 26; // Mod→Agent: 命令状态响应（本期不实现）
+
+    ErrorResponse error_response = 40;             // 任意方向: 协议级错误
+  }
+}
+
+// Agent 发起的握手请求，连接建立后第一条消息。
+message Hello {
+  string agent_id = 1;                    // Agent 实例标识
+  string required_protocol_version = 2;   // Agent 要求的最低协议版本
+}
+
+// Mod 对握手的响应。accepted=false 时连接应立即关闭。
+message HelloAck {
+  bool accepted = 1;                         // 是否接受连接
+  string protocol_version = 2;               // Mod 实际运行的协议版本
+  string mod_runtime_id = 3;                 // Mod 运行时唯一标识（用于日志关联）
+  string session_id = 4;                     // 分配的会话 ID，后续消息必须携带
+  repeated string enabled_capabilities = 5;  // 当前启用的能力列表（capability name）
+  Error error = 10;                          // accepted=false 时的拒绝原因
+}
+
+// 协议级错误响应，不关联具体命令（如版本不匹配、未知消息类型）。
+message ErrorResponse {
+  Error error = 1;  // 错误详情
+}

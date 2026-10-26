@@ -1,0 +1,16 @@
+{
+  "Name": "Star CoPlay",
+  "Author": "Star CoPlay Team",
+  "Version": "2.4.5",
+  "Description": "AI Co-Player for Stardew Valley — perception, pathfinding, action execution, and collaborative play.",
+  "UniqueID": "StarCoPlay.Mod",
+  "EntryDll": "StarCoPlay.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": [],
+  "Dependencies": [
+    {
+      "UniqueID": "spacechase0.GenericModConfigMenu",
+      "IsRequired": false
+    }
+  ]
+}

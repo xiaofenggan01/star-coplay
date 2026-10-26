@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-face-ok-down",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "face",
+  "face": {
+    "direction": "DIRECTION_DOWN"
+  }
+}

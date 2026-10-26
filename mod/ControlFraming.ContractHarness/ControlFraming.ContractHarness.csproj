@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.34.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../StarCoPlay/Generated/Protocol/*.cs" Link="Generated/%(Filename)%(Extension)" />
+    <Compile Include="../StarCoPlay/Transport/WebSocket/ControlFramingCodec.cs" Link="ControlFramingCodec.cs" />
+    <Compile Include="../StarCoPlay/Transport/WebSocket/HostedRouteHello.cs" Link="HostedRouteHello.cs" />
+  </ItemGroup>
+</Project>

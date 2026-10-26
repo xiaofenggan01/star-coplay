@@ -1,0 +1,3 @@
+雨天默认跳过露天浇水。
+姜岛和火山区域不跟随山谷降雨规则。
+如果状态里已经明确给出 skip_outdoor_watering_from_valley_rain，优先相信状态字段。

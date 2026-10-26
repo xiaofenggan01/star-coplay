@@ -1,0 +1,890 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+import "common.proto";
+import "ref.proto";
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// Query Fact 是 Mod L1 从游戏运行态读取的稳定事实。
+// View/LLM 组织层可以裁剪和重排 Fact，但不应改写事实本身。
+
+// ============================================================
+// Shared Enums
+// ============================================================
+
+// 任务状态枚举，统一 Quest 和 SpecialOrder 的表示。
+//
+// 设计约束：
+// 1. CANCELLED 不进入 enum。普通 Quest 被取消后直接从 questLog 移除，不存在快照；
+//    SpecialOrder 不可被玩家取消（CanBeCancelled() 硬编码 false）。
+//    因此 "已取消的任务" 不会出现在快照中，enum 无需此值。
+// 2. AWAITING_REWARD 必须保留。completed=true 但奖励未领取是合法快照状态：
+//    普通 Quest: completed.Value=true && moneyReward.Value > 0
+//    SpecialOrder: questState=Complete && unclaimedRewards.ContainsKey(farmerId)
+//
+// 映射关系：
+//   IN_PROGRESS:
+//     普通Quest: completed=false
+//     SpecialOrder: questState == SpecialOrderStatus.InProgress
+//
+//   AWAITING_REWARD:
+//     普通Quest: completed=true && moneyReward.Value > 0（奖励待领取）
+//     SpecialOrder: questState == Complete && unclaimedRewards.ContainsKey(currentFarmerId)
+//
+//   COMPLETED:
+//     普通Quest: completed=true && moneyReward.Value <= 0（奖励已领取或无奖励）
+//     SpecialOrder: questState == Complete && !unclaimedRewards.ContainsKey(currentFarmerId)
+//
+//   FAILED:
+//     普通Quest: 不使用（普通 Quest 无 Failed 状态）
+//     SpecialOrder: questState == SpecialOrderStatus.Failed（超时未完成）
+enum QuestStatus {
+  QUEST_STATUS_UNSPECIFIED = 0;
+  QUEST_IN_PROGRESS = 1;
+  QUEST_AWAITING_REWARD = 2;  // 目标达成，奖励待领取
+  QUEST_COMPLETED = 3;        // 完成且奖励已领取（或无奖励）
+  QUEST_FAILED = 4;           // 仅 SpecialOrder 使用
+}
+
+// 机器当前工作状态（来自客观字段派生，不是行动建议）。
+enum MachineState {
+  MACHINE_STATE_UNSPECIFIED = 0;
+  MACHINE_IDLE = 1;        // 空闲：无 heldObject 且 readyForHarvest=false
+  MACHINE_PROCESSING = 2;  // 加工中：heldObject 非空且 minutes_until_ready > 0
+  MACHINE_READY = 3;       // 完成：readyForHarvest=true，产物可取出
+}
+
+// 单个任务目标的进度快照。
+message QuestObjectiveFact {
+  // 目标描述文本（本地化）。
+  // SpecialOrder: OrderObjective.GetDescription()（SpecialOrder.cs）。
+  // 普通Quest: Quest.currentObjective（string，单条，无进度概念）。
+  string description = 1;
+
+  // 当前完成数量。
+  // SpecialOrder: OrderObjective.currentCount.Value（NetInt，SpecialOrder.cs）。
+  // 普通Quest: 始终为 0（无数值进度字段）。
+  int32 current_count = 2;
+
+  // 目标需要达到的数量。
+  // SpecialOrder: OrderObjective.maxCount.Value（NetInt，SpecialOrder.cs）。
+  // 普通Quest: 始终为 0（表示无数值进度概念）。
+  int32 max_count = 3;
+
+  // 此目标是否已完成。
+  // SpecialOrder: OrderObjective.IsComplete()（SpecialOrder.cs）。
+  // 普通Quest: 不可用（填 false）。
+  bool is_complete = 4;
+}
+
+// ============================================================
+// Runtime
+// ============================================================
+
+message RuntimeSnapshotFact {
+  string game_date = 1;              // 例如 "Spring 5, Year 1"
+  int32 time_of_day = 2;             // Stardew 时间，如 630、1420
+  string season = 3;
+  int32 day_of_month = 4;
+  int32 year = 5;
+  LocationSnapshot player_location = 10;
+  int32 money = 11;
+  int32 stamina = 12;
+  int32 max_stamina = 13;
+
+  // 玩家当前生命值。
+  // 来源：Farmer.health（普通 int 字段，Farmer.cs:651，初始值 100）。范围：0 ~ max_health。
+  int32 health = 14;
+
+  // 玩家最大生命值。
+  // 来源：Farmer.maxHealth（普通 int 字段，Farmer.cs:653，初始值 100）。可通过食物/升级永久提升。
+  int32 max_health = 15;
+
+  bool is_currently_raining = 20;
+  bool is_festival_day = 21;
+  bool is_menu_open = 22;
+
+  // 当前玩家所在地图是否在打雷（雷暴天气）。
+  // 来源：loc.GetWeather().IsLightning（LocationWeather.cs）。
+  // 与 is_currently_raining 独立：雷暴时两者均 true；晴天打雷时 is_currently_raining=false 但 is_lightning=true（罕见）。
+  bool is_lightning = 23;
+
+  // 当前玩家所在地图是否在下雪。
+  // 来源：loc.GetWeather().IsSnowing（LocationWeather.cs）。冬季室外常见。
+  bool is_snowing = 24;
+
+  // 当前玩家所在地图是否在下绿雨（SDV 1.6 新增特殊天气）。
+  // 来源：loc.GetWeather().IsGreenRain（LocationWeather.cs）。绿雨期间史莱姆大量生成。
+  bool is_green_rain = 25;
+
+  // 当前玩家所在地图是否为室外地图。
+  // 来源：Game1.currentLocation?.IsOutdoors（bool 属性，GameLocation.cs:595）。
+  bool is_outdoors = 26;
+
+  repeated StringPair debug = 100;
+}
+
+// ============================================================
+// World
+// ============================================================
+
+message WorldRegionFact {
+  string map_token = 1;
+  string map_id = 2;                 // 原始 GameLocation.NameOrUniqueName 或 Name
+
+  // 区域覆盖范围（tile 矩形）。
+  TileRect region = 3;
+
+  // 该地图是否为室外地图。
+  // 来源：GameLocation.IsOutdoors（bool 属性，GameLocation.cs:595）。
+  bool is_outdoors = 4;
+
+  repeated TileFact tiles = 10;
+  repeated WorldEntityFact entities = 11;
+  repeated CharacterFact characters = 12;
+  repeated StringPair debug = 100;
+}
+
+message TileFact {
+  // TileFact 是地图格子的客观快照，只描述地形/通行/占用等事实。
+  // 不承载 actor-relative 判断，例如 reachable、blocked、can_interact、can_fish。
+  // 这类判断应由 Agent/L3 View 基于 TileFact + WorldEntityFact + 当前玩家状态计算。
+  TilePosition position = 1;
+
+  // 静态地图通行性。
+  // 来源：GameLocation.isTilePassable(Vector2)，检查 Back/Buildings 层阻挡。
+  // 注意：passable=true 不代表玩家当前一定能走到；运行时遮挡见 occupied。
+  bool passable = 2;
+
+  // 运行时占用快照。
+  // 来源：GameLocation.IsTileOccupiedBy(Vector2)。
+  // 覆盖 farmer/object/furniture/character/animal/resource_clump/terrain_feature/building 等占用。
+  // 该字段可能随 NPC、玩家、动物移动逐帧变化。
+  bool occupied = 3;
+
+  // 是否为可锄地格子。
+  // 来源：GameLocation.doesTileHaveProperty(x, y, "Diggable", "Back") != null。
+  bool diggable = 4;
+
+  // 是否为地图水体 tile。
+  // 来源：GameLocation.isWaterTile(x, y)，即 Back 层 Water property 存在。
+  // 注意：water=true 不等于可钓鱼/可装水；功能性开放水体见 open_water。
+  bool water = 5;
+
+  // Deprecated: never populated, replaced by floor_type(11) and terrain_feature_type(12).
+  string terrain_kind = 6;
+
+  // 位于该 tile 上或以该 tile 为主定位点的实体引用。
+  // 例如作物、树、机器、箱子、掉落物、资源点、门/warp 等 WorldEntityFact.ref。
+  // Tile 本身没有 ref_id；refs 用于把 TileFact 与 WorldEntityFact 关联起来。
+  repeated RefId refs = 10;
+
+  // 地面材质类型，来自地图 tile property（Back 层，key="Type"）。
+  // 来源：GameLocation.doesTileHaveProperty(x, y, "Type", "Back")（GameLocation.cs:7362）。
+  // 取值：""（无属性，默认地面）/ "Dirt" / "Stone" / "Grass" / "Wood"。静态数据，不随运行时变化。
+  string floor_type = 11;
+
+  // 运行时地形特征类型，来自 GameLocation.terrainFeatures[tile] 对象的 C# 类型名（小写映射）。
+  // 来源：GameLocation.terrainFeatures（NetVector2Dictionary，GameLocation.cs）。
+  // 取值：""（无地形特征）/ "hoe_dirt" / "tree" / "fruit_tree" / "grass" / "flooring"。
+  // 动态数据，随耕地/种树/踩踏等操作变化。
+  string terrain_feature_type = 12;
+
+  // 是否为可钓鱼/可装水壶的"开放水体"。
+  // 来源：GameLocation.isOpenWater(x, y)（GameLocation.cs:13027）。
+  // 比 water 字段更严格：装饰性水槽 water=true 但 open_water=false。
+  bool open_water = 13;
+
+  repeated StringPair debug = 100;
+}
+
+message WorldEntityFact {
+  RefId ref = 1;
+  string type = 2;                   // tree / crop / resource_node / machine ...
+  string fact_kind = 3;
+  TilePosition position = 4;
+  string summary = 5;
+
+  oneof data {
+    TreeFact tree = 20;
+    FruitTreeFact fruit_tree = 21;
+    CropFact crop = 22;
+    ResourceNodeFact resource_node = 23;
+    LooseItemFact loose_item = 24;
+    MachineFact machine = 25;
+    ContainerFact container = 26;
+    BedFact bed = 27;
+    FurnitureFact furniture = 28;
+    ResourceClumpFact resource_clump = 29;
+    DoorFact door = 30;
+    WarpFact warp = 31;
+  }
+
+  repeated StringPair debug = 100;
+}
+
+message TreeFact {
+  string tree_type = 1;              // raw treeType
+  string tree_type_guard = 2;        // wt_*
+  int32 growth_stage = 3;
+  bool is_stump = 4;
+  bool is_tapped = 5;
+  bool has_moss = 6;
+  float health = 7;
+
+  // 幼树是否已施化肥（施肥后每日必定生长，不受随机概率影响）。
+  // 来源：Tree.fertilized（NetBool，Tree.cs:125）。仅 growth_stage < 5 时有意义。
+  bool fertilized = 8;
+
+  // 今日是否有种子可摇落（每日黎明刷新）。
+  // 来源：Tree.hasSeed（NetBool，Tree.cs:113）。
+  bool has_seed = 9;
+
+  // 树种的人类可读名（非本地化，projector 内查表映射）。
+  // 来源：projector 内按 treeType 硬编码映射，SDV GameData WildTrees 无此字段。
+  // 例：treeType="1"→"Oak Tree"，treeType="7"→"Mushroom Tree"，treeType="12"→"Green Rain Tree"。
+  string display_name = 10;
+}
+
+message FruitTreeFact {
+  string tree_id = 1;
+  string qualified_item_id = 2;
+  string item_id_guard = 3;
+  int32 growth_stage = 4;
+
+  // 果树距离成熟的剩余天数（growth_stage < 4 时有效）。
+  // 成树后此字段继续递减为负数：每 -112 天品质升一档（银→金→铱）。
+  // 负数语义：|days_until_mature| / 112 = 额外完成轮次（品质阶数）。
+  int32 days_until_mature = 5;
+
+  int32 fruit_count = 6;
+  bool is_stump = 7;
+  bool struck_by_lightning = 8;
+
+  // 该果树当前是否处于产果季节（季节性果树受季节限制，温室果树全年为 true）。
+  // 来源：FruitTree.IsInSeasonHere()（FruitTree.cs:652）。
+  bool is_in_season = 9;
+
+  // 当前果实品质等级（fruit_count>0 时有效）。
+  // 来源：FruitTree.GetQuality()（FruitTree.cs:345）。
+  // 取值：0=普通, 1=银, 2=金, 4=铱（成熟后 days_until_mature 每减 112 天品质升一档）。
+  // struck_by_lightning=true 时固定为 0（雷击降品质）。
+  int32 fruit_quality = 10;
+
+  // 是否种植在温室特殊地砖（green house tile）上，全年产果。
+  // 来源：FruitTree.greenHouseTileTree（NetBool，FruitTree.cs:89）。
+  bool green_house_tile_tree = 11;
+
+  // 果树人类可读名（本地化）。
+  // 来源：FruitTree.GetDisplayName()（FruitTree.cs:512）。例："Cherry Tree"。
+  string display_name = 12;
+}
+
+message CropFact {
+  string crop_id = 1;
+  string harvest_item_id = 2;
+
+  // crop identity guard，格式 o_<encoded_harvest_item_id>，如 "o_24"。
+  // 来源：RefIdTokenEncoder.EncodeObjectGuard(crop.indexOfHarvest.Value.ToString())。
+  // 用于 ref_id identity_guard 段；inspect 时校验作物类型未变。
+  // 注意：存的是 encode 后的值，不是原始 harvest item id。
+  string crop_guard = 3;
+
+  int32 growth_phase = 4;
+  bool ready_for_harvest = 5;
+  bool watered = 6;
+  string fertilizer = 7;
+  bool dead = 8;
+
+  // 收割方式，由游戏对象属性决定，非行动建议。
+  // 来源：Crop.GetHarvestMethod()（Crop.cs:374），返回 HarvestMethod enum。
+  // 取值："grab"（对应 HarvestMethod.Grab，interact capability）
+  //        "scythe"（对应 HarvestMethod.Scythe，use_tool capability）。
+  string harvest_method = 9;
+
+  // 作物总生长阶段数（不含收割阶段）。
+  // 来源：crop.phaseDays.Count - 1（NetIntList，Crop.cs:43-44）。
+  // 与 growth_phase 配合可显示进度比例：growth_phase / phases_total。
+  int32 phases_total = 10;
+
+  // 当前生长阶段内已过天数。
+  // 来源：crop.dayOfCurrentPhase（NetInt，Crop.cs:59）。
+  // 当前阶段剩余天数 = phaseDays[growth_phase] - day_of_current_phase。
+  int32 day_of_current_phase = 11;
+
+  // 收割后是否自动再生（多次收割作物）。
+  // 来源：Crop.RegrowsAfterHarvest()（Crop.cs:379）。
+  // true（如蓝莓、玉米）：收割后无需重新种植；false：收割后需补种。
+  bool regrows_after_harvest = 12;
+
+  // 收获物的本地化显示名。来源：ItemRegistry.GetData(qualifiedHarvestItemId)?.DisplayName。
+  // 例："Ancient Fruit"、"Strawberry"。ID 无效时为空字符串。
+  string display_name = 13;
+}
+
+message ResourceNodeFact {
+  string node_kind = 1;              // stone / ore_copper / twig / weeds ...
+
+  // resource node identity guard。
+  // 来源：BuildResourceNode 根据 qualifiedItemId 或 nodeKind 选择编码策略。
+  // qualified item id（如 "(O)CopperOre"）→ EncodeQualifiedItemId → "o_copperore"。
+  // node kind 字符串（如 "stone"）→ EncodeResourceNodeKind → "rn_stone"。
+  string node_guard = 2;
+
+  string qualified_item_id = 3;
+
+  // 剩余耐久度（仍需命中次数）。
+  // 来源：Object.MinutesUntilReady（NetInt）。注意：字段名语义为"命中次数"而非时间。
+  // 典型初始值：石头=3，铜矿=3，铁矿=4，金矿=8，铱矿=16。
+  // [BREAKING] 原字段名 health（字段号 4），改名为 hits_to_destroy，字段号不变。
+  int32 hits_to_destroy = 4;
+
+  // 破坏该节点所需的工具类型，来自游戏对象的工具响应逻辑（Object.cs performToolAction）。
+  // 取值："pickaxe"（矿石/石头）/ "axe"（tree_stump/twig）/ "scythe"（weeds/grass）/ ""（无需工具）。
+  // 当前 projector bug：硬编码全部返回 "pickaxe"，C3 中修复。
+  string required_tool = 5;
+
+  bool is_spawned_object = 6;
+}
+
+message LooseItemFact {
+  string qualified_item_id = 1;
+  string item_id = 2;
+  string internal_name = 3;
+  string display_name = 4;
+  int32 stack = 5;
+  int32 quality = 6;
+  bool can_be_grabbed = 7;
+  bool is_spawned_object = 8;
+
+  // 物品类别整数（SDV 原始 category，与 InventoryItemFact.category 含义一致）。
+  // 来源：Object.Category（int，Object.cs:849）。常用值：-4=鱼, -5=蛋, -6=牛奶,
+  //        -75=蔬菜, -79=水果, -80=花, -81=蘑菇, -102=地毯, -103=矿物, -106=手工商品。
+  int32 category = 9;
+}
+
+message MachineFact {
+  string qualified_item_id = 1;
+  string machine_data_id = 2;
+  string internal_name = 3;
+  string display_name = 4;
+  bool ready_for_harvest = 5;
+  int32 minutes_until_ready = 6;
+
+  // 机器正在加工或已完成的产物。
+  // 注意：proto3 中 message 字段在未设置时不为 null，应以 qualified_item_id == "" 判空。
+  LooseItemFact held_object = 7;
+
+  string last_input_item_id = 8;
+
+  // 机器当前状态，由 readyForHarvest + minutes_until_ready + heldObject 三个字段客观派生。
+  // 来源：Object.readyForHarvest（NetBool）、Object.MinutesUntilReady（NetInt）、Object.heldObject（NetRef）。
+  MachineState machine_state = 9;
+}
+
+message ContainerFact {
+  string qualified_item_id = 1;
+
+  // 容器类型。来源：Chest.SpecialChestType（NetEnum<SpecialChestType>）+ Chest.fridge（NetBool）。
+  // 取值："chest"（普通箱子）/ "big_chest"（大型箱子）/ "fridge"（冰箱）/
+  //        "junimo_chest"（Junimo 箱，team global inventory，特殊语义）/
+  //        "mini_fridge" / "mini_shipping_bin" / "stone_chest" 等。
+  // 当前 projector bug：JunimoChest 落入兜底 "container"，C3 中修复。
+  string container_kind = 2;
+
+  int32 capacity = 3;
+  int32 items_count = 4;
+  bool player_chest = 5;
+  bool fridge = 6;
+  string special_chest_type = 7;
+
+  // 玩家为箱子选择的颜色（"#RRGGBB" 格式，空字符串表示默认颜色）。
+  // 来源：Chest.playerChoiceColor.Value（Color 结构体，Chest.cs）。
+  string color = 8;
+}
+
+message BedFact {
+  string qualified_item_id = 1;
+  string bed_type = 2;
+
+  // 该床的类型是否允许玩家入睡，由床类型（BedType）决定。
+  // 来源：bedType != BedType.Child（BedFurniture.cs）。
+  // true：BedType.Single 或 BedType.Double；false：BedType.Child（儿童床）。
+  // 当前 projector bug：硬编码 true，C3 中修复。
+  bool can_sleep = 3;
+
+  int32 rotation = 4;
+  repeated TilePosition bounding_tiles = 5;
+
+  // 该床当前是否有玩家正在入睡。
+  // 来源：BedFurniture.IsBeingSleptIn()（BedFurniture.cs）。
+  bool is_being_slept_in = 6;
+
+  // 床的显示名（本地化）。来源：BedFurniture.DisplayName。例："Bed"、"Child's Bed"。
+  string display_name = 7;
+
+  // 玩家踩到此 tile 时触发睡觉弹窗的坐标。
+  // 来源：BedFurniture.GetBedSpot()，等价于 (tileX+1, tileY+1)。
+  // 可直接用于 move_to 导航：到达此 tile 即可触发入睡交互。
+  TilePoint bed_spot = 8;
+}
+
+message FurnitureFact {
+  string qualified_item_id = 1;
+
+  // 家具类型语义字符串，来自 Furniture.furniture_type（NetInt）映射。
+  // 来源：Furniture.cs 常量定义（0-17）。
+  // 完整映射：0="chair" / 1="bench" / 2="couch" / 3="armchair" / 4="dresser" /
+  //   5="long_table" / 6="painting" / 7="lamp" / 8="decor" / 9="other" /
+  //   10="bookcase" / 11="table" / 12="rug" / 13="window" / 14="fireplace" /
+  //   15="bed"（由 BedFact 处理，此处不出现）/ 16="torch" / 17="sconce"。
+  // 当前 projector bug：输出裸整数字符串，C3 中修复为语义字符串。
+  string furniture_type = 2;
+
+  int32 rotation = 3;
+  bool can_sit = 4;
+  repeated TilePosition bounding_tiles = 5;
+
+  // 家具显示名（本地化）。来源：Furniture.DisplayName（string 属性，来自 GameData）。
+  // 例："Oak Chair"、"Birch Dresser"。
+  string display_name = 6;
+
+  // 家具内部名（非本地化）。来源：Furniture.Name（string，来自 GameData 键名）。
+  string internal_name = 7;
+
+  // 是否处于开启/点燃状态（仅对 fireplace/torch/sconce 有意义）。
+  // 来源：Furniture.isOn（NetBool，Furniture.cs）。其他类型家具此字段无意义（默认 false）。
+  bool is_on = 8;
+
+  // 该家具可旋转的状态数量。来源：Furniture.rotations（NetInt，Furniture.cs）。
+  // 1=不可旋转, 2=双向, 4=四向。
+  int32 max_rotations = 9;
+}
+
+message ResourceClumpFact {
+  // 大型资源堆类型，来自 ResourceClump.parentSheetIndex（NetInt）映射。
+  // 完整映射：600="large_stump" / 602="hollow_log" / 622="meteorite" /
+  //   148="quarry_boulder" / 672="large_rock" /
+  //   752="mine_rock_0" / 754="mine_rock_1" / 756="mine_rock_2" / 758="mine_rock_3"。
+  // 当前 projector bug：quarry_boulder(148) 落入兜底 "clump_148"，C3 中修复。
+  string clump_kind = 1;
+
+  string clump_guard = 2;
+  int32 health = 3;
+  int32 width = 4;
+  int32 height = 5;
+
+  // 破坏所需工具类型，来自游戏对象属性（ResourceClump.cs performToolAction）。
+  // 取值："axe"（large_stump/hollow_log）/ "pickaxe"（其余所有类型）。
+  string required_tool = 6;
+
+  // 破坏所需工具的最低 UpgradeLevel（来自 Tool.cs 常量：copper=1, steel=2, gold=3, iridium=4）。
+  // 来源：ResourceClump.cs performToolAction 中 tool.UpgradeLevel >= N 检查。
+  // 具体值需在 C3 实现时从源码核实后填入注释（ResourceClump.cs 的 performToolAction 逻辑）。
+  // 0=无升级要求（任何工具可破坏）。
+  int32 required_tool_level = 7;
+}
+
+message DoorFact {
+  string door_key = 1;
+
+  // 目标地图名（NameOrUniqueName）。
+  // 来源：GameLocation.doors 字典值（locationName string）。
+  string target_map = 2;
+
+  // 进入门后的目标 tile 坐标（目标地图内坐标）。
+  // 来源：GameLocation.getWarpFromDoor(door tile position)?.TargetX / TargetY。
+  // warp 信息不可用时（如 getWarpFromDoor 返回 null）此字段缺省。
+  TilePoint target_tile = 3;
+
+  // 门是否处于锁定状态（受时间段/好感度/节日等条件约束）。
+  // C3 决策：此字段保守输出 false。锁定条件涉及时间段+好感度+节日+town_key 多条件组合，
+  //   属于 actor-relative 动态状态，不适合在 Fact 层静态投影。
+  //   door_kind="locked_door" 已标记该门有锁定机制，运行时 locked 状态由后续
+  //   View / ActionCandidate 层按需计算。
+  bool locked = 4;
+
+  // 门的访问机制类型，来自 tile Action 属性解析结果。
+  // 来源：GameLocation.doesTileHaveProperty(x, y, "Action", "Buildings")（GameLocation.cs）。
+  // 取值："door"（普通门）/ "locked_door"（有时间/条件限制的门）/ "warp"（传送型入口）。
+  string door_kind = 5;
+}
+
+message WarpFact {
+  string warp_key = 1;
+  string target_map = 2;
+  int32 target_x = 3;
+  int32 target_y = 4;
+  bool npc_only = 5;
+}
+
+// ============================================================
+// Character
+// ============================================================
+
+message CharacterFact {
+  RefId ref = 1;
+  string type = 2;                   // npc / monster / farm_animal ...
+  string fact_kind = 3;
+  string name = 4;
+  string display_name = 5;
+  TilePosition position = 6;
+  string summary = 7;
+
+  oneof data {
+    NpcFact npc = 20;
+    MonsterFact monster = 21;
+    FarmAnimalFact farm_animal = 22;
+    PetFact pet = 23;
+    HorseFact horse = 24;
+  }
+
+  repeated StringPair debug = 100;
+}
+
+message NpcFact {
+  string npc_key = 1;
+
+  // encoded 地图标识符，表示 NPC 当前所在地图。
+  // 来源：RefIdTokenEncoder.EncodeMapToken(npc.currentLocation?.NameOrUniqueName)。
+  string current_map_token = 2;
+
+  // NPC 当前是否满足社交条件（可送礼/对话）。
+  // 来源：NPC.CanSocialize（GameStateQuery 评估，NPC.cs）。
+  // [BREAKING] 原字段名 can_talk（字段号 3），改名为 can_socialize，字段号不变。
+  bool can_socialize = 3;
+
+  string schedule_key = 4;
+
+  // 当前玩家与该 NPC 的友好度积分。
+  // 来源：Game1.player.friendshipData[npc.Name].Points（NetInt）。
+  // 范围：0 ~ 2749（普通 NPC，上限 2500+249 浮动），已婚上限 3749。
+  int32 friendship_points = 5;
+
+  Direction facing = 6;
+
+  // NPC 生日所在季节。来源：NPC.birthday_Season（NetString，NPC.cs）。
+  // 取值："spring"/"summer"/"fall"/"winter"，或 ""（无生日的 NPC）。
+  string birthday_season = 7;
+
+  // NPC 生日日期（当月第几日，1-28）。来源：NPC.birthday_Day（NetInt，NPC.cs）。
+  // 0 表示无生日。
+  int32 birthday_day = 8;
+
+  // 当前是否有对话内容（TemporaryDialogue 或已缓存的 npcDialogues 非空）。
+  // 来源安全策略：不直接访问 NPC.CurrentDialogue（getter 在 null 时触发 loadCurrentDialogue() 懒加载副作用）。
+  // 实现应检查：npc.TemporaryDialogue?.Count > 0 ||
+  //              (Game1.npcDialogues != null && Game1.npcDialogues.TryGetValue(npc.Name, out var d) && d?.Count > 0)。
+  // 仅反映"已有加载的对话排队"，不触发对话文件加载。
+  // [P1→待验证] 副作用未完全排除前不建议直接进 P1 scan 路径。
+  bool has_dialogue = 9;
+}
+
+message MonsterFact {
+  string monster_key = 1;
+  string character_guid = 2;
+  string current_map_token = 3;
+  int32 health = 4;
+  bool is_moving = 5;
+  Direction facing = 6;
+
+  // 怪物最大生命值。
+  // 来源：Monster.MaxHealth（NetInt maxHealth，Monster.cs:186）。
+  int32 max_health = 7;
+
+  // 该怪物每次攻击对玩家造成的基础伤害值。
+  // 来源：Monster.DamageToFarmer（NetInt，Monster.cs:160）。不包含防御减伤。
+  int32 damage_to_farmer = 8;
+}
+
+message FarmAnimalFact {
+  string animal_id = 1;
+  string animal_type = 2;
+
+  // 动物所属建筑的类型名（非唯一标识）。
+  // 来源：animal.home?.buildingType.Value（NetString，FarmAnimal.cs）。
+  // 例："Coop"、"Big Coop"、"Barn"。多栋同类建筑时不唯一，配合 home_building_id(6) 使用。
+  // [BREAKING] 原字段名 home_building（字段号 3），改名为 home_building_type，字段号不变。
+  string home_building_type = 3;
+
+  // 当前是否有产品可收获（可收集状态）。
+  // 来源：animal.currentProduce.Value != null && animal.currentProduce.Value != ""，或
+  //        等价的 animal.readyForProduce / animal.age >= adultAge 等检查（FarmAnimal.cs）。
+  bool produce_ready = 4;
+
+  // 动物对玩家的友好度（0-1000）。
+  // 来源：animal.friendshipTowardFarmer.Value（NetInt，FarmAnimal.cs）。
+  int32 friendship = 5;
+
+  // 动物所属建筑的唯一 GUID 字符串（"N" 格式，32 位十六进制无连字符）。
+  // 来源：animal.home?.id.Value（Guid，FarmAnimal.cs）。
+  // 多栋同类建筑时可唯一标识 home。
+  string home_building_id = 6;
+
+  // 今天是否已抚摸（人工或 Auto-Petter）。
+  // 来源：animal.wasPet.Value（NetBool，FarmAnimal.cs）。每日重置。
+  bool was_petted = 7;
+
+  // 今天是否由 Auto-Petter 自动抚摸（Auto-Petter 的好感度效果低于人工）。
+  // 来源：animal.wasAutoPet.Value（NetBool，FarmAnimal.cs）。
+  bool was_auto_petted = 8;
+
+  // 动物幸福度（0-255）。
+  // 来源：animal.happiness.Value（NetInt，FarmAnimal.cs）。影响产品品质的概率分布。
+  int32 happiness = 9;
+}
+
+message PetFact {
+  string pet_guid = 1;
+  string pet_type = 2;
+  int32 friendship = 3;
+
+  // 今天是否已抚摸宠物。
+  // 来源：pet.lastPetDay.TryGetValue(Game1.player.UniqueMultiplayerID, out int day) && day >= Game1.Date.TotalDays（Pet.cs）。
+  // [BREAKING] 原字段名 last_petted（字段号 4），改名为 petted_today，字段号不变。
+  bool petted_today = 4;
+}
+
+message HorseFact {
+  string horse_guid = 1;
+  string owner_id = 2;
+
+  // 该马当前是否有玩家骑乘。
+  // 来源：Horse.rider != null（FarmerTeam / Horse.cs）。
+  bool has_rider = 3;
+
+  // 马的名字（玩家可自定义）。来源：Horse.Name（string）。空字符串表示未命名。
+  string display_name = 4;
+}
+
+// ============================================================
+// Inventory
+// ============================================================
+
+message InventorySnapshotFact {
+  string container_kind = 1;         // player / chest / fridge ...
+  RefId container_ref = 2;
+  int32 slots_used = 3;
+  int32 slots_total = 4;
+  repeated InventoryItemFact items = 10;
+  repeated StringPair debug = 100;
+}
+
+message InventoryItemFact {
+  // ref_id locator 格式（C2 决策，C5 实现）：
+  //   player: inventory:item:player:<slot>#<encoded_qid>
+  //   chest:  inventory:item:chest:<map_token>:<x>:<y>:<slot>#<encoded_qid>
+  //   fridge: inventory:item:fridge:<map_token>:<slot>#<encoded_qid>
+  // ref_id 自包含，inspect 时无需依赖 container_locator 字段。
+  RefId ref = 1;
+  string container_kind = 2;
+
+  // 容器定位字符串（供 L3 使用，对齐 ContainerLocator.cs 格式）。
+  // chest: "<map_token>:<x>:<y>" / fridge: "<map_token>" / player: ""。
+  // C5 实现后 ref_id 已自包含，此字段为冗余但保留供兼容使用。
+  string container_locator = 3;
+
+  // 对外展示的库存槽位，1-based。
+  // 与 equip.slot 保持一致，方便 Agent/LLM 直接用 query_inventory_snapshot 返回的 slot 调用 equip。
+  // 注意：ref_id locator 内部仍使用 0-based slot，resolver 按 ref_id 自身规则解析。
+  int32 slot = 4;
+  string qualified_item_id = 5;
+  string item_id = 6;
+  string internal_name = 7;
+  string display_name = 8;
+  int32 stack = 9;
+  int32 quality = 10;
+  int32 category = 11;
+  bool can_stack = 12;
+
+  // 工具升级等级（仅 category=-99 工具类有效，其他物品填 0）。
+  // 来源：Tool.UpgradeLevel（NetInt upgradeLevel，Tool.cs:85）。
+  // 语义（Tool.cs 常量）：0=基础/无升级, 1=铜质(copper), 2=钢质(steel), 3=金质(gold), 4=铱质(iridium)。
+  int32 upgrade_level = 13;
+
+  // 是否为玩家当前手持物品（仅 container_kind="player" 时有意义）。
+  // 来源：slot == Game1.player.CurrentToolIndex（Farmer.cs）。
+  // 其他容器（箱子/冰箱）此字段始终 false。
+  bool is_active = 14;
+
+  // 是否为配方书（学习后消耗，不可堆叠同名普通物品）。
+  // 来源：Item.IsRecipe（NetBool，Item.cs）。
+  bool is_recipe = 15;
+
+  // 基础出售价格（金币）。
+  // 来源：Object.Price（int，从 GameData Objects 读取）。
+  // -1 表示不可出售（工具、武器等）。注意：商店实际收购价可能含加成系数。
+  int32 base_sell_price = 16;
+
+  // 物品类别的人类可读名（本地化）。
+  // 来源：Object.GetCategoryDisplayName(category)（Object.cs）。
+  // 例：-4→"Fish"，-103→"Mineral"，-106→"Artisan Goods"。
+  string category_name = 17;
+
+  repeated StringPair debug = 100;
+}
+
+// ============================================================
+// UI
+// ============================================================
+
+message UiSnapshotFact {
+  bool menu_open = 1;
+  UiMenuFact menu = 2;
+  repeated UiElementFact elements = 10;
+  repeated StringPair debug = 100;
+}
+
+message UiMenuFact {
+  string menu_token = 1;
+  string menu_type = 2;
+
+  // GameMenu 当前激活 tab 的语义名。
+  // 来源：GameMenu.currentTab（int）配合正确的 TabNames 数组（GameMenu.cs）。
+  // 完整映射（SDV 1.6，10 个 tab）：
+  //   0="inventory" / 1="skills" / 2="social" / 3="map" / 4="crafting" /
+  //   5="animals" / 6="powers" / 7="collections" / 8="options" / 9="exit"。
+  // 当前 projector bug：TabNames 数组缺少 animals(5) 和 powers(6)，导致映射错位，C3 中修复。
+  // 非 GameMenu 时为空字符串。
+  string active_tab = 3;
+
+  string title = 4;
+  bool modal = 5;
+
+  // 当前 DialogueBox 显示的对话文本。
+  // 来源：DialogueBox.dialogues（List<string>）的当前索引项，或 DialogueBox.getCurrentString()。
+  // 仅 menu_type="DialogueBox" 时有效；其他菜单为空字符串。
+  string dialogue_text = 6;
+
+  // 当前 DialogueBox 是否为选择题。
+  // 来源：DialogueBox.isQuestion（bool，DialogueBox.cs）。
+  // true：有 responses 列表需要选择；false：纯文本对话，只需继续/关闭。
+  bool is_question = 7;
+
+  // 商店货币类型（仅 menu_type="ShopMenu" 时有效）。
+  // 来源：ShopMenu.currency（int，ShopMenu.cs）。
+  // 取值：0=金币（默认）/ 1=星点（Star Tokens，节日商店）/ 2=Qi 宝石 / 4=联邦货币。
+  int32 shop_currency = 8;
+}
+
+message UiElementFact {
+  RefId ref = 1;
+  string type = 2;                   // option / button / tab
+  string element_token = 3;
+  string identity_guard = 4;
+  string label = 5;
+  bool visible = 6;
+  bool enabled = 7;
+  PixelPosition position = 8;
+  int32 index = 9;
+  repeated StringPair debug = 100;
+
+  // 商品价格（货币单位由 UiMenuFact.shop_currency 决定）。
+  // 来源：ShopMenu.itemPriceAndStock[item].Price（ISalable → ItemStockInformation）。
+  // 仅 type="shop_item" 时有效；其他元素为 0。
+  int32 price = 11;
+
+  // 商品库存数量。
+  // 来源：ShopMenu.itemPriceAndStock[item].Stock（ItemStockInformation.Stock）。
+  // -1=无限库存；0=已售罄；仅 type="shop_item" 时有效。
+  int32 stock = 12;
+
+  // 商品 qualified item id（如 "(O)24"）。
+  // 来源：ISalable.QualifiedItemId（仅可售物品实现此接口）。
+  // 仅 type="shop_item" 时有效；用于与 InventoryItemFact.qualified_item_id 对比。
+  string qualified_item_id = 13;
+
+  // 以物换物所需的交换物品 qualified id（仅 type="shop_item" 且需以物换物时有效）。
+  // 来源：ItemStockInformation.TradeItem（string，ShopMenu.cs）。
+  // 空字符串表示无需以物换物（普通金币/货币购买）。
+  string trade_item_id = 14;
+
+  // 对话选项原始 response key（仅 type="dialogue_option" 时有效）。
+  // 来源：Response.responseKey（string，GameLocation.cs / NPC.cs）。
+  // 例："Yes"、"No"、"LeaveAlone"。与 identity_guard（encoded）互补。
+  string response_key = 15;
+}
+
+// ============================================================
+// Quest
+// ============================================================
+
+message QuestFact {
+  RefId ref = 1;
+
+  // 任务类型："quest"（普通任务）或 "special_order"（特别委托）。
+  // 普通Quest 来自 Farmer.questLog；SpecialOrder 来自 Game1.player.team.specialOrders。
+  string type = 2;
+
+  // 任务唯一 key。
+  // 普通Quest: Quest.id.Value（来自 Data/Quests 词典键，通常为数字字符串如 "5"）。
+  // SpecialOrder: SpecialOrder.questKey.Value（来自 Data/SpecialOrders 词典键，如 "Willy1"）。
+  string quest_key = 3;
+
+  // 任务标题（本地化）。
+  // 普通Quest: Quest.questTitle.Value。
+  // SpecialOrder: SpecialOrder.GetName()（经 MakeLocalizationReplacements()）。
+  string title = 4;
+
+  // 任务当前状态。
+  // 来源：
+  //   普通Quest: completed.Value=true && moneyReward>0 → AWAITING_REWARD;
+  //              completed.Value=true && moneyReward<=0 → COMPLETED;
+  //              否则 → IN_PROGRESS。
+  //   SpecialOrder: questState.Value 直接映射（InProgress/Complete+unclaimedRewards/Complete/Failed）。
+  // [BREAKING] 原类型 string（字段号 5），改为 QuestStatus enum，字段号不变。
+  QuestStatus status = 5;
+
+  // 剩余天数。
+  // 普通Quest: Quest.daysLeft.Value；Quest.IsTimedQuest() 为 false 时填 -1（无截止日期）。
+  // SpecialOrder: SpecialOrder.GetDaysLeft()（= dueDate - Game1.Date.TotalDays，非 InProgress 时为 0）。
+  int32 days_left = 6;
+
+  // 是否所有目标已达成。
+  // 普通Quest: Quest.completed.Value（NetBool，Quest.cs）。
+  // SpecialOrder: questState.Value == SpecialOrderStatus.Complete
+  //   注意：questState == Failed 时 completed 应为 false（未完成目标）。
+  bool completed = 7;
+
+  // 奖励是否已领取（对当前玩家）。
+  // 普通Quest: completed.Value=true && moneyReward.Value <= 0（moneyReward > 0 表示待领取）。
+  // SpecialOrder: !unclaimedRewards.ContainsKey(Game1.player.UniqueMultiplayerID)。
+  //   注意：unclaimedRewards 是 per-player 的；多人游戏中各玩家独立判断。
+  bool reward_claimed = 8;
+
+  // 结构化任务目标列表。
+  // [BREAKING] 原类型 repeated string（字段号 10），改为 repeated QuestObjectiveFact，字段号不变。
+  // 普通Quest: 单条（Quest.currentObjective），current_count=0，max_count=0。
+  // SpecialOrder: 每个 OrderObjective 一条（SpecialOrder.objectives 列表）。
+  repeated QuestObjectiveFact objectives = 10;
+
+  // 是否为每日任务（Help Wanted 布告栏类型）。
+  // 来源：Quest.dailyQuest.Value（NetBool，Quest.cs）。SpecialOrder 始终 false。
+  // days_left 仅对 is_daily=true 或有时限的 SpecialOrder 有意义。
+  bool is_daily = 11;
+
+  // 是否可主动放弃。
+  // 来源：Quest.canBeCancelled.Value（NetBool，Quest.cs）；SpecialOrder 硬编码为 false。
+  bool can_be_cancelled = 12;
+
+  // 完成奖励金额（金币）。
+  // 来源：Quest.moneyReward.Value（NetInt，Quest.cs）/ SpecialOrder.GetMoneyReward()。
+  // 0 表示无金钱奖励（可能有物品奖励）。
+  int32 money_reward = 13;
+
+  // 特别委托委托方 NPC 名（仅 type="special_order" 时有效）。
+  // 来源：SpecialOrder.requester.Value（NetString，SpecialOrder.cs）。例："Willy"。
+  string requester = 14;
+
+  // 特别委托来源类型（仅 type="special_order" 时有效）。
+  // 来源：SpecialOrder.orderType.Value（NetString，SpecialOrder.cs:103）。
+  // 取值：""（空字符串，默认值，布告栏普通委托和大多数委托）/ "QiChallenge"（Qi 挑战，
+  //        在 SpecialOrder.cs:879 中通过 questKey.Contains("QiChallenge") 识别）/ 其他 mod 自定义值。
+  // 注意：空字符串是布告栏普通委托的默认值，不是 "Sophie"。
+  // SpecialOrder.orderType 的逻辑判断：orderType=="" 则走普通布告栏逻辑；非空则走特殊类型逻辑。
+  string order_type = 15;
+
+  repeated StringPair debug = 100;
+}

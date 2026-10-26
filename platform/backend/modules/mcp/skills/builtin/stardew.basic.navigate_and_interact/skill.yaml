@@ -1,0 +1,50 @@
+id: stardew.basic.navigate_and_interact
+version: 1.0.0
+description: Builtin navigate and interact
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    destination:
+      type: object
+      properties:
+        map_id: {type: string, minLength: 1}
+        x: {type: integer}
+        y: {type: integer}
+        arrival_mode: {type: string, enum: [exact, adjacent]}
+        stand_side: {type: string, enum: [up, down, left, right]}
+        face_direction: {type: string, enum: [up, down, left, right]}
+      required: [map_id, x, y, arrival_mode, stand_side]
+      additionalProperties: false
+    interaction:
+      type: object
+      properties:
+        x: {type: integer}
+        y: {type: integer}
+      required: [x, y]
+      additionalProperties: false
+  required: [destination, interaction]
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed]}
+    region_observation: {type: string}
+    navigation_observation: {type: string}
+    interaction_observation: {type: string}
+  required: [status, region_observation, navigation_observation, interaction_observation]
+  additionalProperties: false
+requires:
+  capabilities:
+    - id: query_world_region
+      version: ">=2.4.5,<3.0.0"
+    - id: go_to
+      version: ">=2.4.5,<3.0.0"
+    - id: interact
+      version: ">=2.4.5,<3.0.0"
+risk: [changes_save]
+timeout_seconds: 120
+cancellable: true
+retry: never
+failure_codes: [capability_failed, timeout, cancelled]

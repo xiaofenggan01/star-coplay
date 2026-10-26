@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-equip-unsupported-item-category",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "equip",
+  "equip": {
+    "itemCategory": "ITEM_CATEGORY_AXE"
+  }
+}

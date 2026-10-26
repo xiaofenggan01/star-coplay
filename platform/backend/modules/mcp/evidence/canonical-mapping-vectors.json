@@ -1,0 +1,779 @@
+{
+  "schema_version": "starcoplay.canonical-mapping-vectors.v1",
+  "vectors": {
+    "act_on_target": {
+      "expected": {
+        "cancellable": true,
+        "capability": "do",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "do",
+          "params": {
+            "intent": "pet",
+            "target": "Farm:animal_Bessie"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 15000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "intent": "pet",
+        "target": "Farm:animal_Bessie"
+      }
+    },
+    "buy_items": {
+      "expected": {
+        "cancellable": true,
+        "capability": "buy_items",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "buy_items",
+          "params": {
+            "items": [
+              {
+                "name": "Parsnip Seeds",
+                "quantity": 2
+              }
+            ],
+            "shop": "SeedShop"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 60000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "items": [
+          {
+            "name": "Parsnip Seeds",
+            "quantity": 2
+          }
+        ],
+        "shop": "SeedShop"
+      }
+    },
+    "chop_trees": {
+      "expected": {
+        "cancellable": true,
+        "capability": "chop_trees",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "chop_trees",
+          "params": {
+            "include_stumps": true
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "include_stumps": true
+      }
+    },
+    "emote": {
+      "expected": {
+        "cancellable": false,
+        "capability": "emote",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "emote",
+          "command_id": "$COMMAND_ID",
+          "emote": {
+            "emote_type": "EMOTE_HAPPY"
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "emote_type": "happy"
+      }
+    },
+    "equip": {
+      "expected": {
+        "cancellable": true,
+        "capability": "equip",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "equip",
+          "command_id": "$COMMAND_ID",
+          "equip": {
+            "slot": 1
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "slot": 1
+      }
+    },
+    "equip_matching_item": {
+      "expected": {
+        "cancellable": false,
+        "capability": "equip",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "equip",
+          "params": {
+            "item_name": "Axe"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 15000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "item": "Axe"
+      }
+    },
+    "execute_on_targets": {
+      "expected": {
+        "cancellable": true,
+        "capability": "execute_on_targets",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "execute_on_targets",
+          "params": {
+            "action": "use_tool",
+            "targets": [
+              "Farm:tile_1_2"
+            ],
+            "tool": "Axe"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 300000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "action": "use_tool",
+        "targets": [
+          "Farm:tile_1_2"
+        ],
+        "tool": "Axe"
+      }
+    },
+    "face": {
+      "expected": {
+        "cancellable": true,
+        "capability": "face",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "face",
+          "command_id": "$COMMAND_ID",
+          "face": {
+            "direction": "DIRECTION_UP"
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "direction": "up"
+      }
+    },
+    "go_to": {
+      "expected": {
+        "cancellable": true,
+        "capability": "go_to",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "go_to",
+          "command_id": "$COMMAND_ID",
+          "go_to": {
+            "arrival_mode": "ARRIVAL_EXACT",
+            "map_id": "Farm",
+            "x": 1,
+            "y": 2
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "60000"
+        },
+        "timeout_ms": 60000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "arrival_mode": "exact",
+        "map_id": "Farm",
+        "x": 1,
+        "y": 2
+      }
+    },
+    "go_to_bed": {
+      "expected": {
+        "cancellable": true,
+        "capability": "go_to_bed",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "go_to_bed",
+          "command_id": "$COMMAND_ID",
+          "go_to_bed": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "60000"
+        },
+        "timeout_ms": 60000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "harvest_crops": {
+      "expected": {
+        "cancellable": true,
+        "capability": "harvest_crops",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "harvest_crops",
+          "params": {
+            "max_count": 3,
+            "replant_seed": "Parsnip Seeds"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "max_count": 3,
+        "replant_seed": "Parsnip Seeds"
+      }
+    },
+    "interact": {
+      "expected": {
+        "cancellable": true,
+        "capability": "interact",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "interact",
+          "command_id": "$COMMAND_ID",
+          "interact": {
+            "target_tile": {
+              "x": 1,
+              "y": 2
+            }
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "x": 1,
+        "y": 2
+      }
+    },
+    "menu_click": {
+      "expected": {
+        "cancellable": true,
+        "capability": "menu_click",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "menu_click",
+          "command_id": "$COMMAND_ID",
+          "menu_click": {
+            "component_id": 1,
+            "source": "MENU_COMPONENT_SOURCE_PAGE"
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "component_id": 1,
+        "component_source": "page"
+      }
+    },
+    "menu_close": {
+      "expected": {
+        "cancellable": true,
+        "capability": "menu_close",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "menu_close",
+          "command_id": "$COMMAND_ID",
+          "menu_close": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "menu_interact": {
+      "expected": {
+        "cancellable": true,
+        "capability": "menu_interact",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "menu_interact",
+          "params": {
+            "menu_type": "Shop",
+            "operations": [
+              {
+                "action": "buy",
+                "item": "Parsnip Seeds"
+              }
+            ]
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "menu_type": "Shop",
+        "operations": [
+          {
+            "action": "buy",
+            "item": "Parsnip Seeds"
+          }
+        ]
+      }
+    },
+    "mine_rocks": {
+      "expected": {
+        "cancellable": true,
+        "capability": "mine_rocks",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "mine_rocks",
+          "params": {
+            "max_count": 2
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "max_count": 2
+      }
+    },
+    "move_to": {
+      "expected": {
+        "cancellable": true,
+        "capability": "move_to",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "move_to",
+          "command_id": "$COMMAND_ID",
+          "move_to": {
+            "mode": "MOVE_TO_EXACT",
+            "x": 1,
+            "y": 2
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "60000"
+        },
+        "timeout_ms": 60000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "mode": "exact",
+        "x": 1,
+        "y": 2
+      }
+    },
+    "move_to_target": {
+      "expected": {
+        "cancellable": true,
+        "capability": "move_to",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "move_to",
+          "params": {
+            "arrive_distance": 1,
+            "target": "Farm:animal_Bessie"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "arrive_distance": 1,
+        "target": "Farm:animal_Bessie"
+      }
+    },
+    "navigate_to_target": {
+      "expected": {
+        "cancellable": true,
+        "capability": "go_to",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "go_to",
+          "params": {
+            "target": "[npc:Lewis]"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "target": "[npc:Lewis]"
+      }
+    },
+    "observe_current_view": {
+      "expected": {
+        "cancellable": false,
+        "capability": "observe",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "observe",
+          "params": {},
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 15000,
+        "wire_format": "v2-json"
+      },
+      "input": {}
+    },
+    "open_menu": {
+      "expected": {
+        "cancellable": true,
+        "capability": "open_menu",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "open_menu",
+          "command_id": "$COMMAND_ID",
+          "open_menu": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "plant_crops": {
+      "expected": {
+        "cancellable": true,
+        "capability": "plant_crops",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "plant_crops",
+          "params": {
+            "seed": "Parsnip Seeds"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "seed": "Parsnip Seeds"
+      }
+    },
+    "query_inspect_refs": {
+      "expected": {
+        "cancellable": false,
+        "capability": "query_inspect_refs",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "query_inspect_refs",
+          "command_id": "$COMMAND_ID",
+          "query_inspect_refs": {
+            "refs": [
+              {
+                "value": "world_entity:tree:farm:1:2"
+              }
+            ]
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "5000"
+        },
+        "timeout_ms": 5000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "refs": [
+          "world_entity:tree:farm:1:2"
+        ]
+      }
+    },
+    "query_inventory_snapshot": {
+      "expected": {
+        "cancellable": false,
+        "capability": "query_inventory_snapshot",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "query_inventory_snapshot",
+          "command_id": "$COMMAND_ID",
+          "query_inventory_snapshot": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "5000"
+        },
+        "timeout_ms": 5000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "query_menu": {
+      "expected": {
+        "cancellable": false,
+        "capability": "query_menu",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "query_menu",
+          "command_id": "$COMMAND_ID",
+          "query_menu": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "5000"
+        },
+        "timeout_ms": 5000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "query_runtime_snapshot": {
+      "expected": {
+        "cancellable": false,
+        "capability": "query_runtime_snapshot",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "query_runtime_snapshot",
+          "command_id": "$COMMAND_ID",
+          "query_runtime_snapshot": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "5000"
+        },
+        "timeout_ms": 5000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "query_ui_snapshot": {
+      "expected": {
+        "cancellable": false,
+        "capability": "query_ui_snapshot",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "query_ui_snapshot",
+          "command_id": "$COMMAND_ID",
+          "query_ui_snapshot": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "5000"
+        },
+        "timeout_ms": 5000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "query_world_region": {
+      "expected": {
+        "cancellable": false,
+        "capability": "query_world_region",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "query_world_region",
+          "command_id": "$COMMAND_ID",
+          "query_world_region": {},
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "5000"
+        },
+        "timeout_ms": 5000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {}
+    },
+    "say": {
+      "expected": {
+        "cancellable": false,
+        "capability": "say",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "capability": "say",
+          "command_id": "$COMMAND_ID",
+          "say": {
+            "content": "hello"
+          },
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000"
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "message": "hello"
+      }
+    },
+    "ship_items": {
+      "expected": {
+        "cancellable": false,
+        "capability": "ship_items",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "request_result",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "ship_items",
+          "params": {
+            "items": [
+              "Parsnip"
+            ],
+            "mode": "execute"
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 30000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "items": [
+          "Parsnip"
+        ],
+        "mode": "execute"
+      }
+    },
+    "sleep_for_night": {
+      "expected": {
+        "cancellable": true,
+        "capability": "go_bed",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "go_bed",
+          "params": {},
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {}
+    },
+    "use_tool": {
+      "expected": {
+        "cancellable": true,
+        "capability": "use_tool",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "capability": "use_tool",
+          "command_id": "$COMMAND_ID",
+          "source": "COMMAND_SOURCE_LLM",
+          "timeout_ms": "15000",
+          "use_tool": {
+            "target_tile": {
+              "x": 1,
+              "y": 2
+            }
+          }
+        },
+        "timeout_ms": 15000,
+        "wire_format": "protocol-2.4.5"
+      },
+      "input": {
+        "x": 1,
+        "y": 2
+      }
+    },
+    "use_tool_at_target": {
+      "expected": {
+        "cancellable": true,
+        "capability": "use_tool",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "use_tool",
+          "params": {},
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 15000,
+        "wire_format": "v2-json"
+      },
+      "input": {}
+    },
+    "water_crops": {
+      "expected": {
+        "cancellable": true,
+        "capability": "water_crops",
+        "command_id": "$COMMAND_ID",
+        "execution_model": "async",
+        "payload": {
+          "action_id": "$COMMAND_ID",
+          "capability": "water_crops",
+          "params": {
+            "max_count": 3
+          },
+          "protocol_version": "2.0",
+          "seq": 0
+        },
+        "timeout_ms": 120000,
+        "wire_format": "v2-json"
+      },
+      "input": {
+        "max_count": 3
+      }
+    }
+  }
+}

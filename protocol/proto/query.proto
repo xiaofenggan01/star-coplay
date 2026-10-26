@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+import "common.proto";
+import "ref.proto";
+import "query_facts.proto";
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// Query 能力是 LLM 感知游戏信息并进行 inspect 的协议入口。
+// 第一版以 L1 Fact 为主，L3 View 可以在 Agent 侧后续组织。
+
+message QueryWarning {
+  string code = 1;
+  string message = 2;
+  string detail = 3;
+  RefId ref = 4;
+}
+
+// ============================================================
+// Params
+// ============================================================
+
+message QueryRuntimeSnapshotParams {
+  bool include_player = 1;
+  bool include_world_time = 2;
+  bool include_weather = 3;
+  bool include_menu_state = 4;
+}
+
+message QueryWorldRegionParams {
+  // 可选。为空时默认当前玩家所在地图。
+  string map_token = 1;
+  // 可选。指定矩形区域；未设置时可用 center/radius 或默认玩家附近。
+  TileRect region = 2;
+  // 可选。中心点；和 radius 配合使用。
+  TilePosition center = 3;
+  // 可选。围绕 center 或玩家位置的半径。
+  int32 radius = 4;
+  // 可选过滤。为空表示返回第一版支持的全部 world entity。
+  repeated string world_entity_types = 5;
+  bool include_tiles = 6;
+  bool include_characters = 7;
+  bool include_debug = 20;
+}
+
+message QueryInventorySnapshotParams {
+  // 第一版支持 player。后续可扩展 chest/fridge/junimo_chest。
+  string container_kind = 1;
+  RefId container_ref = 2;
+  bool include_empty_slots = 3;
+  bool include_details = 4;
+  bool include_debug = 20;
+}
+
+message QueryUiSnapshotParams {
+  bool include_elements = 1;
+  bool include_debug = 20;
+}
+
+message QueryInspectRefsParams {
+  repeated RefId refs = 1;
+  bool include_debug = 2;
+}
+
+// ============================================================
+// Results
+// ============================================================
+
+message QueryRuntimeSnapshotResult {
+  RuntimeSnapshotFact fact = 1;
+  repeated QueryWarning warnings = 20;
+}
+
+message QueryWorldRegionResult {
+  WorldRegionFact fact = 1;
+  repeated QueryWarning warnings = 20;
+}
+
+message QueryInventorySnapshotResult {
+  InventorySnapshotFact fact = 1;
+  repeated QueryWarning warnings = 20;
+}
+
+message QueryUiSnapshotResult {
+  UiSnapshotFact fact = 1;
+  repeated QueryWarning warnings = 20;
+}
+
+message QueryInspectRefsResult {
+  repeated InspectedRef inspected = 1;
+  repeated QueryWarning warnings = 20;
+}
+
+// inspect(ref) 的统一 envelope。成功时 data 是 oneof typed fact。
+message InspectedRef {
+  RefResolution resolution = 1;
+  string ref = 2;
+  string ref_type = 3;
+  string type = 4;
+  string fact_kind = 5;
+  string summary = 6;
+  string debug_reason = 7;
+
+  oneof data {
+    RuntimeSnapshotFact runtime = 20;
+    WorldEntityFact world_entity = 21;
+    CharacterFact character = 22;
+    InventoryItemFact inventory_item = 23;
+    InventorySnapshotFact inventory_snapshot = 24;
+    UiElementFact ui_element = 25;
+    UiSnapshotFact ui_snapshot = 26;
+    QuestFact quest = 27;
+    TileFact tile = 28;
+  }
+
+  repeated StringPair debug = 100;
+}

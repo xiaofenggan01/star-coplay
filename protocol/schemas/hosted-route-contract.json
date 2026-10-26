@@ -1,0 +1,20 @@
+{
+  "route_contract_version": "starcoplay.hosted-route.v1",
+  "capability_snapshot_version": "starcoplay.capability-snapshot.v1",
+  "canonical_digest_vector": {
+    "entries": [
+      ["protocol-2.4.5", "face", "2.4.5"],
+      ["protocol-2.4.5", "say", "2.4.5"]
+    ],
+    "expected": "sha256:f9daca8a6fd4072c95bcd36cec6c8c0c67cab546c3fc1ceaba0df0987db29778"
+  },
+  "control_framing": {
+    "proto_status_body": "command_status_request",
+    "proto_cancel_body": "command_cancel",
+    "proto_status_request_id": "status:11111111111111111111111111111111",
+    "proto_cancel_request_id": "cancel:11111111111111111111111111111111",
+    "v2_cancel": {"type": "command", "action_id": "cmd-vector", "cancel": true},
+    "proto_status_base64": "CgUyLjQuNRIkbXNnOjExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExGidzdGF0dXM6MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiCWdzLXZlY3RvcijoB8oBDAoKY21kLXZlY3Rvcg==",
+    "proto_cancel_base64": "CgUyLjQuNRIkbXNnOjExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExGidjYW5jZWw6MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEiCWdzLXZlY3RvcijoB8IBDAoKY21kLXZlY3Rvcg=="
+  }
+}

@@ -1,0 +1,46 @@
+name: Deploy ECS (Gateway + Platform)
+
+# 所需 GitHub Secrets（在 repo Settings → Secrets and variables → Actions 中配置）：
+#   ECS_HOST       = <your-ecs-public-ip>          （ECS 公网 IP）
+#   ECS_USER       = deploy                  （专用运维用户，非 root；仅允许 sudo /opt/starcoplay-deploy.sh）
+#   ECS_SSH_KEY    = <私钥内容>               （deploy 用户的 ed25519 私钥，备注"运维专用"）
+#
+# 触发方式：
+#   1. 打 v* tag（如 git tag v2.5.0 && git push origin v2.5.0）→ 自动触发
+#   2. GitHub Actions 页面 → "Run workflow" → 手动触发（可选指定 tag，留空则部署 main）
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "要部署的 Git ref（tag 如 v2.5.0，或留空部署 main）"
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: deploy-ecs
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ECS_HOST }}
+          username: ${{ secrets.ECS_USER }}
+          key: ${{ secrets.ECS_SSH_KEY }}
+          script_stop: true
+          script: |
+            # 确定部署目标：workflow_dispatch 可传 ref，tag push 自动取 tag 名
+            DEPLOY_REF="${{ github.event.inputs.ref }}"
+            if [[ -z "$DEPLOY_REF" && "${{ github.event_name }}" == "push" ]]; then
+              DEPLOY_REF="${{ github.ref_name }}"
+            fi
+            sudo /opt/starcoplay-deploy.sh "$DEPLOY_REF"

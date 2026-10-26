@@ -1,0 +1,46 @@
+{
+  "name": "starcoplay-dsh",
+  "version": "0.3.0",
+  "description": "DeepSeek Harness plugin that lets DSH play Stardew Valley with you.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaofenggan01/star-coplay.git",
+    "directory": "dsh-plugin"
+  },
+  "homepage": "https://github.com/xiaofenggan01/star-coplay/tree/main/dsh-plugin",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": ["lib", "cordis.patch.yml", "README.md", "LICENSE"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepack": "pnpm build"
+  },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.0.5",
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.2"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "~4.0.5",
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.2",
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.5.13",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

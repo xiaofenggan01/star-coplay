@@ -1,0 +1,1771 @@
+{
+  "schema_version": "starcoplay.canonical-result-vectors.v2",
+  "description": "Frozen oracle covering all 37 canonical capabilities (21 Proto + 16 V2) plus shared error/edge vectors. Local and Hosted consume the same oracle.",
+  "vectors": {
+    "proto_say_completed": {
+      "canonical_name": "say",
+      "arguments": {
+        "message": "hello"
+      },
+      "result": {
+        "command_id": "cmd-say-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-say-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "observation": {
+            "text": "message sent"
+          },
+          "capability": "say",
+          "say": {
+            "contentLength": 5
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-say-001",
+        "capability": "say",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "content_length": 5
+        },
+        "observation": "message sent"
+      }
+    },
+    "proto_emote_completed": {
+      "canonical_name": "emote",
+      "arguments": {
+        "emote_type": "happy"
+      },
+      "result": {
+        "command_id": "cmd-emote-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-emote-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "emote",
+          "emote": {
+            "emoteType": "EMOTE_HAPPY"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-emote-001",
+        "capability": "emote",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "emote_type": "EMOTE_HAPPY"
+        }
+      }
+    },
+    "proto_face_completed": {
+      "canonical_name": "face",
+      "arguments": {
+        "direction": "up"
+      },
+      "result": {
+        "command_id": "cmd-face-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-face-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "face",
+          "face": {
+            "finalDirection": "DIRECTION_UP",
+            "alreadyFacing": false
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-face-001",
+        "capability": "face",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "final_direction": "DIRECTION_UP"
+        }
+      }
+    },
+    "proto_move_to_completed": {
+      "canonical_name": "move_to",
+      "arguments": {
+        "mode": "exact",
+        "x": 10,
+        "y": 20
+      },
+      "result": {
+        "command_id": "cmd-move-to-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-move-to-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "move_to",
+          "moveTo": {
+            "mode": "MOVE_TO_EXACT",
+            "targetX": 10,
+            "targetY": 20,
+            "resolvedDestinationX": 10,
+            "resolvedDestinationY": 20,
+            "reachedDestination": true,
+            "warpTriggered": false
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-move-to-001",
+        "capability": "move_to",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "mode": "MOVE_TO_EXACT",
+          "target_x": 10,
+          "target_y": 20,
+          "resolved_destination_x": 10,
+          "resolved_destination_y": 20,
+          "reached_destination": true
+        }
+      }
+    },
+    "proto_go_to_completed": {
+      "canonical_name": "go_to",
+      "arguments": {
+        "map_id": "Town",
+        "x": 30,
+        "y": 40,
+        "arrival_mode": "exact"
+      },
+      "result": {
+        "command_id": "cmd-go-to-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-go-to-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "go_to",
+          "goTo": {
+            "targetMap": "Town",
+            "targetX": 30,
+            "targetY": 40,
+            "arrivalMode": "ARRIVAL_EXACT",
+            "routeMaps": [
+              "Farm",
+              "BusStop",
+              "Town"
+            ],
+            "stepsTotal": 3,
+            "stepsCompleted": 3,
+            "failedStepIndex": -1
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-go-to-001",
+        "capability": "go_to",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "target_map": "Town",
+          "target_x": 30,
+          "target_y": 40,
+          "arrival_mode": "ARRIVAL_EXACT",
+          "route_maps": [
+            "Farm",
+            "BusStop",
+            "Town"
+          ],
+          "steps_total": 3,
+          "steps_completed": 3,
+          "failed_step_index": -1
+        }
+      }
+    },
+    "proto_go_to_bed_completed": {
+      "canonical_name": "go_to_bed",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-bed-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-bed-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "go_to_bed",
+          "goToBed": {
+            "dateBefore": "Spring 5, Year 1",
+            "dateAfter": "Spring 6, Year 1",
+            "timeBefore": 1500,
+            "timeAfter": 600,
+            "usedTp": true,
+            "sleepPromptSeen": true,
+            "sleepConfirmed": true,
+            "dayAdvanced": true,
+            "playerCanMoveAfter": true,
+            "phase": "completed",
+            "postSleepUiSteps": 0,
+            "decisionRequired": false
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-bed-001",
+        "capability": "go_to_bed",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "date_before": "Spring 5, Year 1",
+          "date_after": "Spring 6, Year 1",
+          "time_before": 1500,
+          "time_after": 600,
+          "used_tp": true,
+          "sleep_prompt_seen": true,
+          "sleep_confirmed": true,
+          "day_advanced": true,
+          "player_can_move_after": true,
+          "phase": "completed"
+        }
+      }
+    },
+    "proto_interact_completed": {
+      "canonical_name": "interact",
+      "arguments": {
+        "x": 5,
+        "y": 8
+      },
+      "result": {
+        "command_id": "cmd-interact-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-interact-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "interact",
+          "interact": {
+            "effect": {
+              "targetTile": {
+                "x": 5,
+                "y": 8
+              }
+            }
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-interact-001",
+        "capability": "interact",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "effect": {
+            "target_tile": {
+              "x": 5,
+              "y": 8
+            }
+          }
+        }
+      }
+    },
+    "proto_use_tool_completed": {
+      "canonical_name": "use_tool",
+      "arguments": {
+        "x": 6,
+        "y": 9
+      },
+      "result": {
+        "command_id": "cmd-tool-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-tool-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "use_tool",
+          "useTool": {
+            "effect": {
+              "targetTile": {
+                "x": 6,
+                "y": 9
+              }
+            },
+            "toolName": "Axe",
+            "chargeLevel": 0
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-tool-001",
+        "capability": "use_tool",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "effect": {
+            "target_tile": {
+              "x": 6,
+              "y": 9
+            }
+          },
+          "tool_name": "Axe"
+        }
+      }
+    },
+    "proto_equip_completed": {
+      "canonical_name": "equip",
+      "arguments": {
+        "slot": 1
+      },
+      "result": {
+        "command_id": "cmd-equip-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-equip-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "equip",
+          "equip": {
+            "selectedBy": "slot",
+            "slot": 1,
+            "itemName": "Axe",
+            "itemDisplayName": "Axe",
+            "method": "direct_api",
+            "swapped": false
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-equip-001",
+        "capability": "equip",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "selected_by": "slot",
+          "slot": 1,
+          "item_name": "Axe",
+          "item_display_name": "Axe",
+          "method": "direct_api"
+        }
+      }
+    },
+    "proto_open_menu_completed": {
+      "canonical_name": "open_menu",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-openmenu-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-openmenu-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "open_menu",
+          "menu": {
+            "action": "open"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-openmenu-001",
+        "capability": "open_menu",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "action": "open"
+        }
+      }
+    },
+    "proto_query_menu_completed": {
+      "canonical_name": "query_menu",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-querymenu-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-querymenu-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_menu",
+          "menuSnapshot": {
+            "menuType": "inventory",
+            "activeTab": "",
+            "components": [],
+            "snapshotId": "snap-1"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-querymenu-001",
+        "capability": "query_menu",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "menu_type": "inventory",
+          "snapshot_id": "snap-1"
+        }
+      }
+    },
+    "proto_menu_click_completed": {
+      "canonical_name": "menu_click",
+      "arguments": {
+        "component_id": 1,
+        "component_source": "page"
+      },
+      "result": {
+        "command_id": "cmd-click-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-click-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "menu_click",
+          "menu": {
+            "action": "click",
+            "componentId": 1,
+            "source": "MENU_COMPONENT_SOURCE_PAGE",
+            "clickCount": 1
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-click-001",
+        "capability": "menu_click",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "action": "click",
+          "component_id": 1,
+          "source": "MENU_COMPONENT_SOURCE_PAGE",
+          "click_count": 1
+        }
+      }
+    },
+    "proto_menu_close_completed": {
+      "canonical_name": "menu_close",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-close-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-close-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "menu_close",
+          "menu": {
+            "action": "close",
+            "alreadyClosed": false
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-close-001",
+        "capability": "menu_close",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "action": "close"
+        }
+      }
+    },
+    "proto_query_inventory_completed": {
+      "canonical_name": "query_inventory",
+      "arguments": {
+        "include_details": true
+      },
+      "result": {
+        "command_id": "cmd-qinv-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-qinv-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_inventory",
+          "queryInventory": {
+            "items": [],
+            "slotsUsed": 3,
+            "slotsTotal": 36
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-qinv-001",
+        "capability": "query_inventory",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "slots_used": 3,
+          "slots_total": 36
+        }
+      }
+    },
+    "proto_query_location_completed": {
+      "canonical_name": "query_location",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-qloc-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-qloc-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_location",
+          "queryLocation": {
+            "location": {
+              "mapToken": "farm",
+              "x": 64,
+              "y": 15,
+              "facing": "DIRECTION_DOWN"
+            }
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-qloc-001",
+        "capability": "query_location",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "location": {
+            "map_token": "farm",
+            "x": 64,
+            "y": 15,
+            "facing": "DIRECTION_DOWN"
+          }
+        }
+      }
+    },
+    "proto_query_map_exits_completed": {
+      "canonical_name": "query_map_exits",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-qexit-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-qexit-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_map_exits",
+          "queryMapExits": {
+            "exits": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-qexit-001",
+        "capability": "query_map_exits",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {}
+      }
+    },
+    "proto_query_runtime_snapshot_completed": {
+      "canonical_name": "query_runtime_snapshot",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-runtime-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-runtime-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "observation": {
+            "text": "runtime snapshot taken"
+          },
+          "capability": "query_runtime_snapshot",
+          "queryRuntimeSnapshot": {
+            "warnings": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-runtime-001",
+        "capability": "query_runtime_snapshot",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {},
+        "observation": "runtime snapshot taken"
+      }
+    },
+    "proto_query_world_region_completed": {
+      "canonical_name": "query_world_region",
+      "arguments": {
+        "radius": 8,
+        "include_tiles": true
+      },
+      "result": {
+        "command_id": "cmd-qwr-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-qwr-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_world_region",
+          "queryWorldRegion": {
+            "warnings": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-qwr-001",
+        "capability": "query_world_region",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {}
+      }
+    },
+    "proto_query_inventory_snapshot_completed": {
+      "canonical_name": "query_inventory_snapshot",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-qis-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-qis-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_inventory_snapshot",
+          "queryInventorySnapshot": {
+            "warnings": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-qis-001",
+        "capability": "query_inventory_snapshot",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {}
+      }
+    },
+    "proto_query_ui_snapshot_completed": {
+      "canonical_name": "query_ui_snapshot",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-qui-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-qui-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_ui_snapshot",
+          "queryUiSnapshot": {
+            "warnings": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-qui-001",
+        "capability": "query_ui_snapshot",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {}
+      }
+    },
+    "proto_query_inspect_refs_completed": {
+      "canonical_name": "query_inspect_refs",
+      "arguments": {
+        "refs": [
+          "world_entity:tree:farm:41:12#wt_1"
+        ]
+      },
+      "result": {
+        "command_id": "cmd-qir-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-qir-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "query_inspect_refs",
+          "queryInspectRefs": {
+            "inspected": [],
+            "warnings": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-qir-001",
+        "capability": "query_inspect_refs",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {}
+      }
+    },
+    "v2_water_crops_completed": {
+      "canonical_name": "water_crops",
+      "arguments": {
+        "max_count": 5
+      },
+      "result": {
+        "command_id": "cmd-water-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-water-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "watered": 5,
+            "skipped": 0,
+            "refilled": 1,
+            "stopped_reason": "max_count",
+            "location": "Farm"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-water-001",
+        "capability": "water_crops",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "watered": 5,
+          "skipped": 0,
+          "refilled": 1,
+          "stopped_reason": "max_count",
+          "location": "Farm"
+        }
+      }
+    },
+    "v2_harvest_crops_completed": {
+      "canonical_name": "harvest_crops",
+      "arguments": {
+        "max_count": 10,
+        "replant_seed": "Parsnip Seeds"
+      },
+      "result": {
+        "command_id": "cmd-harvest-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-harvest-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "harvested": 8,
+            "replanted": 2,
+            "skipped": 0,
+            "stopped_reason": "max_count",
+            "location": "Farm"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-harvest-001",
+        "capability": "harvest_crops",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "harvested": 8,
+          "replanted": 2,
+          "skipped": 0,
+          "stopped_reason": "max_count",
+          "location": "Farm"
+        }
+      }
+    },
+    "v2_ship_items_completed": {
+      "canonical_name": "ship_items",
+      "arguments": {
+        "mode": "execute",
+        "items": [
+          "Parsnip"
+        ]
+      },
+      "result": {
+        "command_id": "cmd-ship-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-ship-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "mode": "execute",
+            "items": [],
+            "shipped": [],
+            "kept": [],
+            "excluded": [],
+            "failed": [],
+            "total_value": 35,
+            "item_count": 1,
+            "message": "shipped 1 items"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-ship-001",
+        "capability": "ship_items",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "mode": "execute",
+          "items": [],
+          "shipped": [],
+          "kept": [],
+          "excluded": [],
+          "failed": [],
+          "total_value": 35,
+          "item_count": 1,
+          "message": "shipped 1 items"
+        }
+      }
+    },
+    "v2_buy_items_completed": {
+      "canonical_name": "buy_items",
+      "arguments": {
+        "shop": "SeedShop",
+        "items": [
+          {
+            "name": "Parsnip Seeds",
+            "quantity": 2
+          }
+        ]
+      },
+      "result": {
+        "command_id": "cmd-buy-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-buy-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "shop": "SeedShop",
+            "bought": [],
+            "bought_count": 2,
+            "total_cost": 40,
+            "gold_remaining": 460,
+            "failed": [],
+            "stopped_reason": "completed"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-buy-001",
+        "capability": "buy_items",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "shop": "SeedShop",
+          "bought": [],
+          "bought_count": 2,
+          "total_cost": 40,
+          "gold_remaining": 460,
+          "failed": [],
+          "stopped_reason": "completed"
+        }
+      }
+    },
+    "v2_plant_crops_completed": {
+      "canonical_name": "plant_crops",
+      "arguments": {
+        "seed": "Parsnip Seeds",
+        "max_count": 5
+      },
+      "result": {
+        "command_id": "cmd-plant-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-plant-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "planted": 5,
+            "skipped": 0,
+            "seed": "Parsnip Seeds",
+            "stopped_reason": "max_count",
+            "location": "Farm"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-plant-001",
+        "capability": "plant_crops",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "planted": 5,
+          "skipped": 0,
+          "seed": "Parsnip Seeds",
+          "stopped_reason": "max_count",
+          "location": "Farm"
+        }
+      }
+    },
+    "v2_chop_trees_completed": {
+      "canonical_name": "chop_trees",
+      "arguments": {
+        "include_stumps": true
+      },
+      "result": {
+        "command_id": "cmd-chop-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-chop-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "chopped": 3,
+            "skipped": 0,
+            "total_strikes": 15,
+            "stopped_reason": "no_targets",
+            "location": "Farm"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-chop-001",
+        "capability": "chop_trees",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "chopped": 3,
+          "skipped": 0,
+          "total_strikes": 15,
+          "stopped_reason": "no_targets",
+          "location": "Farm"
+        }
+      }
+    },
+    "v2_mine_rocks_completed": {
+      "canonical_name": "mine_rocks",
+      "arguments": {
+        "max_count": 5
+      },
+      "result": {
+        "command_id": "cmd-mine-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-mine-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "mined": 4,
+            "skipped": 0,
+            "total_strikes": 12,
+            "stopped_reason": "max_count",
+            "location": "Mine"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-mine-001",
+        "capability": "mine_rocks",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "mined": 4,
+          "skipped": 0,
+          "total_strikes": 12,
+          "stopped_reason": "max_count",
+          "location": "Mine"
+        }
+      }
+    },
+    "v2_execute_on_targets_completed": {
+      "canonical_name": "execute_on_targets",
+      "arguments": {
+        "targets": [
+          "Farm:tile_1_2"
+        ],
+        "action": "use_tool",
+        "tool": "Axe"
+      },
+      "result": {
+        "command_id": "cmd-eot-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-eot-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "completed": 1,
+            "skipped": 0,
+            "total": 1,
+            "stamina_used": 2,
+            "stopped_reason": "completed",
+            "location": "Farm"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-eot-001",
+        "capability": "execute_on_targets",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "completed": 1,
+          "skipped": 0,
+          "total": 1,
+          "stamina_used": 2,
+          "stopped_reason": "completed",
+          "location": "Farm"
+        }
+      }
+    },
+    "v2_menu_interact_completed": {
+      "canonical_name": "menu_interact",
+      "arguments": {
+        "menu_type": "Shop",
+        "operations": [
+          {
+            "action": "buy",
+            "item": "Parsnip Seeds"
+          }
+        ]
+      },
+      "result": {
+        "command_id": "cmd-minteract-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-minteract-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "observation": "1/1 operations completed",
+          "data": {
+            "menu_type": "Shop",
+            "operations_requested": 1,
+            "operations_completed": 1,
+            "operations_failed": 0,
+            "results": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-minteract-001",
+        "capability": "menu_interact",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "menu_type": "Shop",
+          "operations_requested": 1,
+          "operations_completed": 1,
+          "operations_failed": 0,
+          "results": []
+        },
+        "observation": "1/1 operations completed"
+      }
+    },
+    "v2_navigate_to_target_completed": {
+      "canonical_name": "navigate_to_target",
+      "arguments": {
+        "target": "[npc:Lewis]"
+      },
+      "result": {
+        "command_id": "cmd-nav-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-nav-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "target": "[npc:Lewis]",
+            "final_location": "Town",
+            "final_tile": {
+              "x": 30,
+              "y": 40
+            },
+            "facing": "down"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-nav-001",
+        "capability": "go_to",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "target": "[npc:Lewis]",
+          "final_location": "Town",
+          "final_tile": {
+            "x": 30,
+            "y": 40
+          },
+          "facing": "down"
+        }
+      }
+    },
+    "v2_act_on_target_completed": {
+      "canonical_name": "act_on_target",
+      "arguments": {
+        "intent": "examine",
+        "x": 3,
+        "y": 7
+      },
+      "result": {
+        "command_id": "cmd-act-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-act-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "intent": "examine",
+            "target": {
+              "x": 3,
+              "y": 7
+            },
+            "object_type": "chest",
+            "items": [{"name": "Stone", "stack": 1, "quality": 0}]
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-act-001",
+        "capability": "do",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "intent": "examine",
+          "target": {
+            "x": 3,
+            "y": 7
+          },
+          "object_type": "chest",
+          "items": [{"name": "Stone", "stack": 1, "quality": 0}]
+        }
+      }
+    },
+    "v2_move_to_target_completed": {
+      "canonical_name": "move_to_target",
+      "arguments": {
+        "target": "Farm:animal_Bessie",
+        "arrive_distance": 1.0
+      },
+      "result": {
+        "command_id": "cmd-mtt-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-mtt-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "target": {
+              "x": 10,
+              "y": 15
+            },
+            "final_position": {
+              "x": 10,
+              "y": 16
+            },
+            "location": "Farm"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-mtt-001",
+        "capability": "move_to",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "target": {
+            "x": 10,
+            "y": 15
+          },
+          "final_position": {
+            "x": 10,
+            "y": 16
+          },
+          "location": "Farm"
+        }
+      }
+    },
+    "v2_use_tool_at_target_completed": {
+      "canonical_name": "use_tool_at_target",
+      "arguments": {
+        "x": 8,
+        "y": 12
+      },
+      "result": {
+        "command_id": "cmd-utat-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-utat-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "target": {
+              "x": 8,
+              "y": 12
+            },
+            "tool": "Axe"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-utat-001",
+        "capability": "use_tool",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "target": {
+            "x": 8,
+            "y": 12
+          },
+          "tool": "Axe"
+        }
+      }
+    },
+    "v2_equip_matching_item_completed": {
+      "canonical_name": "equip_matching_item",
+      "arguments": {
+        "item": "Axe"
+      },
+      "result": {
+        "command_id": "cmd-emi-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-emi-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "item_name": "Axe",
+            "slot": 1,
+            "method": "keypress"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-emi-001",
+        "capability": "equip",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "item_name": "Axe",
+          "slot": 1,
+          "method": "keypress"
+        }
+      }
+    },
+    "v2_observe_current_view_completed": {
+      "canonical_name": "observe_current_view",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-observe-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-observe-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "observation": "current view observation",
+          "data": {
+            "self": {
+              "position": {
+                "tile_x": 64,
+                "tile_y": 15,
+                "location": "Farm"
+              },
+              "facing": "down",
+              "health": 100,
+              "energy": 200,
+              "inventory": [],
+              "equipped": {},
+              "status_effects": [],
+              "money": 500
+            },
+            "world": {
+              "time": {
+                "game_time": 800,
+                "display": "8:00 AM"
+              },
+              "weather": "sunny",
+              "location_name": "Farm",
+              "season": "spring",
+              "year": 1,
+              "day_of_month": 5,
+              "is_raining": false
+            },
+            "entities": [],
+            "timestamp": 1000
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-observe-001",
+        "capability": "observe",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "self": {
+            "position": {
+              "tile_x": 64,
+              "tile_y": 15,
+              "location": "Farm"
+            },
+            "facing": "down",
+            "health": 100,
+            "energy": 200,
+            "inventory": [],
+            "equipped": {},
+            "status_effects": [],
+            "money": 500
+          },
+          "world": {
+            "time": {
+              "game_time": 800,
+              "display": "8:00 AM"
+            },
+            "weather": "sunny",
+            "location_name": "Farm",
+            "season": "spring",
+            "year": 1,
+            "day_of_month": 5,
+            "is_raining": false
+          },
+          "entities": [],
+          "timestamp": 1000
+        },
+        "observation": "current view observation"
+      }
+    },
+    "v2_sleep_for_night_completed": {
+      "canonical_name": "sleep_for_night",
+      "arguments": {},
+      "result": {
+        "command_id": "cmd-sleep-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 1,
+          "action_id": "cmd-sleep-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "ok",
+          "data": {
+            "method": "warp",
+            "home_location": "FarmHouse",
+            "sleep_triggered": true,
+            "stopped_reason": "day_advanced"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-sleep-001",
+        "capability": "go_bed",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "method": "warp",
+          "home_location": "FarmHouse",
+          "sleep_triggered": true,
+          "stopped_reason": "day_advanced"
+        }
+      }
+    },
+    "_shared_proto_failed": {
+      "canonical_name": "say",
+      "arguments": {
+        "message": "will fail"
+      },
+      "result": {
+        "command_id": "cmd-failed-001",
+        "state": "FAILED",
+        "output": {
+          "commandId": "cmd-failed-001",
+          "success": false,
+          "status": "COMMAND_STATUS_FAILED",
+          "capability": "say",
+          "error": {
+            "code": "EXECUTION_FAILED",
+            "message": "Mod handler threw an exception"
+          },
+          "say": {}
+        }
+      },
+      "expected": {
+        "command_id": "cmd-failed-001",
+        "capability": "say",
+        "success": false,
+        "status": "FAILED",
+        "data": {},
+        "error": {
+          "code": "EXECUTION_FAILED",
+          "message": "Mod handler threw an exception"
+        }
+      }
+    },
+    "_shared_proto_timeout": {
+      "canonical_name": "move_to",
+      "arguments": {
+        "mode": "exact",
+        "x": 99,
+        "y": 99
+      },
+      "result": {
+        "command_id": "cmd-timeout-001",
+        "state": "TIMED_OUT",
+        "error_code": "TIMEOUT",
+        "output": {
+          "commandId": "cmd-timeout-001",
+          "success": false,
+          "status": "COMMAND_STATUS_TIMEOUT",
+          "capability": "move_to",
+          "error": {
+            "code": "TIMEOUT",
+            "message": "deadline exceeded"
+          },
+          "moveTo": {}
+        }
+      },
+      "expected": {
+        "command_id": "cmd-timeout-001",
+        "capability": "move_to",
+        "success": false,
+        "status": "TIMEOUT",
+        "data": {},
+        "error": {
+          "code": "TIMEOUT",
+          "message": "deadline exceeded"
+        }
+      }
+    },
+    "_shared_proto_cancelled": {
+      "canonical_name": "go_to",
+      "arguments": {
+        "map_id": "Town",
+        "x": 30,
+        "y": 40,
+        "arrival_mode": "exact"
+      },
+      "result": {
+        "command_id": "cmd-cancelled-001",
+        "state": "CANCELLED",
+        "error_code": "CANCELLED",
+        "output": {
+          "commandId": "cmd-cancelled-001",
+          "success": false,
+          "status": "COMMAND_STATUS_CANCELLED",
+          "capability": "go_to",
+          "error": {
+            "code": "CANCELLED",
+            "message": "cancelled by caller"
+          },
+          "goTo": {}
+        }
+      },
+      "expected": {
+        "command_id": "cmd-cancelled-001",
+        "capability": "go_to",
+        "success": false,
+        "status": "CANCELLED",
+        "data": {},
+        "error": {
+          "code": "CANCELLED",
+          "message": "cancelled by caller"
+        }
+      }
+    },
+    "_shared_proto_rejected": {
+      "canonical_name": "equip",
+      "arguments": {
+        "slot": 1
+      },
+      "result": {
+        "command_id": "cmd-rejected-001",
+        "state": "FAILED",
+        "output": {
+          "commandId": "cmd-rejected-001",
+          "success": false,
+          "status": "COMMAND_STATUS_REJECTED",
+          "capability": "equip",
+          "error": {
+            "code": "BUSY",
+            "message": "Mod is busy executing another command"
+          },
+          "equip": {}
+        }
+      },
+      "expected": {
+        "command_id": "cmd-rejected-001",
+        "capability": "equip",
+        "success": false,
+        "status": "REJECTED",
+        "data": {},
+        "error": {
+          "code": "BUSY",
+          "message": "Mod is busy executing another command"
+        }
+      }
+    },
+    "_shared_v2_failed": {
+      "canonical_name": "water_crops",
+      "arguments": {
+        "max_count": 5
+      },
+      "result": {
+        "command_id": "cmd-v2failed-001",
+        "state": "FAILED",
+        "output": {
+          "action_id": "cmd-v2failed-001",
+          "protocol_version": "2.0",
+          "success": false,
+          "status": "failed",
+          "error": {
+            "code": "EXECUTION_FAILED",
+            "message": "no water source found"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-v2failed-001",
+        "capability": "water_crops",
+        "success": false,
+        "status": "FAILED",
+        "data": {},
+        "error": {
+          "code": "EXECUTION_FAILED",
+          "message": "no water source found"
+        }
+      }
+    },
+    "_shared_v2_timeout": {
+      "canonical_name": "harvest_crops",
+      "arguments": {
+        "max_count": 10
+      },
+      "result": {
+        "command_id": "cmd-v2timeout-001",
+        "state": "TIMED_OUT",
+        "error_code": "TIMEOUT",
+        "output": {
+          "action_id": "cmd-v2timeout-001",
+          "protocol_version": "2.0",
+          "success": false,
+          "status": "failed",
+          "error": {
+            "code": "TIMEOUT",
+            "message": "deadline exceeded"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-v2timeout-001",
+        "capability": "harvest_crops",
+        "success": false,
+        "status": "TIMEOUT",
+        "data": {},
+        "error": {
+          "code": "TIMEOUT",
+          "message": "deadline exceeded"
+        }
+      }
+    },
+    "_shared_v2_cancelled": {
+      "canonical_name": "execute_on_targets",
+      "arguments": {
+        "targets": [
+          "Farm:tile_1_2"
+        ],
+        "action": "use_tool",
+        "tool": "Axe"
+      },
+      "result": {
+        "command_id": "cmd-v2cancel-001",
+        "state": "CANCELLED",
+        "error_code": "CANCELLED",
+        "output": {
+          "action_id": "cmd-v2cancel-001",
+          "protocol_version": "2.0",
+          "success": false,
+          "status": "failed",
+          "error": {
+            "code": "CANCELLED",
+            "message": "cancelled by caller"
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-v2cancel-001",
+        "capability": "execute_on_targets",
+        "success": false,
+        "status": "CANCELLED",
+        "data": {},
+        "error": {
+          "code": "CANCELLED",
+          "message": "cancelled by caller"
+        }
+      }
+    },
+    "_shared_v2_partial": {
+      "canonical_name": "menu_interact",
+      "arguments": {
+        "menu_type": "Shop",
+        "operations": [
+          {
+            "action": "buy",
+            "item": "Parsnip Seeds"
+          },
+          {
+            "action": "buy",
+            "item": "Cauliflower Seeds"
+          }
+        ]
+      },
+      "result": {
+        "command_id": "cmd-partial-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "seq": 2,
+          "action_id": "cmd-partial-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "partial",
+          "observation": "1/2 operations completed",
+          "data": {
+            "menu_type": "Shop",
+            "operations_requested": 2,
+            "operations_completed": 1,
+            "operations_failed": 1,
+            "results": []
+          }
+        }
+      },
+      "expected": {
+        "command_id": "cmd-partial-001",
+        "capability": "menu_interact",
+        "success": true,
+        "status": "COMPLETED",
+        "data": {
+          "menu_type": "Shop",
+          "operations_requested": 2,
+          "operations_completed": 1,
+          "operations_failed": 1,
+          "results": []
+        },
+        "observation": "1/2 operations completed"
+      }
+    },
+    "_proto_command_id_mismatch": {
+      "canonical_name": "say",
+      "arguments": {
+        "message": "hi"
+      },
+      "result": {
+        "command_id": "cmd-wrong",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-different",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "say",
+          "say": {
+            "contentLength": 2
+          }
+        }
+      },
+      "expected": "ProtocolMappingError: command_id"
+    },
+    "_proto_capability_mismatch": {
+      "canonical_name": "say",
+      "arguments": {
+        "message": "hi"
+      },
+      "result": {
+        "command_id": "cmd-mismatch-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-mismatch-001",
+          "success": true,
+          "status": "COMMAND_STATUS_COMPLETED",
+          "capability": "emote",
+          "say": {
+            "contentLength": 2
+          }
+        }
+      },
+      "expected": "ProtocolMappingError: capability"
+    },
+    "_proto_missing_success": {
+      "canonical_name": "say",
+      "arguments": {
+        "message": "hi"
+      },
+      "result": {
+        "command_id": "cmd-no-success-001",
+        "state": "FAILED",
+        "output": {
+          "commandId": "cmd-no-success-001",
+          "status": "COMMAND_STATUS_FAILED",
+          "capability": "say",
+          "error": {
+            "code": "EXECUTION_FAILED",
+            "message": "handler failed"
+          }
+        }
+      },
+      "expected": "ProtocolMappingError: success must be a boolean"
+    },
+    "_proto_invalid_command_result_json": {
+      "canonical_name": "say",
+      "arguments": {
+        "message": "hi"
+      },
+      "result": {
+        "command_id": "cmd-invalid-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "commandId": "cmd-invalid-001",
+          "success": true,
+          "status": "NOT_A_REAL_STATUS",
+          "capability": "say"
+        }
+      },
+      "expected": "ProtocolMappingError: invalid Protocol CommandResult JSON"
+    },
+    "_unknown_is_not_terminal_output": {
+      "canonical_name": "say",
+      "arguments": {
+        "message": "hi"
+      },
+      "result": {
+        "command_id": "cmd-unknown-001",
+        "state": "UNKNOWN",
+        "error_code": "route_unavailable",
+        "output": {}
+      },
+      "expected": null
+    },
+    "_v2_status_not_ok_partial_failed": {
+      "canonical_name": "water_crops",
+      "arguments": {
+        "max_count": 1
+      },
+      "result": {
+        "command_id": "cmd-badstatus-001",
+        "state": "SUCCEEDED",
+        "output": {
+          "action_id": "cmd-badstatus-001",
+          "protocol_version": "2.0",
+          "success": true,
+          "status": "running"
+        }
+      },
+      "expected": "ProtocolMappingError: unsupported V2 result status"
+    }
+  }
+}

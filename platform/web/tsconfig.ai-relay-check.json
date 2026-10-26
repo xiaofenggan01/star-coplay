@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "src/lib/backend-internal.ts",
+    "src/lib/__tests__/backend-internal.test.ts",
+    "src/app/api/admin/route.ts",
+    "src/app/(platform)/admin/page.tsx"
+  ],
+  "exclude": [
+    ".next",
+    "node_modules"
+  ]
+}

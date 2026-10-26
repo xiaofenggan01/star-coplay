@@ -1,0 +1,10 @@
+{
+  "commandId": "fixture-menu-click-ok-page",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "menu_click",
+  "menuClick": {
+    "componentId": 1001,
+    "source": "MENU_COMPONENT_SOURCE_PAGE"
+  }
+}

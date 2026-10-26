@@ -1,0 +1,5 @@
+# StarCoPlay DSH bundle: one plugin row. The plugin registers its tools and
+# starts the local game route from its apply() hook.
+- insert:
+    - id: starcoplay-dsh
+      name: 'starcoplay-dsh'

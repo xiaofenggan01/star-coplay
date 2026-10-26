@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-go-to-bed",
+  "timeoutMs": 120000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "go_to_bed",
+  "goToBed": {
+    "timeoutFrames": 7200
+  }
+}

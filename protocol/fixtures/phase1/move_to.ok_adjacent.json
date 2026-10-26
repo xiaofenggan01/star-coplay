@@ -1,0 +1,13 @@
+{
+  "commandId": "fixture-move-to-ok-adjacent",
+  "timeoutMs": 30000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "move_to",
+  "moveTo": {
+    "mode": "MOVE_TO_ADJACENT",
+    "x": 64,
+    "y": 16,
+    "adjacentSide": "DIRECTION_DOWN",
+    "timeoutFrames": 1800
+  }
+}

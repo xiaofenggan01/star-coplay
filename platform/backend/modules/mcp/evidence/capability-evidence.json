@@ -1,0 +1,106 @@
+{
+  "schema_version": "starcoplay.mcp-evidence.v1",
+  "records": [
+    {
+      "evidence_id": "shared-schema-mapper-local-direct-2026-07-14",
+      "profile": "local_direct",
+      "capabilities": ["*public-canonical*"],
+      "tier": "schema-mapper-verified",
+      "evidence_kind": "automated_test",
+      "artifact_refs": ["platform/backend/tests/mcp/test_manifest_drift.py", "platform/backend/tests/mcp/test_canonical_catalog.py", "platform/backend/tests/mcp/test_evidence_ledger.py"],
+      "catalog_digest": "e03c237bd85cd7a5b7c5c553c3f4c4f0b4f0934977d608e918a0412accdfabdd",
+      "protocol_version": "2.4.5",
+      "protocol_schema": "proto-sha256:41f2fb57689fd89a2f76be97e03f14ff1c1866fea6b5bcc93f38b3f3707f134c",
+      "artifact_hashes": {
+        "platform/backend/tests/mcp/test_manifest_drift.py": "sha256:bba779ef6a83a7557991150d0d0fc238dfc202820180499edea94ffea94c930a",
+        "platform/backend/tests/mcp/test_canonical_catalog.py": "sha256:7affff903b2514fa1b6c9e190e9b13eed4f0191758f762e519fc2f261052b643",
+        "platform/backend/tests/mcp/test_evidence_ledger.py": "sha256:49895be4c37929a582480482f310f87549cfeb091f5c3cf1d770f28fdd746195"
+      },
+      "verified_at": "2026-07-14T00:00:00Z",
+      "verified_by": "ci",
+      "environment": {"peer": "none", "game": "absent", "smapi": "absent"}
+    },
+    {
+      "evidence_id": "shared-schema-mapper-hosted-2026-07-14",
+      "profile": "hosted",
+      "capabilities": ["*public-canonical*"],
+      "tier": "schema-mapper-verified",
+      "evidence_kind": "automated_test",
+      "artifact_refs": ["platform/backend/tests/mcp/test_manifest_drift.py", "platform/backend/tests/mcp/test_canonical_catalog.py", "platform/backend/tests/mcp/test_evidence_ledger.py"],
+      "catalog_digest": "e03c237bd85cd7a5b7c5c553c3f4c4f0b4f0934977d608e918a0412accdfabdd",
+      "protocol_version": "2.4.5",
+      "protocol_schema": "proto-sha256:41f2fb57689fd89a2f76be97e03f14ff1c1866fea6b5bcc93f38b3f3707f134c",
+      "artifact_hashes": {
+        "platform/backend/tests/mcp/test_manifest_drift.py": "sha256:bba779ef6a83a7557991150d0d0fc238dfc202820180499edea94ffea94c930a",
+        "platform/backend/tests/mcp/test_canonical_catalog.py": "sha256:7affff903b2514fa1b6c9e190e9b13eed4f0191758f762e519fc2f261052b643",
+        "platform/backend/tests/mcp/test_evidence_ledger.py": "sha256:49895be4c37929a582480482f310f87549cfeb091f5c3cf1d770f28fdd746195"
+      },
+      "verified_at": "2026-07-14T00:00:00Z",
+      "verified_by": "ci",
+      "environment": {"peer": "none", "game": "absent", "smapi": "absent"}
+    },
+    {
+      "evidence_id": "local-direct-proto-skill-runtime-adapter-2026-07-17",
+      "profile": "local_direct",
+      "capabilities": ["go_to", "interact", "query_world_region", "say"],
+      "tier": "adapter-contract-verified",
+      "evidence_kind": "automated_test",
+      "artifact_refs": [
+        "platform/backend/tests/mcp/test_local_stdio_protocol_e2e.py::test_real_cli_stdio_projects_safe_skills_and_executes_parameterized_atomic",
+        "platform/backend/tests/mcp/test_evidence_ledger.py"
+      ],
+      "catalog_digest": "e03c237bd85cd7a5b7c5c553c3f4c4f0b4f0934977d608e918a0412accdfabdd",
+      "protocol_version": "2.4.5",
+      "protocol_schema": "proto-sha256:41f2fb57689fd89a2f76be97e03f14ff1c1866fea6b5bcc93f38b3f3707f134c",
+      "artifact_hashes": {
+        "platform/backend/tests/mcp/test_local_stdio_protocol_e2e.py::test_real_cli_stdio_projects_safe_skills_and_executes_parameterized_atomic": "sha256:a5370e7202829c4b2e23bb2291550accd18a77af3c019484369274a34848fdd8",
+        "platform/backend/tests/mcp/test_evidence_ledger.py": "sha256:49895be4c37929a582480482f310f87549cfeb091f5c3cf1d770f28fdd746195"
+      },
+      "verified_at": "2026-07-14T00:00:00Z",
+      "verified_by": "ci",
+      "environment": {"peer": "synthetic-protocol-peer", "game": "absent", "smapi": "absent"}
+    },
+    {
+      "evidence_id": "hosted-full-catalog-adapter-2026-07-14",
+      "profile": "hosted",
+      "capabilities": ["act_on_target", "buy_items", "chop_trees", "emote", "equip", "equip_matching_item", "execute_on_targets", "face", "go_to", "go_to_bed", "harvest_crops", "interact", "menu_click", "menu_close", "menu_interact", "mine_rocks", "move_to", "move_to_target", "navigate_to_target", "observe_current_view", "open_menu", "plant_crops", "query_inspect_refs", "query_inventory_snapshot", "query_menu", "query_runtime_snapshot", "query_ui_snapshot", "query_world_region", "say", "ship_items", "sleep_for_night", "use_tool", "use_tool_at_target", "water_crops"],
+      "tier": "adapter-contract-verified",
+      "evidence_kind": "automated_test",
+      "artifact_refs": [
+        "platform/backend/tests/runtime_manager/test_persistence_postgres.py::test_real_product_transport_proxy_to_gateway_mod_result",
+        "platform/backend/tests/mcp/test_evidence_ledger.py"
+      ],
+      "catalog_digest": "e03c237bd85cd7a5b7c5c553c3f4c4f0b4f0934977d608e918a0412accdfabdd",
+      "protocol_version": "2.4.5",
+      "protocol_schema": "proto-sha256:41f2fb57689fd89a2f76be97e03f14ff1c1866fea6b5bcc93f38b3f3707f134c",
+      "artifact_hashes": {
+        "platform/backend/tests/runtime_manager/test_persistence_postgres.py::test_real_product_transport_proxy_to_gateway_mod_result": "sha256:d198140b881ba658f708a294d02c085f7c25afa6faf87538a0b8a3f21ca46591",
+        "platform/backend/tests/mcp/test_evidence_ledger.py": "sha256:49895be4c37929a582480482f310f87549cfeb091f5c3cf1d770f28fdd746195"
+      },
+      "verified_at": "2026-07-14T00:00:00Z",
+      "verified_by": "ci",
+      "environment": {"peer": "synthetic-protobuf-mod-peer", "game": "absent", "smapi": "absent"}
+    },
+    {
+      "evidence_id": "hosted-full-catalog-product-transport-2026-07-14",
+      "profile": "hosted",
+      "capabilities": ["act_on_target", "buy_items", "chop_trees", "emote", "equip", "equip_matching_item", "execute_on_targets", "face", "go_to", "go_to_bed", "harvest_crops", "interact", "menu_click", "menu_close", "menu_interact", "mine_rocks", "move_to", "move_to_target", "navigate_to_target", "observe_current_view", "open_menu", "plant_crops", "query_inspect_refs", "query_inventory_snapshot", "query_menu", "query_runtime_snapshot", "query_ui_snapshot", "query_world_region", "say", "ship_items", "sleep_for_night", "use_tool", "use_tool_at_target", "water_crops"],
+      "tier": "product-transport-verified",
+      "evidence_kind": "automated_test",
+      "artifact_refs": [
+        "platform/backend/tests/runtime_manager/test_persistence_postgres.py::test_real_product_transport_proxy_to_gateway_mod_result",
+        "platform/backend/tests/mcp/test_evidence_ledger.py"
+      ],
+      "catalog_digest": "e03c237bd85cd7a5b7c5c553c3f4c4f0b4f0934977d608e918a0412accdfabdd",
+      "protocol_version": "2.4.5",
+      "protocol_schema": "proto-sha256:41f2fb57689fd89a2f76be97e03f14ff1c1866fea6b5bcc93f38b3f3707f134c",
+      "artifact_hashes": {
+        "platform/backend/tests/runtime_manager/test_persistence_postgres.py::test_real_product_transport_proxy_to_gateway_mod_result": "sha256:d198140b881ba658f708a294d02c085f7c25afa6faf87538a0b8a3f21ca46591",
+        "platform/backend/tests/mcp/test_evidence_ledger.py": "sha256:49895be4c37929a582480482f310f87549cfeb091f5c3cf1d770f28fdd746195"
+      },
+      "verified_at": "2026-07-14T00:00:00Z",
+      "verified_by": "ci",
+      "environment": {"peer": "synthetic-protobuf-mod-peer", "game": "absent", "smapi": "absent"}
+    }
+  ]
+}

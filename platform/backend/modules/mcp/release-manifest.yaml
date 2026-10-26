@@ -1,0 +1,940 @@
+manifest_version: '1'
+capabilities:
+- id: proto:emote
+  contract_version: 2.4.5
+  input_schema_digest: sha256:4b90263205131900789f54eac720d1ca94b7c6f74dd3d21d760ed27a639b2886
+  output_schema_digest: sha256:8923441737228729303b3ea2d734e16c64738f984023aa4490dcdcff5ea6de4b
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:equip
+  contract_version: 2.4.5
+  input_schema_digest: sha256:61f307f2f2a752c23de025f6369f6cf5a8ebb5e8bb5c58b41f072bd7fe7a8244
+  output_schema_digest: sha256:908a3ffddc65d5bd8626c454e3f7511c0757ad99e492c275c8ee576749c6beeb
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:face
+  contract_version: 2.4.5
+  input_schema_digest: sha256:940b638dda80ad0dbec7b671a9ecf6bc4e001f8bac8f00ff910ce6d217465f35
+  output_schema_digest: sha256:906af2dba5ab827843994f1a5fcb6778333e76cd7b6f4e8f0d8560db57b2dcbf
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:go_to
+  contract_version: 2.4.5
+  input_schema_digest: sha256:2e35be80fac2ad9da7c976d53957c671977c9d3d51fbd1a3cc7028e31674d94a
+  output_schema_digest: sha256:263ab3138957d97399a50d14748baee164c13f45d5ce55ab6cbb012ea4a410fb
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:go_to_bed
+  contract_version: 2.4.5
+  input_schema_digest: sha256:4c94d6d5dd5b42d73dce7cfc223ac1eca13cf3d19dce6256dfe45945d1b3bc4e
+  output_schema_digest: sha256:9ad864661f1e9abe67e37c4be83abdef0134bb739b2b93e20d8c1b75de2702ef
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:interact
+  contract_version: 2.4.5
+  input_schema_digest: sha256:c93fb6e41db9a107b16656e362bd2be199bf6cb788da8fb5b0b53cec3a5b440f
+  output_schema_digest: sha256:9ba454bac739e524ae8fe4c5f6b8831200b7c7c2dc4f5c836a92bee3af93d213
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:menu_click
+  contract_version: 2.4.5
+  input_schema_digest: sha256:79e474d30f41ed3ac0f1b72c3fe0e2e7d07f38df5704924772fb568b2d838622
+  output_schema_digest: sha256:ab815a6970840262069c754f93efa1903f7f2ad4f4e8f70bcbf6c6df8f0d9fa8
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:menu_close
+  contract_version: 2.4.5
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:78257d9d8cb4862b7b7235aeb51a78c29feb6b7c0099193365e12f6e841816df
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:move_to
+  contract_version: 2.4.5
+  input_schema_digest: sha256:7cb2c3827fa6f8f16c40dba1af412f2f37a55473495713038e636a7111357785
+  output_schema_digest: sha256:3dd9e2d54465ed2d30a88d51ecdd6143dd13dad7ee8052a8b027c8615175180b
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:open_menu
+  contract_version: 2.4.5
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:9932e85d0c6eeda06e24db4c5090b1ce2d941632b83cd2bae4017e699ae5153b
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: proto:query_inspect_refs
+  contract_version: 2.4.5
+  input_schema_digest: sha256:ca1cfbc08f36f5eee2e2c1746f194f5921757a4c2bb61b8a27a4be96a24cf68f
+  output_schema_digest: sha256:9884062b9c71ecd7660044e509fa31a19a9754baea29e534937fc8d9a7f675ff
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:query_inventory_snapshot
+  contract_version: 2.4.5
+  input_schema_digest: sha256:997004c898c557dd317527f623d61187875ea8b8175a653c9c1926b49b392491
+  output_schema_digest: sha256:5eb62ce29ed5886bb8d8a1a823e8a1c49abe20c034d39d4a3b13e2e5127c5d3f
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:query_menu
+  contract_version: 2.4.5
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:9e7b47be4209813bc885334a6fec3f607d0ddba070fb03411cfde1ab88164674
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:query_runtime_snapshot
+  contract_version: 2.4.5
+  input_schema_digest: sha256:af78dd7acd9ba4a0d1b947a06d1cec7ae141c5de6ce4140cfaa78048b9f9a26e
+  output_schema_digest: sha256:e47ac1e6b9440412953d9fbc521cc656c5651f40e80feb5ec5d24ac997a1d233
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:query_ui_snapshot
+  contract_version: 2.4.5
+  input_schema_digest: sha256:6f8395f80f921f243b51ae813142cbf44f05b95e19d94d910192cb27ee9cbaae
+  output_schema_digest: sha256:e85711867b6bf760ebeead36752735cb785d7c3788c10193122fcbd3ad75f90c
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:query_world_region
+  contract_version: 2.4.5
+  input_schema_digest: sha256:f36601f755bf65adc85afad94d3cc5d8a2753a82dcdb1f5d59089bfe5795c787
+  output_schema_digest: sha256:0ad852f0866ba388f390fbbb81df6dc1fec3d9983c53556bdd9d679b0f6d1bc2
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:say
+  contract_version: 2.4.5
+  input_schema_digest: sha256:5a95cd54fea73a6f0c9363fd77faa23e725c470f3de3a34d9ee9ce67a1fdbd8d
+  output_schema_digest: sha256:800c050990cfde394acf42c669211ff6f20d31b1728ec1d1badc8aa95a53d46e
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: proto:use_tool
+  contract_version: 2.4.5
+  input_schema_digest: sha256:a52239f9a6fce21a7fec51cf4660c08c538f6aef9ca4c3ae17e4b70d2d27782e
+  output_schema_digest: sha256:fc20feff534344f50bfef5b36dcf2eeb5b2d0c5398299459b57c01c00338a415
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:act_on_target
+  contract_version: 2.4.5
+  input_schema_digest: sha256:1d72ceada7376a24d5f76a564b6c2f190d9187b23e7082330d00235d171eab99
+  output_schema_digest: sha256:fa4a54399ebe31df2bf5fb68d2cdb053f5a9e045361f08060518936c7851d353
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:buy_items
+  contract_version: 2.4.5
+  input_schema_digest: sha256:f90fea17e9535b48e1a49b9ece036df93dee9601f394e0f245b912722b90b35f
+  output_schema_digest: sha256:d736fe795e03fdd4718dc44ebaf9e99db80464e77f681bb4f4c68b44eac374ec
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:chop_trees
+  contract_version: 2.4.5
+  input_schema_digest: sha256:96e739d284741bea8a117ea6813e0d477fc07a38b8cb1a364263ce4ebfecdac1
+  output_schema_digest: sha256:6d7dcb4d467fd7637f772be73348dfea9bf179c0586a59b2e4d04f5c94ac2aae
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:equip_matching_item
+  contract_version: 2.4.5
+  input_schema_digest: sha256:1c9fb218cf73d3036f460a50118806b0d5bde73ef3b29ae77fb1636abd1d9b6c
+  output_schema_digest: sha256:8fc4ec2e24acd34327fb3fcd819eb721511092911b8a247219c5ce5ef5d9aaba
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: v2-compat:execute_on_targets
+  contract_version: 2.4.5
+  input_schema_digest: sha256:c224c1fa5d8f1de931d24f689a04fd03cbf56b56de4c652cbaa4a67e17898d14
+  output_schema_digest: sha256:bb857937f21bab5435152e0354d8c26248f22b1167146d7044786b418534aebd
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:harvest_crops
+  contract_version: 2.4.5
+  input_schema_digest: sha256:d777c2176d37fe9f1b52ab0029c7a0682cca71343c58c06ab80d79779d693192
+  output_schema_digest: sha256:c15ccc0a1d6434ba82d64a6d2e320f0aa596671902b63a0bd0021e2230234902
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:menu_interact
+  contract_version: 2.4.5
+  input_schema_digest: sha256:48ed634ec81a68a76f2cd68516f5261553183c3fdb15f987f7a08b2fa10362ef
+  output_schema_digest: sha256:c816de6a6092a422a0efbba1c277cb1cf783ba538ec5ff290f0a3be93f55b63c
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:mine_rocks
+  contract_version: 2.4.5
+  input_schema_digest: sha256:141316665afec2781a18376054f05c7b33ecc0bc86491e19f4c0989294aa4533
+  output_schema_digest: sha256:f82c98ffdf601bf2c243bd43474804837d247f5f94b55047bbc5de7bc0b1604a
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:move_to_target
+  contract_version: 2.4.5
+  input_schema_digest: sha256:38846ed9ba43c10448d8d1ba10397b23e0e65594f07ca38a33043868dd6f0303
+  output_schema_digest: sha256:55edb6982c1d9b009d610dbddc29211b7ca7605fde27f4037275034b77ee008d
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:navigate_to_target
+  contract_version: 2.4.5
+  input_schema_digest: sha256:8a6fb4014628c32b57095a1d34a625ee75e0493d09ea94eda8511d5ae837292f
+  output_schema_digest: sha256:decd9a5c02a33b576ce5cc41ab2cb8a4f0f9a1f80eec6bd0353f5f1445ed06f5
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:observe_current_view
+  contract_version: 2.4.5
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:bb5050eecb4b18d1caf8cbf3fb913754796faafcbbd29f25822e6a811c53857b
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: v2-compat:plant_crops
+  contract_version: 2.4.5
+  input_schema_digest: sha256:1b9d91adcb906ce3519c2cbce1f0141151981c7e29574e65f3ada3178b795e8d
+  output_schema_digest: sha256:d885e610dc56d77e81ced9384a1793bc903b7a78369cf1d7435e0d6165b3b556
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:ship_items
+  contract_version: 2.4.5
+  input_schema_digest: sha256:5e5cfc782b106934f6330977c6d136500581e0b0051caebbab039273564a9fd1
+  output_schema_digest: sha256:b481117160f32ca55b623cf6ee55a2d0a93ebc07c799198414b7fab65b1ac3a1
+  error_codes: []
+  lifecycle:
+    cancellable: false
+  source: builtin
+- id: v2-compat:sleep_for_night
+  contract_version: 2.4.5
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:795f3993501858c52c268fe3e50b37b0fe4093cf808cfe23dc83c747c933f485
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:use_tool_at_target
+  contract_version: 2.4.5
+  input_schema_digest: sha256:650dbf006fb62f88a12862101aa5b3db41711a6e1c8c68557a5f52ccd45c9ce8
+  output_schema_digest: sha256:5d8de89075273e2ed791dc7f564fdb111b096d0ba7f067ed26500aab99892d98
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+- id: v2-compat:water_crops
+  contract_version: 2.4.5
+  input_schema_digest: sha256:141316665afec2781a18376054f05c7b33ecc0bc86491e19f4c0989294aa4533
+  output_schema_digest: sha256:67035f7ebed1d8696cd80e0e7881117983427817613938f8699783b3e4f50cfa
+  error_codes: []
+  lifecycle:
+    cancellable: true
+  source: builtin
+skills:
+- skill_id: stardew.advanced.chop_trees
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:ee652305e2f4955733033f53b913f8b3bd2dcac983def5ce1d8e677cace47840
+  implementation_digest: sha256:86b9fae2f25a7e824b5134bd2322a9f73725c24ad7979535a6d62bde448f0dcc
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: chop_trees
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:4f223e9d18eb5199e1464b9807a2e0bb3118fb9a28857437899393fb002c61e8
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - changes_save
+  - consumes_energy
+  timeout_seconds: 300.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.advanced.clear_farm
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:f1943fa81546f029434390d39a26e3fb8832b57b4ef82762f91ff39f980ff9e7
+  implementation_digest: sha256:62a682fbb03fe5dd79d14875984905192db97b8cc1f09700577685572cddad9b
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  - id: execute_on_targets
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:c0abd1ccefbf6d3593c679d5ea33612ecca212a1b65c7fc2b0ee6cc12555a53a
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - changes_save
+  - consumes_energy
+  timeout_seconds: 300.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.advanced.find_interactions
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:4e013c15b0dc6d8b7d48c3c6c6a4e386aeec08d1515bad700731a3145c629626
+  implementation_digest: sha256:4b0dd9730df6f5828c1adee2e9d176c1d6d79619ec18d4f260094ad36182004b
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:a5813016fe001a935f15d28ffcee12ae5f39627828d01732e2ce84140a3d5733
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.advanced.go_bed
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:c164004392bb34ddc9a5f4ef284a4e8b9c18f53105aa7fe588c68efa3729f78b
+  implementation_digest: sha256:9a868f13d1c61148957d9b6fea5ce4e43f68d8ea810a113a64a5beac6703915a
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: go_to_bed
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:cd1a463c46d6264134447db17a8c3c7abe5b9a2488c6d759fea66da1f96b133e
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - advances_time
+  - changes_save
+  timeout_seconds: 240.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.advanced.go_shopping
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:3f77d54185ec24decfc7a46877826ea51fde987b920664bee3716d413344d026
+  implementation_digest: sha256:2c78fa43ffd187827d68f3254a8d42f231e367315f6892d1d0ca62fb9a986fd0
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: go_to
+    version_range: '>=2.4.5,<3.0.0'
+  - id: buy_items
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:301b89aa4f3b649316a72dda835828c1a4697b560c4b55e94774ec4833675f06
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - changes_save
+  - spends_money
+  timeout_seconds: 180.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.advanced.harvest_crops
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:42f7962b5fac0167b286f2fb20b53272fd724af132041724de957fe68adbae32
+  implementation_digest: sha256:535dc034163135ea6fb98faa493e02729879e5b82068d52d0ff7a753dbcc464c
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: harvest_crops
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:d14d2ad232a5de47c92e2d6b68b61b3edc21a3f1abe6a721ef63b9cb17a1be40
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - changes_save
+  timeout_seconds: 240.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.advanced.inspect
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:497f357822d4c51ddddf90c80fb0ba5e8adc0d6b4cbfa0813172ff4f3d7beabd
+  implementation_digest: sha256:21f9fd57e0bee4ed88309e9bb10aa44e80c7a7cde43c1824f133838a4740f2d8
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_inspect_refs
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:30ad036d388ce20e9bbb6748ea88d29d11aeecc0e6876d9002907a0182ac9c37
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.advanced.observe
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:27543eadb0d315523a0e918a1660ea126407726bc12d28ab838a8dacc76c2ef7
+  implementation_digest: sha256:e3e72591ee82ec6f48f37dddae9c57d147c5f5a91db681f2d9d80523c628a622
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: observe_current_view
+    version_range: '>=2.4.5,<3.0.0'
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:87875221117cae5d9194e772f2375be0c270743158c085f29838a60c96789426
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.advanced.pet_animals
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:4e887036d015155c54d639645700394997e265063f4858ce9ace0625347995d0
+  implementation_digest: sha256:6658186c1847a9a2e7db5f5ee9e8ec0e2249abcdb4d8c580f817a6f66ef1279a
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_runtime_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  - id: execute_on_targets
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:2e291c0b017db9b0371132d8d2bd6b2b7eff9a05f37c463426f4ae58576f84ed
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - changes_save
+  timeout_seconds: 240.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.advanced.search_facts
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:8bd904532f7f9ffa733fe1943aece5456aa5b6c81c7ce2af770813823b886421
+  implementation_digest: sha256:4381ec23e808c7a5cd55219146847ceb973b52254635c803a66bc26cb73d10ec
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:3e07794c0011e20c27d3fa2b6ac4faed39d7e85446d258f1307941804a294570
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.advanced.ship_items
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:4c0351b391330cee02d1da5aa293b3fcbef8fbd75852b508f7b164410dcf4383
+  implementation_digest: sha256:2af3fafc92cc81061752c0701b3ca0aceb654cad3b5105a36b6a758d0f361cb9
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: ship_items
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:cfbf8f6386ae98c373eb00da3136c6bced4c4ab1116e6ac224ba4411fe613054
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - changes_save
+  timeout_seconds: 60.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.advanced.walk_route
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:4df08bc83bf65fa398ac9205341593279e88b634262cf00c5c6f093d76e24790
+  implementation_digest: sha256:45d211123ba98f1cfcd1a7269fbd28f84dcc4573bf492ad1a17f8c55403ed8fa
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: go_to
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:a65c6d4253624a1801734fffda237f64f0d4200592c153743904dd3809016632
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk: []
+  timeout_seconds: 300.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.advanced.water_crops
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:d685a0253b64a66701a1efbdfc3b4e2c0e35f3a7289322c04bf7baf4a702ce57
+  implementation_digest: sha256:d84324e1ff5239e63df571488585cdaa2aa95305e9a5608e751d9f5cdd73655d
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: water_crops
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:9ab540f29dc9203beb51c1d12245e98189844c801badeac590db5df7b5b0d964
+  output_schema_digest: sha256:94bec3653764b024b830be98ae8dfbcbadce6f03e5c531f68ce9ce426dbec0a2
+  risk:
+  - changes_save
+  - consumes_energy
+  timeout_seconds: 240.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.basic.navigate_and_interact
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:0270a5298ca3de5fdead38e77bf275a4007befdbf4ca26e4481aaa565e931605
+  implementation_digest: sha256:63c7d767dc79dba770de50d906f65bc66cae93c19143bb456596b1f92ea8d6cf
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  - id: go_to
+    version_range: '>=2.4.5,<3.0.0'
+  - id: interact
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:a8af0541ba3e6ac2426e51d3657714d8bbdc08a3da45999096f25c6a27fe1d6c
+  output_schema_digest: sha256:c3076c3a84931f079c9b58f9cadbd3acf3603ff1c538d88816b13e1f13560a8c
+  risk:
+  - changes_save
+  timeout_seconds: 120.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.basic.observe_current_view
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:18f700ad8a1472082fc1385673b353ef5d036e2c1cffea39a7d63c64468df61f
+  implementation_digest: sha256:5f050e7245e5179fc277b891066938f543d241c1fa6b1f7bf7ee5eaf317fb70d
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_runtime_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  - id: query_inventory_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  - id: query_ui_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:cd1a463c46d6264134447db17a8c3c7abe5b9a2488c6d759fea66da1f96b133e
+  output_schema_digest: sha256:9aad4441a4bd29908456354832371604c5f446d32f399f54066f115f0e7c2fa3
+  risk: []
+  timeout_seconds: 120.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.daily.harvest_crops
+  version: 1.0.0
+  source: controlled
+  package_digest: sha256:9a94efab2ca0faae0c17537a87e91e9216715e5733564f0717ee1a7849225d87
+  implementation_digest: sha256:2171777434549f603a688e2fc21aa78f806880289b5235ee20fda736e8bd2ece
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  - id: query_inventory_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  - id: go_to
+    version_range: '>=2.4.5,<3.0.0'
+  - id: interact
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:bdff942402bbc04ecf6e635a522b5c8b240933099b4af64496dc50405f4875ed
+  output_schema_digest: sha256:0e5f42070b94c4b5260c23d4ebc896cf4a2722de788ecc70a34f6fd2d0046efb
+  risk:
+  - changes_save
+  - consumes_energy
+  timeout_seconds: 180.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.daily.water_crops
+  version: 1.0.0
+  source: controlled
+  package_digest: sha256:af0c966ad97bb144153415bd5fbd7907ea2d0a93a41bc60dd89b6c50177c1b9a
+  implementation_digest: sha256:36153c51048d8c09ef4c3ff76e3fecfad261b8c0e556d8104569b4ad82fdd877
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  - id: query_inventory_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  - id: go_to
+    version_range: '>=2.4.5,<3.0.0'
+  - id: equip
+    version_range: '>=2.4.5,<3.0.0'
+  - id: use_tool
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:bdff942402bbc04ecf6e635a522b5c8b240933099b4af64496dc50405f4875ed
+  output_schema_digest: sha256:0e5f42070b94c4b5260c23d4ebc896cf4a2722de788ecc70a34f6fd2d0046efb
+  risk:
+  - changes_save
+  - consumes_energy
+  timeout_seconds: 180.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.knowledge.read_wiki
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:a3d33dd55029bd7f904f34ec2e3c83e748732b7c069b892cb4e0bf1aa6c283cd
+  implementation_digest: sha256:a0b07e1508137f5377ed306de210846d0665ff8461fe5c7e17220e3e58c42ce8
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires: []
+  input_schema_digest: sha256:ec077f4789a8f65be81445f6d799ddea48eb9a5935c1237e3d4008e1f8958102
+  output_schema_digest: sha256:7b7c6571affc4928ef51d3b29aecedb1f09259c65431f1ed0c2ddf45c25fde15
+  risk: []
+  timeout_seconds: 10.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.knowledge.search_wiki
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:3a51455636557662d543f5aceda8286d84e61e89dc912331131b2e50270226b8
+  implementation_digest: sha256:d2739ffa5e230d47bd1d390b2b41c704708eae9b1e93ee546f64e4615309bcd2
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires: []
+  input_schema_digest: sha256:551e47d4b120d03f296d39efae748b83fda1cf8a1c8c08e21602174994477ade
+  output_schema_digest: sha256:18c8e6ebaa0c37879f094a5f32daa21eec536c2148a4a7be37f252e27589dc6f
+  risk: []
+  timeout_seconds: 10.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.navigation.go_to_place
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:73341f9d615793cf970a0b5103bfab6e6349c62c83edc1eb66e0f11af04095b5
+  implementation_digest: sha256:6cc2bfc9c23b3e09e5083d5b3ab27e984647583dced718b0dbef3f0f55700c00
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: go_to
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:879caa2e0dce77d7882dbc4a19663d898d9204a90991db79c11ad81b7c5db4fd
+  output_schema_digest: sha256:cf5fd90ff8d2de9c4fca5823a0a3222390fc4ac186d392b2e031dfdbdeda2f51
+  risk: []
+  timeout_seconds: 180.0
+  cancellable: true
+  retry: never
+- skill_id: stardew.proto.emote
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:df46edefed3ed2e9abe9e29339a837ff15202d67646df9395e77cbab880bb256
+  implementation_digest: sha256:6f8734233a28abaa55af51c10495d609d88d1591680ef1c36ff7d45a7f1de394
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: emote
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:4b90263205131900789f54eac720d1ca94b7c6f74dd3d21d760ed27a639b2886
+  output_schema_digest: sha256:8923441737228729303b3ea2d734e16c64738f984023aa4490dcdcff5ea6de4b
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.equip
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:a0c90deea393e3c4cb4b694597ffd1eeafb8d6288984fdac5ccf30c05fc90d13
+  implementation_digest: sha256:fc9f9d8e732ba67058efb5c3139083a3fc0413758215cdf577c6b1e3d82d4b1a
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: equip
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:61f307f2f2a752c23de025f6369f6cf5a8ebb5e8bb5c58b41f072bd7fe7a8244
+  output_schema_digest: sha256:908a3ffddc65d5bd8626c454e3f7511c0757ad99e492c275c8ee576749c6beeb
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.face
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:fe0f9e58c90332b94393866bd8d0feb0f91438b4967a421e69fa623cfda5c13f
+  implementation_digest: sha256:ca20d8e5e028a370791011c71c1fb6ff7403d0cbbd669352333ada94c648685b
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: face
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:940b638dda80ad0dbec7b671a9ecf6bc4e001f8bac8f00ff910ce6d217465f35
+  output_schema_digest: sha256:906af2dba5ab827843994f1a5fcb6778333e76cd7b6f4e8f0d8560db57b2dcbf
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.go_to
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:f981aedffc14a4dded49fe1e4acddb0b923ec4264f21be3519d831aa5a4505d3
+  implementation_digest: sha256:a787b5a42775c9c681359e8f132cf72e15a8ffc9e8acc3ce5af0f822cf1a0462
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: go_to
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:2e35be80fac2ad9da7c976d53957c671977c9d3d51fbd1a3cc7028e31674d94a
+  output_schema_digest: sha256:263ab3138957d97399a50d14748baee164c13f45d5ce55ab6cbb012ea4a410fb
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.go_to_bed
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:3fc610f240c1ba7ff4550eaf141868c2bbc1a3c10aee04b8e9484a3e43301ca4
+  implementation_digest: sha256:e4f54c279eefc4a6402634e112dc461c21bc000408d9bcba4447cf76e75ff550
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: go_to_bed
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:4c94d6d5dd5b42d73dce7cfc223ac1eca13cf3d19dce6256dfe45945d1b3bc4e
+  output_schema_digest: sha256:9ad864661f1e9abe67e37c4be83abdef0134bb739b2b93e20d8c1b75de2702ef
+  risk:
+  - advances_time
+  - changes_save
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.interact
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:6044a8d4fee045b4dfb08b3b68b4b38b8d1d39869dca22f7993b6b4e22fd8ed9
+  implementation_digest: sha256:fb294dd03ae61bae1f39d97804ac4eaf9c2d963c6e9c946d07a1e3b13e541e48
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: interact
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:c93fb6e41db9a107b16656e362bd2be199bf6cb788da8fb5b0b53cec3a5b440f
+  output_schema_digest: sha256:9ba454bac739e524ae8fe4c5f6b8831200b7c7c2dc4f5c836a92bee3af93d213
+  risk:
+  - changes_save
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.menu_click
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:f27ac89bc014939259d12dd93b8f5e53907ba948cf7c86f7f9fa72efed206bd4
+  implementation_digest: sha256:e9c020d8f4b65a1ebadcf12364d2e419e7c85b1cf87b12928fdbfa2d683dcc06
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: menu_click
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:79e474d30f41ed3ac0f1b72c3fe0e2e7d07f38df5704924772fb568b2d838622
+  output_schema_digest: sha256:ab815a6970840262069c754f93efa1903f7f2ad4f4e8f70bcbf6c6df8f0d9fa8
+  risk:
+  - changes_save
+  - consumes_item
+  - spends_money
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.menu_close
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:3d82146d467ad61a8efbd8524e679cd1b124b4a310e0eab969566727fb1e9845
+  implementation_digest: sha256:ac78c1b5e8f75df557cf36608d872fbd6e35c678c7faaa2646f40102635e45d4
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: menu_close
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:78257d9d8cb4862b7b7235aeb51a78c29feb6b7c0099193365e12f6e841816df
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.move_to
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:355836671783b9ac6cf5878a54c6953a82a06bfa5d50dcd71b019c4aa1c8537c
+  implementation_digest: sha256:bf89b2d8712b25b3e6c001e706f7a77dd301f4206b1d038ffcad179d15b2015d
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: move_to
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:7cb2c3827fa6f8f16c40dba1af412f2f37a55473495713038e636a7111357785
+  output_schema_digest: sha256:3dd9e2d54465ed2d30a88d51ecdd6143dd13dad7ee8052a8b027c8615175180b
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.open_menu
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:68ae81a6229c4f565c569cbba5339d9978b7f2eb6b0b88c8ccde91cf066fd522
+  implementation_digest: sha256:2ab54b8e8a883666d558419048fd4eaa9f0235fe7a99567ae2171f4807650634
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: open_menu
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:9932e85d0c6eeda06e24db4c5090b1ce2d941632b83cd2bae4017e699ae5153b
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.query_inspect_refs
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:066df60b5b40c042126a4f57f3bd5b92ebf32bdd26bae7270c78bad1a880b4ef
+  implementation_digest: sha256:5d3fc555e8deeef441d14e4361a0f564f5c0690e1a8a6960cb8f71bc8ce6624e
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_inspect_refs
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:ca1cfbc08f36f5eee2e2c1746f194f5921757a4c2bb61b8a27a4be96a24cf68f
+  output_schema_digest: sha256:9884062b9c71ecd7660044e509fa31a19a9754baea29e534937fc8d9a7f675ff
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.query_inventory_snapshot
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:2b5cf094a202052b8c0ed820701d61350a0615ee5e25354b7436c58b773c78d6
+  implementation_digest: sha256:48a8219a0208e87a4f4e1f54962c8a9d6641c0e11573c881b5348d7ef274a0eb
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_inventory_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:997004c898c557dd317527f623d61187875ea8b8175a653c9c1926b49b392491
+  output_schema_digest: sha256:5eb62ce29ed5886bb8d8a1a823e8a1c49abe20c034d39d4a3b13e2e5127c5d3f
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.query_menu
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:09336f160a2118275d56dde04a2ebb30336e64171ec6b238e17fb8e61bea245b
+  implementation_digest: sha256:af611b523143298914e6955a41c841698061fa254b5a8efbb6327401e278e32f
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_menu
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:d746974fa9afd5e951f76f9af38954b0ad7f436f2120dc974da65e5ee39f856f
+  output_schema_digest: sha256:9e7b47be4209813bc885334a6fec3f607d0ddba070fb03411cfde1ab88164674
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.query_runtime_snapshot
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:1cc34cd9944349bf604f00b48829f78eaaff8bbca0227faf4ba8abaa7c4bfc3b
+  implementation_digest: sha256:2b783fba0e621341d839e9c4c09464cc960c372a8bd54416ee9d4e54570712dc
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_runtime_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:af78dd7acd9ba4a0d1b947a06d1cec7ae141c5de6ce4140cfaa78048b9f9a26e
+  output_schema_digest: sha256:e47ac1e6b9440412953d9fbc521cc656c5651f40e80feb5ec5d24ac997a1d233
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.query_ui_snapshot
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:cdb2d433a8817c341f4bef0c0dd07539f1f28025994cb880c5d4576ffc2e58ad
+  implementation_digest: sha256:1f3aae942233b0c882698207733a4f04a36009951b8605f9b9dbb32e57d8dfac
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_ui_snapshot
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:6f8395f80f921f243b51ae813142cbf44f05b95e19d94d910192cb27ee9cbaae
+  output_schema_digest: sha256:e85711867b6bf760ebeead36752735cb785d7c3788c10193122fcbd3ad75f90c
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.query_world_region
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:3744200fc0569fa876a48b58fe4b0b70594938ec26439e3e924480f77b2d597d
+  implementation_digest: sha256:9f8bc2b3277fdf2c3fbb142f2703b66515f4a9aff116fe65ba96a01e4a74bce2
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: query_world_region
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:f36601f755bf65adc85afad94d3cc5d8a2753a82dcdb1f5d59089bfe5795c787
+  output_schema_digest: sha256:0ad852f0866ba388f390fbbb81df6dc1fec3d9983c53556bdd9d679b0f6d1bc2
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.say
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:b50d8bc134991e8f379946ac30870d3d1717cf8eb1edd6cdba6a8a1a996e3d76
+  implementation_digest: sha256:2c891444ff6f3b4980c4eea5284b910d90dd105ce732827cb214a7e1d7b4459f
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: say
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:5a95cd54fea73a6f0c9363fd77faa23e725c470f3de3a34d9ee9ce67a1fdbd8d
+  output_schema_digest: sha256:800c050990cfde394acf42c669211ff6f20d31b1728ec1d1badc8aa95a53d46e
+  risk: []
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+- skill_id: stardew.proto.use_tool
+  version: 1.0.0
+  source: builtin
+  package_digest: sha256:27eee05a39c28d31f5329ddec6dd5ed5b58bd0fdc136947b5675730e2001c2c0
+  implementation_digest: sha256:11396460f0b91dfe3d2fa222268fecbf035b2d8cb96e831743742bf4af5a9efe
+  game: stardew-valley
+  entrypoint: implementation:run
+  requires:
+  - id: use_tool
+    version_range: '>=2.4.5,<3.0.0'
+  input_schema_digest: sha256:a52239f9a6fce21a7fec51cf4660c08c538f6aef9ca4c3ae17e4b70d2d27782e
+  output_schema_digest: sha256:fc20feff534344f50bfef5b36dcf2eeb5b2d0c5398299459b57c01c00338a415
+  risk:
+  - changes_save
+  - consumes_energy
+  timeout_seconds: 30.0
+  cancellable: false
+  retry: never
+release_digest: sha256:1782594dbbd0a7db1b36dfba7310009e8b977331849c028765029a69bd5dfed8

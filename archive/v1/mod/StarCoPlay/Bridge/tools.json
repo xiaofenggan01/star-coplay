@@ -1,0 +1,252 @@
+{
+  "version": "0.5.0",
+  "description": "Star CoPlay Mod 层支持的所有 Bridge 命令（供 Agent 层调用）",
+  "tools": [
+    {
+      "name": "navigate_to",
+      "description": "移动到目标位置。同地图：A* 寻路（必须是可行走瓦片，先用 get_walkable_area 确认范围）。跨地图：传送到目标地图的安全点（x/y 参数会被忽略，自动使用白名单坐标）。建议流程：get_location_info 查看出口列表 → navigate_to 同地图走到出口或直接传送。",
+      "category": "movement",
+      "params": {
+        "x": { "type": "int", "required": false, "description": "目标瓦片 X（同地图寻路必填，跨地图忽略）" },
+        "y": { "type": "int", "required": false, "description": "目标瓦片 Y（同地图寻路必填，跨地图忽略）" },
+        "location": { "type": "string", "required": false, "description": "目标地图内部名（如 Farm, Town, Beach, Mountain, Forest, Mine 等）。提供时传送到该地图的安全出生点" }
+      },
+      "async": true,
+      "error_codes": ["MISSING_PARAMS", "UNKNOWN_MAP", "WARP_FAILED", "NAV_FAILED"]
+    },
+    {
+      "name": "use_tool_on_tile",
+      "description": "对指定瓦片使用当前装备的工具（锄头、斧头、镐等）。",
+      "category": "action",
+      "params": {
+        "x": { "type": "int", "required": true, "description": "目标瓦片 X 坐标" },
+        "y": { "type": "int", "required": true, "description": "目标瓦片 Y 坐标" }
+      },
+      "async": true,
+      "error_codes": ["MISSING_PARAMS", "TOOL_FAILED"]
+    },
+    {
+      "name": "equip_item",
+      "description": "从快捷栏中按名称装备物品。",
+      "category": "action",
+      "params": {
+        "item_name": { "type": "string", "required": true, "description": "物品名称（如 Watering Can, Hoe, Pickaxe）" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "ITEM_NOT_FOUND"]
+    },
+    {
+      "name": "interact_with_tile",
+      "description": "与瓦片上的对象交互（等同按 X 键）。使用游戏原生 checkAction，统一处理可收集品拾取、机器、NPC、家具等。",
+      "category": "action",
+      "params": {
+        "x": { "type": "int", "required": true, "description": "目标瓦片 X 坐标" },
+        "y": { "type": "int", "required": true, "description": "目标瓦片 Y 坐标" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "INTERACT_FAILED"]
+    },
+    {
+      "name": "send_chat",
+      "description": "在游戏聊天框发送消息。走原生多人聊天协议，所有玩家可见（包括局域网联机的其他玩家）。游戏会自动显示发送者名称。",
+      "category": "communication",
+      "params": {
+        "message": { "type": "string", "required": true, "description": "消息内容（游戏会自动加上发送者名称前缀）" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS"]
+    },
+    {
+      "name": "show_hud",
+      "description": "在游戏左下角显示 HUD 通知消息（仅本地可见）。",
+      "category": "communication",
+      "params": {
+        "message": { "type": "string", "required": true, "description": "通知消息内容" },
+        "type": { "type": "int", "required": false, "default": 0, "description": "消息类型：0=普通 1=错误(红色) 2=成就 3=新配方 4=新任务" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS"]
+    },
+    {
+      "name": "do_emote",
+      "description": "让玩家角色播放表情气泡动画。",
+      "category": "communication",
+      "params": {
+        "emote": { "type": "string", "required": true, "description": "表情名称或数字索引。可用: happy, sad, heart, exclamation, angry, question, sleep, sick, laugh, note, blush" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "INVALID_EMOTE"]
+    },
+    {
+      "name": "drop_item",
+      "description": "从背包丢弃物品到地面。",
+      "category": "inventory",
+      "params": {
+        "item_name": { "type": "string", "required": true, "description": "物品名称" },
+        "count": { "type": "int", "required": false, "default": -1, "description": "丢弃数量，-1 表示全部" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "ITEM_NOT_FOUND"]
+    },
+    {
+      "name": "ship_item",
+      "description": "将物品放入出货箱售卖。",
+      "category": "inventory",
+      "params": {
+        "item_name": { "type": "string", "required": true, "description": "物品名称" },
+        "count": { "type": "int", "required": false, "default": -1, "description": "售卖数量，-1 表示全部" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "ITEM_NOT_FOUND"]
+    },
+    {
+      "name": "peek_chest",
+      "description": "查看箱子内容（不打开 UI，直接 API 读取）。返回物品列表。",
+      "category": "inventory",
+      "params": {
+        "x": { "type": "int", "required": true, "description": "箱子所在瓦片 X 坐标" },
+        "y": { "type": "int", "required": true, "description": "箱子所在瓦片 Y 坐标" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "NO_CHEST"]
+    },
+    {
+      "name": "store_in_chest",
+      "description": "将背包中的物品直接存入箱子（绕过箱子 UI）。",
+      "category": "inventory",
+      "params": {
+        "x": { "type": "int", "required": true, "description": "箱子所在瓦片 X 坐标" },
+        "y": { "type": "int", "required": true, "description": "箱子所在瓦片 Y 坐标" },
+        "item_name": { "type": "string", "required": true, "description": "物品名称（按 DisplayName 或 Name 匹配，不区分大小写）" },
+        "count": { "type": "int", "required": false, "default": -1, "description": "存入数量，-1 表示全部" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "NO_CHEST", "ITEM_NOT_FOUND", "CHEST_FULL"]
+    },
+    {
+      "name": "take_from_chest",
+      "description": "从箱子中取出物品到背包（绕过箱子 UI）。",
+      "category": "inventory",
+      "params": {
+        "x": { "type": "int", "required": true, "description": "箱子所在瓦片 X 坐标" },
+        "y": { "type": "int", "required": true, "description": "箱子所在瓦片 Y 坐标" },
+        "item_name": { "type": "string", "required": true, "description": "物品名称（按 DisplayName 或 Name 匹配，不区分大小写）" },
+        "count": { "type": "int", "required": false, "default": -1, "description": "取出数量，-1 表示全部" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "NO_CHEST", "ITEM_NOT_FOUND", "INVENTORY_FULL"]
+    },
+    {
+      "name": "cancel",
+      "description": "取消当前正在执行的命令或批量操作。",
+      "category": "control",
+      "params": {},
+      "async": false,
+      "error_codes": []
+    },
+    {
+      "name": "water_crops",
+      "description": "批量浇水农场所有未浇水作物。贪心最近邻路径规划，自动处理体力不足和水壶没水。",
+      "category": "batch",
+      "params": {
+        "max_count": { "type": "int", "required": false, "default": 999, "description": "最大浇水数量" }
+      },
+      "async": true,
+      "error_codes": ["NO_FARM", "NO_WATERING_CAN", "TOOL_LOST", "CANCELLED"]
+    },
+    {
+      "name": "harvest_crops",
+      "description": "批量收获农场所有成熟作物。",
+      "category": "batch",
+      "params": {},
+      "async": true,
+      "error_codes": ["CANCELLED"]
+    },
+    {
+      "name": "go_to_bed",
+      "description": "传送回 FarmHouse 并触发睡觉，结束当天。自动确认睡觉对话框。",
+      "category": "batch",
+      "params": {},
+      "async": true,
+      "error_codes": ["WARP_FAILED", "WARP_TIMEOUT", "NOT_IN_FARMHOUSE", "CANCELLED"]
+    },
+    {
+      "name": "talk_to_npc",
+      "description": "与 NPC 对话。需在 2 格距离内，支持按名称或显示名查找。",
+      "category": "social",
+      "params": {
+        "npc_name": { "type": "string", "required": true, "description": "NPC 名称（如 Abigail, Robin, Pierre）" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "INVALID_STATE", "NPC_NOT_FOUND", "OUT_OF_RANGE"]
+    },
+    {
+      "name": "give_gift",
+      "description": "将背包中的物品送给 NPC。需在 2 格距离内。",
+      "category": "social",
+      "params": {
+        "npc_name": { "type": "string", "required": true, "description": "NPC 名称" },
+        "item_name": { "type": "string", "required": true, "description": "要送的物品名称" }
+      },
+      "async": false,
+      "error_codes": ["MISSING_PARAMS", "INVALID_STATE", "NPC_NOT_FOUND", "ITEM_NOT_FOUND", "OUT_OF_RANGE", "ACTION_FAILED"]
+    },
+    {
+      "name": "get_active_dialog",
+      "description": "读取当前活跃的对话框/问题。返回对话文本、类型（info/question）和可选回答列表。",
+      "category": "perception",
+      "params": {},
+      "async": false,
+      "error_codes": ["NO_DIALOG"]
+    },
+    {
+      "name": "answer_dialog",
+      "description": "回答或关闭当前对话框。问题对话框选择指定索引的回答，信息对话框点击推进/关闭。",
+      "category": "action",
+      "params": {
+        "choice": { "type": "int", "required": true, "description": "回答选项的索引（0-based）。信息对话框传 0 即可关闭。" }
+      },
+      "async": false,
+      "error_codes": ["NO_DIALOG", "INVALID_CHOICE", "DIALOG_ERROR"]
+    },
+    {
+      "name": "query",
+      "description": "查询游戏状态信息（同步返回数据，不执行动作）。推荐流程：先 get_location_info 了解地图概况 → get_map_exits 查看出口和可传送目标 → get_map_objects 查看物品 → get_walkable_area 确认移动边界。各子查询：get_world_state=日期/天气/金币；get_player_state=位置/体力/技能；get_inventory=背包物品列表；get_farm_summary=农场作物/动物/机器统计；get_available_actions=当前可执行动作；get_location_info=地图概览（名称、瓦片尺寸、传送点、建筑、NPC 列表）；get_map_objects=默认统计摘要+可操作高亮，detail=true 获取完整坐标；get_walkable_area=可行走区域统计+有效坐标范围；get_map_exits=当前地图出口列表（含步行触发坐标和目标地图安全点）+所有已知地图。跨地图移动前必须先查 get_map_exits。",
+      "category": "perception",
+      "params": {
+        "tool": { "type": "string", "required": true, "description": "查询类型", "enum": ["get_world_state", "get_player_state", "get_inventory", "get_farm_summary", "get_available_actions", "get_location_info", "get_map_objects", "get_walkable_area", "get_map_exits"] },
+        "detail": { "type": "boolean", "required": false, "description": "仅 get_map_objects 有效。false（默认）=统计摘要+可操作高亮；true=全量对象坐标列表", "default": false }
+      },
+      "async": false,
+      "error_codes": ["UNKNOWN_TOOL", "QUERY_ERROR"]
+    }
+  ],
+  "events": [
+    { "type": "day_started", "description": "新一天开始，含天气/未浇水/可收获数据" },
+    { "type": "day_ending", "description": "一天即将结束" },
+    { "type": "time_changed", "description": "游戏内时间变化（每 10 分钟一跳）" },
+    { "type": "inventory_changed", "description": "背包物品变化，含高价值物品标记" },
+    { "type": "npc_nearby", "description": "NPC 进入附近范围（去重，离开后重入才重新触发）" },
+    { "type": "player_warped", "description": "玩家切换地图" },
+    { "type": "cmd_result", "description": "命令执行结果（success/error + 数据）" },
+    { "type": "energy_low", "description": "玩家体力低于阈值警告" },
+    { "type": "season_changed", "description": "季节变更" },
+    { "type": "chat_received", "description": "收到其他玩家的聊天消息（多人模式），含 player_name 和 message" },
+    { "type": "user_directive", "description": "用户通过 SMAPI 控制台或游戏内聊天下达的自然语言指令（最高优先级），含 directive 文本和 source（console/chat）" }
+  ],
+  "global_error_codes": {
+    "UNKNOWN_ACTION": "未知命令",
+    "BUSY": "上一个命令尚未完成",
+    "DISPATCH_ERROR": "命令分发异常"
+  },
+  "categories": {
+    "movement": "移动与传送",
+    "action": "工具与交互",
+    "communication": "聊天与表情",
+    "inventory": "背包与物品管理",
+    "control": "流程控制",
+    "batch": "批量复合操作（异步状态机）",
+    "social": "NPC 社交",
+    "perception": "感知与查询"
+  }
+}

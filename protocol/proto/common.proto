@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// 共享枚举与值类型，供所有 capability 复用。
+
+// 四方向枚举，用于面朝、移动、出口等场景。
+enum Direction {
+  DIRECTION_UNSPECIFIED = 0;  // 未指定/无效
+  DIRECTION_UP = 1;           // 上（北）
+  DIRECTION_DOWN = 2;         // 下（南）
+  DIRECTION_LEFT = 3;         // 左（西）
+  DIRECTION_RIGHT = 4;        // 右（东）
+}
+
+// 错误码枚举，用于 CommandResult.error 和 ErrorResponse。
+enum ErrorCode {
+  ERROR_CODE_UNSPECIFIED = 0;  // 未指定
+  CAPABILITY_MISSING = 1;      // 请求的能力不存在或未启用
+  INVALID_PARAMS = 2;          // 参数校验失败（缺失、越界、类型错误）
+  BUSY = 3;                    // 当前有命令正在执行，无法接受新命令
+  TIMEOUT = 4;                 // 命令执行超时
+  CANCELLED = 5;               // 命令被主动取消
+  EXECUTION_FAILED = 6;        // 执行过程中发生异常
+}
+
+// 结构化错误信息，附带机器可读 code 和人类可读描述。
+message Error {
+  ErrorCode code = 1;    // 错误码
+  string message = 2;    // 简短错误描述（面向日志/调试）
+  string detail = 3;     // 详细上下文（可选，面向开发者排查）
+}
+
+// 调试/诊断用的字符串键值对。用于承载不应进入协议结构字段的原始游戏值。
+message StringPair {
+  string key = 1;
+  string value = 2;
+}
+
+// Agent 侧可读的观测摘要，用于 LLM 理解当前状态或恢复上下文。
+message Observation {
+  string text = 1;  // 简短自然语言描述，如 "玩家到达 Farm (10,20)"
+}
+
+// 完整位置快照：地图 + 坐标 + 朝向。用于记录执行前后状态。
+message LocationSnapshot {
+  // encoded 地图标识符，由 RefIdTokenEncoder.EncodeMapToken(NameOrUniqueName) 生成。
+  // 例："farm"、"farm_house"、"town"。
+  // 注意：这是 encoded token（小写+转义），不是原始 NameOrUniqueName。
+  // [BREAKING] 原字段名 map_id，改名为 map_token，字段号不变。
+  string map_token = 1;
+  int32 x = 2;           // Tile X 坐标
+  int32 y = 3;           // Tile Y 坐标
+  Direction facing = 4;  // 当前面朝方向
+}
+
+// 带地图的 tile 坐标，用于跨地图定位（如 tp 目标）。
+message TilePosition {
+  // @required 地图名称，如 Farm、Town、FarmHouse。
+  string map_id = 1;
+  // @required Tile X 坐标。
+  int32 x = 2;
+  // @required Tile Y 坐标。
+  int32 y = 3;
+}
+
+// 带地图的 tile 矩形区域。x/y 为左上角，width/height 以 tile 为单位。
+message TileRect {
+  // @required 地图名称，如 Farm、Town、FarmHouse。
+  string map_id = 1;
+  // @required 左上角 Tile X。
+  int32 x = 2;
+  // @required 左上角 Tile Y。
+  int32 y = 3;
+  // @required 宽度，必须 > 0。
+  int32 width = 4;
+  // @required 高度，必须 > 0。
+  int32 height = 5;
+}
+
+// 屏幕/菜单像素坐标。用于 UI fact，不用于世界 tile 定位。
+message PixelPosition {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+// 当前地图内的 tile 坐标（不含 map_id），用于同地图操作。
+message TilePoint {
+  // @required 当前地图内 Tile X。
+  int32 x = 1;
+  // @required 当前地图内 Tile Y。
+  int32 y = 2;
+}
+
+// 资源变化量（如体力、金钱），记录执行前后差值。
+message ResourceDelta {
+  int32 before = 1;  // 执行前数值
+  int32 after = 2;   // 执行后数值
+  int32 delta = 3;   // 变化量（after - before）
+}
+
+// 执行计时信息，所有涉及异步等待的命令都会返回。
+message ExecutionTiming {
+  int32 elapsed_frames = 1;      // 总耗时帧数
+  int32 waited_ticks = 2;        // 异步等待的 tick 数
+  bool timed_out = 3;            // 是否因超时结束
+  string completion_reason = 4;  // 结束原因描述，如 "animation_done"、"timeout"
+}
+
+// 对目标 tile 执行操作后的通用效果结构（interact/use_tool 共用）。
+message TileEffectResult {
+  TilePoint target_tile = 1;    // 实际作用的目标 tile
+  ResourceDelta stamina = 2;    // 体力变化
+  ExecutionTiming timing = 3;   // 执行计时
+}
+
+// 工具/物品大类枚举，用于 equip 按类别选择。
+enum ItemCategory {
+  ITEM_CATEGORY_UNSPECIFIED = 0;    // 未指定
+  ITEM_CATEGORY_AXE = 1;           // 斧头
+  ITEM_CATEGORY_PICKAXE = 2;       // 镐
+  ITEM_CATEGORY_HOE = 3;           // 锄头
+  ITEM_CATEGORY_WATERING_CAN = 4;  // 水壶
+  ITEM_CATEGORY_SCYTHE = 5;        // 镰刀
+  ITEM_CATEGORY_FISHING_ROD = 6;   // 鱼竿
+  ITEM_CATEGORY_WEAPON = 7;        // 武器
+}
+
+// 背包中的单个物品栈信息。
+message ItemStack {
+  string item_id = 1;        // 游戏内部物品 ID
+  string name = 2;           // 内部定义名
+  string display_name = 3;   // 玩家可见的显示名
+  int32 stack = 4;           // 堆叠数量
+  int32 quality = 5;         // 品质等级（0=普通, 1=银, 2=金, 3=铱）
+  int32 slot = 6;            // 工具栏/背包槽位，1-based
+}
+
+// 菜单组件来源：当前页面内 vs 顶部 tab 栏。
+enum MenuComponentSource {
+  MENU_COMPONENT_SOURCE_UNSPECIFIED = 0;  // 未指定
+  MENU_COMPONENT_SOURCE_PAGE = 1;         // 当前页面内的组件
+  MENU_COMPONENT_SOURCE_TAB = 2;          // GameMenu 顶部 tab
+}
+
+// 菜单状态转换记录，用于 menu 操作的响应。
+message MenuTransition {
+  string menu_type_before = 1;  // 操作前的菜单类型（空字符串表示无菜单）
+  string menu_type_after = 2;   // 操作后的菜单类型
+  bool ui_open_before = 3;      // 操作前是否有 UI 打开
+  bool ui_open_after = 4;       // 操作后是否有 UI 打开
+}

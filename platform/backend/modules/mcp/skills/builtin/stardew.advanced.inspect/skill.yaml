@@ -1,0 +1,29 @@
+id: stardew.advanced.inspect
+version: 1.0.0
+description: Resolve one or more opaque RefIds returned by an earlier observation
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    refs: {type: array, minItems: 1, maxItems: 20, items: {type: string, minLength: 1}}
+    ref_id: {type: string, minLength: 1}
+    include_debug: {type: boolean}
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed, partial, failed]}
+    summary: {type: string, maxLength: 2000}
+    data_json: {type: string, maxLength: 5000}
+    truncated: {type: boolean}
+  required: [status, summary, data_json, truncated]
+  additionalProperties: false
+requires:
+  capabilities:
+    - {id: query_inspect_refs, version: ">=2.4.5,<3.0.0"}
+risk: []
+timeout_seconds: 30
+cancellable: false
+retry: never
+failure_codes: [capability_failed, timeout, cancelled, invalid_arguments]

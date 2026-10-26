@@ -1,0 +1,218 @@
+syntax = "proto3";
+
+package starcoplay.protocol.v245;
+
+import "common.proto";
+
+option csharp_namespace = "StarCoPlay.Protocol.V245";
+
+// 各能力的输入参数定义。
+// 这些 message 是 LLM FunctionSchema 生成的唯一事实源。
+// @required 标注的字段在运行时校验中为必填。
+
+// ============================================================
+// 社交/表达
+// ============================================================
+
+// say: 在游戏内聊天框发送一段文本。
+message SayParams {
+  // @required 发送内容，非空且不超过 200 字符。不可以 '/' 开头（SDV 会将其解析为游戏命令）。
+  string content = 1;
+}
+
+// 表情气泡类型枚举（对应 Farmer.EMOTES 的 22 种表情）。
+enum EmoteType {
+  EMOTE_TYPE_UNSPECIFIED = 0;  // 未指定（无效）
+  EMOTE_HAPPY = 1;             // 开心
+  EMOTE_SAD = 2;               // 难过
+  EMOTE_ANGRY = 3;             // 生气
+  EMOTE_HEART = 4;             // 爱心
+  EMOTE_EXCLAMATION = 5;       // 感叹号
+  EMOTE_QUESTION = 6;          // 问号
+  EMOTE_LAUGH = 7;             // 大笑
+  reserved 8;                  // was EMOTE_THINKING — SDV Farmer.EMOTES 中不存在 "thinking"
+  EMOTE_NOTE = 9;              // 音符
+  EMOTE_SLEEP = 10;            // 睡觉
+  EMOTE_GAME = 11;             // 游戏
+  EMOTE_X = 12;                // 叉号
+  EMOTE_PAUSE = 13;            // 暂停
+  EMOTE_BLUSH = 14;            // 脸红
+  EMOTE_YES = 15;              // 点头
+  EMOTE_NO = 16;               // 摇头
+  EMOTE_SICK = 17;             // 生病
+  EMOTE_SURPRISED = 18;        // 惊讶
+  EMOTE_HI = 19;               // 打招呼
+  EMOTE_TAUNT = 20;            // 嘲讽
+  EMOTE_UH = 21;               // 困惑
+  EMOTE_MUSIC = 22;            // 音乐
+  EMOTE_JAR = 23;              // 罐子
+}
+
+// emote: 在玩家头顶显示表情气泡。
+message EmoteParams {
+  // @required 要显示的表情类型。
+  EmoteType emote_type = 1;
+}
+
+// face: 让玩家面朝指定方向（不移动）。
+message FaceParams {
+  // @required 目标朝向。
+  Direction direction = 1;
+}
+
+// ============================================================
+// 移动/导航
+// ============================================================
+
+// move_to 的移动模式枚举。
+enum MoveToMode {
+  MOVE_TO_MODE_UNSPECIFIED = 0;  // 未指定（无效）
+  MOVE_TO_EXACT = 1;            // 精确移动到目标 tile
+  MOVE_TO_EDGE_WARP = 2;        // 移动到边界触发点并持续按方向键触发 warp
+  MOVE_TO_ADJACENT = 3;         // 移动到目标指定侧的相邻 tile 并面朝目标
+}
+
+// go_to 的到达模式枚举。
+enum ArrivalMode {
+  ARRIVAL_MODE_UNSPECIFIED = 0;  // 未指定（无效）
+  ARRIVAL_EXACT = 1;            // 精确到达目标 tile
+  ARRIVAL_ADJACENT = 2;         // 站到目标相邻 tile 并面朝目标
+}
+
+// move_to: 同地图内寻路移动（L1 原子能力）。
+message MoveToParams {
+  // @required 移动模式，决定参数校验规则。
+  MoveToMode mode = 1;
+  // @required 目标 tile X（当前地图内）。
+  int32 x = 2;
+  // @required 目标 tile Y（当前地图内）。
+  int32 y = 3;
+  // 仅 MOVE_TO_EDGE_WARP 必填：warp 方向（持续按键方向）。
+  Direction direction = 4;
+  // 仅 MOVE_TO_EXACT 可选：到达后转向。
+  Direction face_direction = 5;
+  // 仅 MOVE_TO_ADJACENT 需要：站在目标哪一侧。UNSPECIFIED 表示任意可用侧。
+  Direction adjacent_side = 6;
+  // 可选超时帧数，默认 1800（约 30 秒 @60fps）。
+  int32 timeout_frames = 7;
+}
+
+// go_to: 跨地图移动（L2 复合能力，内部编排多次 move_to + edge_warp）。
+message GoToParams {
+  // @required 目标地图 ID，如 "Farm"、"Town"。
+  string map_id = 1;
+  // @required 目标 tile X。
+  int32 x = 2;
+  // @required 目标 tile Y。
+  int32 y = 3;
+  // @required 到达模式。
+  ArrivalMode arrival_mode = 4;
+  // 仅 ARRIVAL_ADJACENT 需要：站在目标哪一侧。UNSPECIFIED 表示任意。
+  Direction stand_side = 5;
+  // 仅 ARRIVAL_EXACT 可选：到达后转向。
+  Direction face_direction = 6;
+  // 可选总超时帧数。
+  int32 timeout_frames = 7;
+}
+
+// go_to_bed: 睡觉并进入下一天（L2 复合能力，内部 tp+移动+交互+日结等待）。
+message GoToBedParams {
+  // 可选总超时帧数。Mod 自动解析玩家床位置。
+  int32 timeout_frames = 1;
+}
+
+// interact: 对目标 tile 执行一次交互输入（等同玩家按 X 键）。
+message InteractParams {
+  // @required 目标 tile，必须与玩家相邻（含当前站立位置周围一圈）。
+  TilePoint target_tile = 1;
+}
+
+// use_tool: 对目标 tile 使用当前手持工具（等同玩家按 C 键）。
+message UseToolParams {
+  // @required 目标 tile，作为面向锚点。
+  TilePoint target_tile = 1;
+  // 可选蓄力等级，0=点按，1-4=长按蓄力。默认 0。
+  int32 charge_level = 2;
+}
+
+// equip: 切换当前手持物品。三种选择器优先级：slot > item_name > item_category。
+message EquipParams {
+  // 工具栏槽位编号，1-based（对应玩家看到的 1-12）。
+  optional int32 slot = 1;
+  // 精确物品名，匹配 DisplayName 或内部 Name。
+  optional string item_name = 2;
+  // 物品大类，如 axe 表示"装备一把斧类工具"。
+  ItemCategory item_category = 3;
+}
+
+// ============================================================
+// 菜单操作
+// ============================================================
+
+// open_menu: 打开指定菜单。支持 "inventory"（GameMenu）和 "quest_log"（QuestLog）。
+message OpenMenuParams {
+  // 目标菜单类型："inventory" | "quest_log"。空字符串按 "inventory" 处理。
+  string menu = 1;
+}
+
+// query_menu: 查询当前菜单快照（只读，不注入任何输入）。
+message QueryMenuParams {
+  // 无参数。无菜单时返回空快照。
+}
+
+// menu_click: DPad 导航到指定组件并按 A 确认。
+message MenuClickParams {
+  // @required 目标组件 myID，来自最近一次 query_menu 返回的 MenuSnapshot。
+  int32 component_id = 1;
+  // @required 组件来源：当前页面内 or 顶部 tab。
+  MenuComponentSource source = 2;
+  // 点击次数，默认 1。用于批量点击场景。
+  int32 click_count = 3;
+}
+
+// menu_close: 关闭当前菜单（按 ESC）。幂等：无菜单时也视为成功。
+message MenuCloseParams {
+  // 无参数。
+}
+
+// ============================================================
+// 查询
+// ============================================================
+
+// query_inventory: 查询玩家背包物品列表。
+message QueryInventoryParams {
+  // 是否包含每个物品的详细信息（slot、quality 等）。
+  bool include_details = 1;
+}
+
+// query_location: 查询玩家当前位置（地图+坐标+朝向）。
+message QueryLocationParams {
+  // 无参数。
+}
+
+// query_map_exits: 查询当前地图的所有出口/传送点。
+message QueryMapExitsParams {
+  // 无参数。
+}
+
+// ============================================================
+// 内部能力（不暴露给 LLM）
+// ============================================================
+
+// tp: 强制传送，仅用于系统内部恢复、测试和 go_to_bed 等专用流程。
+message TpParams {
+  // @required 传送目标位置（含地图）。
+  TilePosition target = 1;
+  // 可选传送后朝向。
+  Direction face_direction = 2;
+  // @required 传送原因，用于审计。
+  TeleportReason reason = 3;
+}
+
+// 传送原因枚举，所有 tp 调用必须记录原因。
+enum TeleportReason {
+  TELEPORT_REASON_UNSPECIFIED = 0;  // 未指定（无效）
+  TELEPORT_RECOVERY = 1;           // 卡住恢复
+  TELEPORT_TEST = 2;               // 测试用途
+  TELEPORT_GO_TO_BED = 3;          // go_to_bed 内部使用
+}

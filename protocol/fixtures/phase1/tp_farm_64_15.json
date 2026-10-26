@@ -1,0 +1,14 @@
+{
+  "commandId": "fixture-tp-farm-64-15",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "tp",
+  "tp": {
+    "target": {
+      "mapId": "Farm",
+      "x": 64,
+      "y": 15
+    },
+    "reason": "TELEPORT_TEST"
+  }
+}

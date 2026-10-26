@@ -1,0 +1,39 @@
+{
+  "objective": "Validate codex-claude driver execution, explicit claude-sonnet-5 selection, and session resume without modifying business implementation.",
+  "session_id": "5f465248-8e0b-471b-b33e-745f9238a8a2",
+  "proxy": "http://127.0.0.1:7890",
+  "proxy_ready": true,
+  "model": "claude-sonnet-5",
+  "turns": [
+    {
+      "turn": 1,
+      "mode": "session",
+      "task": "Store a session-only marker without writing files.",
+      "result": "pass",
+      "evidence": ".driver/logs/turn-1-claude.json",
+      "session_id": "5f465248-8e0b-471b-b33e-745f9238a8a2",
+      "verified_model_usage": "claude-sonnet-5",
+      "files_changed_by_claude": []
+    },
+    {
+      "turn": 2,
+      "mode": "resume",
+      "task": "Recall the prior session-only marker without receiving the marker in this turn.",
+      "result": "pass",
+      "evidence": ".driver/logs/turn-2-claude.json",
+      "session_id": "5f465248-8e0b-471b-b33e-745f9238a8a2",
+      "verified_model_usage": "claude-sonnet-5",
+      "files_changed_by_claude": []
+    }
+  ],
+  "requirements": {
+    "codex_can_call_claude": "verified",
+    "claude_resume_retains_context": "verified",
+    "codex_independent_verification_without_fixing": "verified",
+    "state_file_supports_3_to_5_turns": "verified"
+  },
+  "notes": [
+    "Proxy reachability verified through http://127.0.0.1:7890; HTTP 404 from Anthropic root proves transport reached the upstream endpoint.",
+    "Workspace-local delegate wrapper defaults CLAUDE_DRIVER_MODEL to claude-sonnet-5 and passes --model explicitly."
+  ]
+}

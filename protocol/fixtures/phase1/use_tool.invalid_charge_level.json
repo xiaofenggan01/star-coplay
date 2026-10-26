@@ -1,0 +1,13 @@
+{
+  "commandId": "fixture-use-tool-invalid-charge-level",
+  "timeoutMs": 10000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "use_tool",
+  "useTool": {
+    "targetTile": {
+      "x": 64,
+      "y": 16
+    },
+    "chargeLevel": 5
+  }
+}

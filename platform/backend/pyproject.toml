@@ -1,0 +1,22 @@
+[project]
+name = "starcoplay-backend"
+version = "0.1.0"
+description = "StarCoPlay Python backend — WebSocket gateway, HTTP API, LLM routing, runtime management"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_return_any = true
+warn_unused_configs = true

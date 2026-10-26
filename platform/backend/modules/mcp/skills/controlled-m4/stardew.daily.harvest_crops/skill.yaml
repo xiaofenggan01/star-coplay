@@ -1,0 +1,46 @@
+id: stardew.daily.harvest_crops
+version: 1.0.0
+description: Controlled M4 sample harvest crops
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    targets:
+      type: array
+      minItems: 1
+      items:
+        type: object
+        properties:
+          map_id: {type: string, minLength: 1}
+          x: {type: integer}
+          y: {type: integer}
+          stand_side: {type: string, enum: [up, down, left, right]}
+        required: [map_id, x, y, stand_side]
+        additionalProperties: false
+  required: [targets]
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed]}
+    targets_completed: {type: integer, minimum: 1}
+    world_observation: {type: string}
+    inventory_observation: {type: string}
+  required: [status, targets_completed, world_observation, inventory_observation]
+  additionalProperties: false
+requires:
+  capabilities:
+    - id: query_world_region
+      version: ">=2.4.5,<3.0.0"
+    - id: query_inventory_snapshot
+      version: ">=2.4.5,<3.0.0"
+    - id: go_to
+      version: ">=2.4.5,<3.0.0"
+    - id: interact
+      version: ">=2.4.5,<3.0.0"
+risk: [changes_save, consumes_energy]
+timeout_seconds: 180
+cancellable: true
+retry: never
+failure_codes: [target_not_found, capability_failed, timeout, cancelled]

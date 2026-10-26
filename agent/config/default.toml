@@ -1,0 +1,109 @@
+# stardew-agent 默认配置
+# 所有时间单位在注释中明确标注
+
+[reactive_loop]
+# 没有游戏事件时的回退轮询间隔（毫秒）
+fallback_poll_interval_ms = 200
+# BT tick 最小间隔，防止 CPU 占用过高（毫秒）
+min_tick_interval_ms = 50
+
+[bridge]
+# Mod 文件桥路径。留空或填相对路径时自动按平台探测 Mods/StarCoPlay/bridge/
+# 也可填绝对路径跳过探测（如 "/Users/sea/.local/share/StardewValley/Mods/StarCoPlay/bridge"）
+base_path = ""
+# 命令队列文件名
+command_file = "commands.jsonl"
+# 命令结果文件名
+result_file = "results.jsonl"
+# 游戏状态快照文件名
+state_file = "game_state.json"
+# 游戏事件流文件名
+events_file = "events.jsonl"
+# 文件桥协议版本
+protocol_version = "2.0"
+# 命令超时秒数（ActionLeaf 默认值来源）
+command_timeout_s = 10.0
+# 结果轮询间隔毫秒（ReactiveLoop tick 间隔参考）
+result_poll_interval_ms = 100
+# V2 能力信息文件名
+adapter_info_file = "adapter_info.json"
+# results 缓存最大条数（超出后淘汰最旧 100 条）
+results_cache_max = 200
+
+[slow_loop]
+# 两次 LLM 调用之间的最小间隔（秒），避免频繁触发
+min_call_interval_s = 1.0
+# 玩家输入防抖窗口（秒），合并短时间内多条输入
+player_input_debounce_s = 1.5
+# LLM 生成 BT 的最大深度限制
+max_bt_depth = 3
+# LLM 生成 BT 的最大节点数限制
+max_bt_nodes = 15
+# 触发仲裁队列最大容量
+max_queue_size = 32
+
+[slow_loop.prompt]
+# Prompt 总输入 token 预算
+token_budget = 3500
+
+[slow_loop.prompt.segment_budgets]
+# 各段 token 预算分配（超限时按 P3→P2→P1 优先级裁剪，P0 不砍）
+persistent_facts = 500   # P1
+episode_summaries = 600  # P2
+working_memory = 1000    # P3
+game_state = 300         # P1
+dialogue_history = 500   # P2
+trigger = 200            # P0
+output_schema = 100      # P0
+
+[slow_loop.llm]
+# LLM 模型档位；生产环境由平台注入 LLM_MODEL，并在 System LLM Router 中解析为实际模型
+model = "balanced"
+# 最大输出 token 数
+max_tokens = 1500
+# 采样温度（0.0~1.0，越高越随机）
+temperature = 0.7
+# LLM API 调用超时（秒）
+timeout_s = 15.0
+
+[memory]
+# WorkingMemory 保留的最大事件数量
+max_events = 200
+# 每累计多少条事件触发一次自动摘要
+summary_interval = 50
+# MemorySystem 三层记忆根目录（相对于 main.py 所在目录）
+memory_root = "data/memory/default_save"
+# 多用户：user_id 经 SHA-256 后落在 data/memory/vault/<分片>/u_<hash>/…，避免单目录巨量子项；0=不分片，1=一级，2=两级
+user_shard_depth = 2
+# 多用户记忆根（空=agent 目录下 data/memory/vault）；可改为绝对路径把热数据放独立盘
+user_data_root = ""
+# pinned 事件最大保留数量
+max_pinned = 50
+# 对话最大保留轮数
+max_conversation_turns = 20
+# 摘要生成模型档位；优先使用平台注入的 LLM_MODEL 环境变量
+summary_model = ""
+# Facts 更新模型档位；优先使用平台注入的 LLM_MODEL 环境变量
+facts_model = ""
+
+[telemetry]
+enabled = false
+# Runtime diagnostics are written by common.observability to server files.
+# Re-enable telemetry only for explicit product analytics experiments, not logs.
+backend = "internal"   # "internal"（Agent 直写 Platform DB）或 "http"（降级走 HTTP）
+platform_token = ""
+events_api_key = ""
+events_url = "https://star-coplay.luosea.cn/api/v1/events"
+dsn = ""               # Postgres DSN（backend=internal 时使用；空则回退 supabase 客户端或 env DATABASE_URL）
+supabase_url = ""      # backend=internal 的 supabase 回退（空则读环境变量 SUPABASE_URL）
+supabase_service_key = ""  # 同上，空则读 SUPABASE_SERVICE_ROLE_KEY
+flush_interval_s = 30.0
+heartbeat_interval_s = 300.0
+spill_dir = "data/telemetry"
+include_chat = true    # 是否采集对话文本（用户可 opt-out）
+
+[skills]
+# L1 预编写技能目录（相对于 main.py 所在目录）
+builtin_dir = "skills/builtin"
+# L2 LLM 生成缓存目录（运行时自动维护，不提交 Git）
+learned_dir = "skills/learned"

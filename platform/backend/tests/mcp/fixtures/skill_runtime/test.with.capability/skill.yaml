@@ -1,0 +1,25 @@
+id: test.with.capability
+version: 1.0.0
+description: A skill with capability requirements
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    message:
+      type: string
+  required: []
+  additionalProperties: false
+output_schema:
+  type: object
+  properties: {}
+  additionalProperties: false
+requires:
+  capabilities:
+    - id: say
+      version: ">=1.0.0"
+risk: []
+timeout_seconds: 30
+cancellable: true
+retry: never
+failure_codes: [test_error]

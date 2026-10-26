@@ -1,0 +1,33 @@
+[Unit]
+Description=StarCoPlay WS Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# 与生产实际保持一致：root 用户，conda env
+# 仓库位于 /root/workspace/starcoplay/star-coplay
+User=root
+WorkingDirectory=/root/workspace/starcoplay/star-coplay/platform/backend
+
+# 环境变量文件（运维手填，不进仓库）
+# 若 /etc/star-coplay.env 不存在，注释此行；deploy/ecs/install-systemd.sh 会检查并提醒
+EnvironmentFile=/etc/star-coplay.env
+Environment=STARCOPLAY_LOG_DIR=/var/log/starcoplay
+Environment=STARCOPLAY_STRUCTURED_LOGGING=1
+
+# ExecStart 直接调用 conda env 内的 python，以前台进程方式运行（systemd 直接管理生命周期）
+# 使用绝对路径绕过 PATH，确保 conda env 生效
+ExecStartPre=/root/miniconda3/envs/starcoplay-ws/bin/python -m app.preflight
+ExecStart=/root/miniconda3/envs/starcoplay-ws/bin/python -m app
+
+Restart=on-failure
+RestartSec=5
+# 应用主日志由 common.observability 写入 /var/log/starcoplay/*/*.jsonl。
+# stdout/stderr 只作为 systemd 启动失败兜底，不再混放 Gateway 与 AgentRuntime 诊断流。
+StandardOutput=append:/var/log/starcoplay/systemd/gateway.stdout.log
+StandardError=append:/var/log/starcoplay/systemd/gateway.stderr.log
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

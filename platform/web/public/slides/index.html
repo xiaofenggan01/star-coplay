@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="scroll-snap-type: y mandatory; overflow-y: scroll;">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star-Coplay Pitch Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ========== RESET & BASE ========== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-snap-type: y mandatory; overflow-y: scroll; scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans SC', system-ui, sans-serif;
+  color: #6b4226;
+  line-height: 1.6;
+  background: #fdf6e3;
+}
+
+/* ========== DESIGN TOKENS ========== */
+:root {
+  --sky-1: #7b68ae; --sky-2: #b8a9c9; --sky-3: #e8a0bf; --sky-4: #f4c58e; --sky-5: #f7d794;
+  --wood: #8b6914; --wood-light: #c4a35a; --wood-dark: #5a3e0a;
+  --green: #4a7c59; --cream: #fdf6e3; --brown: #6b4226; --gold: #ffd700; --blue: #4a90d9; --sunset: #e8a0bf;
+  --parchment: linear-gradient(135deg, #f5e6c8 0%, #eed9a4 50%, #e8cc8c 100%);
+}
+
+/* ========== TYPOGRAPHY ========== */
+.font-pixel { font-family: 'Press Start 2P', monospace; }
+.font-sans { font-family: 'Noto Sans SC', system-ui, sans-serif; }
+h1, h2, h3 { font-family: 'Press Start 2P', monospace; line-height: 1.5; }
+
+/* ========== SLIDE BASE ========== */
+.slide {
+  height: 100vh; width: 100%; scroll-snap-align: start;
+  overflow: hidden; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: clamp(1rem, 3vh, 2rem) clamp(1.5rem, 5vw, 4rem);
+}
+.slide-inner {
+  width: 100%; max-width: 1200px; height: 100%;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+/* ========== BACKGROUNDS ========== */
+.bg-sky {
+  background: linear-gradient(180deg, #7b68ae 0%, #b8a9c9 25%, #e8a0bf 50%, #f4c58e 75%, #f7d794 100%);
+}
+.bg-cream { background: #fdf6e3; }
+.bg-green { background: rgba(74, 124, 89, 0.05); }
+.bg-dark { background: #2d2d2d; color: #fdf6e3; }
+
+/* ========== COMPONENTS ========== */
+.badge {
+  display: inline-block;
+  background: var(--parchment);
+  border: 2px solid var(--wood);
+  border-radius: 999px;
+  padding: clamp(0.2rem, 0.5vh, 0.35rem) clamp(0.6rem, 1.5vw, 1rem);
+  font-size: clamp(0.55rem, 0.9vw, 0.75rem);
+  font-family: 'Press Start 2P', monospace;
+  color: var(--brown);
+  margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.parchment-card {
+  background: var(--parchment);
+  border: 3px solid var(--wood);
+  border-radius: 12px;
+  padding: clamp(0.6rem, 1.5vh, 1rem) clamp(0.8rem, 1.5vw, 1.2rem);
+  box-shadow: inset 0 0 20px rgba(139,105,20,0.1), 0 4px 8px rgba(0,0,0,0.15);
+}
+.data-number {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  color: #5a3e0a;
+  font-weight: 900;
+}
+.data-label {
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  color: #6b4226;
+  margin-top: 0.25rem;
+}
+
+/* Two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+}
+.col-text { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.5vh, 1rem); }
+
+/* Screenshot placeholder */
+.screenshot-placeholder {
+  background: var(--parchment);
+  border: 3px dashed var(--wood);
+  border-radius: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: clamp(1rem, 2vh, 1.5rem);
+  min-height: clamp(180px, 30vh, 320px);
+  max-height: clamp(220px, 40vh, 380px);
+  color: rgba(107, 66, 38, 0.6);
+  font-size: clamp(0.65rem, 0.9vw, 0.8rem);
+  gap: 0.5rem;
+}
+.screenshot-placeholder .icon { font-size: clamp(1.5rem, 3vw, 2.5rem); opacity: 0.5; }
+.screenshot-placeholder a { color: var(--blue); font-size: clamp(0.5rem, 0.7vw, 0.6rem); word-break: break-all; }
+
+/* GIF placeholder (dark pages) */
+.gif-placeholder {
+  background: rgba(255,255,255,0.08);
+  border: 3px dashed rgba(255,255,255,0.25);
+  border-radius: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: clamp(1rem, 2vh, 1.5rem);
+  min-height: clamp(180px, 30vh, 300px);
+  max-height: clamp(220px, 38vh, 360px);
+  color: rgba(253,246,227,0.5);
+  font-size: clamp(0.65rem, 0.9vw, 0.8rem);
+  gap: 0.5rem;
+}
+.gif-placeholder .icon { font-size: clamp(1.5rem, 3vw, 2.5rem); opacity: 0.4; }
+
+/* Quote block */
+.quote-block {
+  background: var(--parchment);
+  border: 3px solid var(--wood);
+  border-left: 6px solid var(--gold);
+  border-radius: 8px;
+  padding: clamp(0.6rem, 1.2vh, 1rem) clamp(0.8rem, 1.5vw, 1.2rem);
+  font-style: italic;
+  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+  color: var(--brown);
+  position: relative;
+}
+.quote-block::before {
+  content: '\201C';
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--gold);
+  position: absolute; top: -0.2rem; left: 0.5rem;
+  font-style: normal;
+}
+
+/* Sources */
+.sources {
+  position: absolute;
+  bottom: clamp(0.4rem, 1vh, 0.8rem);
+  left: clamp(1.5rem, 5vw, 4rem);
+  right: clamp(1.5rem, 5vw, 4rem);
+  font-size: clamp(0.5rem, 0.7vw, 0.65rem);
+  color: rgba(107, 66, 38, 0.45);
+  line-height: 1.4;
+}
+.sources a { color: var(--blue); text-decoration: none; }
+.sources a:hover { text-decoration: underline; }
+.bg-dark .sources { color: rgba(253,246,227,0.35); }
+
+/* Data cards grid */
+.data-cards {
+  display: flex; flex-direction: column;
+  gap: clamp(0.4rem, 1vh, 0.7rem);
+}
+
+/* ========== PROGRESS BAR ========== */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 4px; z-index: 1000;
+  background: var(--wood);
+  box-shadow: 0 0 8px rgba(139, 105, 20, 0.4);
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* ========== NAV DOTS ========== */
+#nav-dots {
+  position: fixed; right: clamp(0.5rem, 1.5vw, 1.2rem); top: 50%; transform: translateY(-50%);
+  z-index: 1000; display: flex; flex-direction: column; gap: 8px;
+}
+.nav-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(107, 66, 38, 0.25);
+  border: 2px solid rgba(107, 66, 38, 0.4);
+  cursor: pointer; transition: all 0.3s ease;
+}
+.nav-dot.active {
+  background: var(--wood);
+  border-color: var(--wood-dark);
+  box-shadow: 0 0 6px rgba(139, 105, 20, 0.4);
+  transform: scale(1.3);
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-gold {
+  0%, 100% { text-shadow: 2px 2px 0 rgba(139,105,20,0.3); }
+  50% { text-shadow: 2px 2px 8px rgba(139,105,20,0.5); }
+}
+.animate-float { animation: float 3s ease-in-out infinite; }
+.reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease-out; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ========== SLIDE-SPECIFIC ========== */
+.slide-title .title-main {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  margin-bottom: clamp(0.3rem, 1vh, 0.6rem);
+}
+.slide-title .subtitle {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+.section-title {
+  font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+  color: var(--brown);
+  margin-bottom: clamp(0.3rem, 1vh, 0.6rem);
+  line-height: 1.8;
+}
+.bg-dark .section-title { color: #fdf6e3; }
+
+.step-card {
+  background: var(--parchment);
+  border: 3px solid var(--wood);
+  border-radius: 12px;
+  padding: clamp(0.8rem, 1.5vh, 1.2rem);
+  text-align: center;
+  flex: 1;
+}
+.step-number {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  color: #5a3e0a;
+  font-weight: 900;
+}
+
+/* Stars for sky bg */
+.star {
+  position: absolute; width: 2px; height: 2px;
+  background: white; border-radius: 50%; opacity: 0.4;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-height: 700px) {
+  .slide { padding: clamp(0.5rem, 2vh, 1rem) clamp(1rem, 4vw, 3rem); }
+  .parchment-card { padding: clamp(0.4rem, 1vh, 0.7rem) clamp(0.5rem, 1vw, 0.8rem); }
+  .screenshot-placeholder, .gif-placeholder { min-height: 150px; max-height: 250px; }
+}
+@media (max-height: 600px) {
+  .data-cards { gap: 0.3rem; }
+  .parchment-card { padding: 0.35rem 0.5rem; }
+  .screenshot-placeholder, .gif-placeholder { min-height: 120px; max-height: 200px; }
+  .badge { margin-bottom: 0.3rem; padding: 0.15rem 0.5rem; }
+}
+@media (max-height: 500px) {
+  .section-title { font-size: clamp(0.6rem, 1.2vw, 0.9rem); }
+  .screenshot-placeholder, .gif-placeholder { min-height: 100px; max-height: 160px; }
+}
+@media (max-width: 600px) {
+  .two-col { grid-template-columns: 1fr; gap: 0.8rem; }
+  .screenshot-placeholder, .gif-placeholder { min-height: 120px; max-height: 180px; }
+  #nav-dots { display: none; }
+  .sources { font-size: 0.45rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- Nav Dots -->
+<nav id="nav-dots"></nav>
+
+<!-- ==================== SLIDE 1: TITLE ==================== -->
+<section class="slide bg-sky" id="slide-1">
+  <!-- Stars -->
+  <div class="star" style="left:10%;top:8%"></div>
+  <div class="star" style="left:25%;top:12%"></div>
+  <div class="star" style="left:45%;top:5%"></div>
+  <div class="star" style="left:60%;top:15%"></div>
+  <div class="star" style="left:78%;top:8%"></div>
+  <div class="star" style="left:90%;top:18%"></div>
+  <div class="star" style="left:15%;top:22%"></div>
+  <div class="star" style="left:55%;top:25%"></div>
+  <div class="star" style="left:82%;top:28%"></div>
+
+  <div class="slide-inner" style="text-align:center; justify-content:center; align-items:center;">
+    <div class="reveal">
+      <div class="badge" style="background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.4); color:white;">
+        &#127942; Evomap &#40657;&#23458;&#26494; &middot; Agent &#33258;&#36827;&#21270;&#36187;&#36947;&#20896;&#20891;
+      </div>
+    </div>
+    <h1 class="reveal" style="font-family:'Press Start 2P',monospace; font-size:clamp(2rem,5vw,4rem); color:white; text-shadow:3px 3px 6px rgba(0,0,0,0.3); margin:clamp(0.5rem,2vh,1.5rem) 0;">
+      Star-Coplay
+    </h1>
+    <p class="reveal" style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.85rem,1.6vw,1.3rem); color:rgba(255,255,255,0.9); font-weight:500; max-width:700px; line-height:1.8;">
+      &#35753; AI &#22312;&#28216;&#25103;&#37324;&#38506;&#20320;&#19968;&#36215;&#24178;&#27963;&#12289;&#20882;&#38505;&#12289;&#25104;&#38271;
+    </p>
+    <div class="reveal" style="margin-top:clamp(1.5rem,3vh,2.5rem); font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.7rem,1vw,0.9rem); color:rgba(255,255,255,0.6);">
+      Star-Coplay Team &middot; 2026.04
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SLIDE 2: PRODUCT + CORE FEATURES ==================== -->
+<section class="slide bg-cream" id="slide-2">
+  <div class="slide-inner" style="align-items:center; text-align:center;">
+    <div class="reveal" style="margin-bottom:clamp(0.5rem,1.5vh,1rem);">
+      <div class="badge">我们做的事</div>
+      <h2 class="section-title" style="text-align:center;">给星露谷物语加一个 AI 搭子</h2>
+      <div style="font-size:clamp(0.7rem,1vw,0.85rem); color:rgba(107,66,38,0.7); max-width:700px; margin:clamp(0.3rem,0.8vh,0.5rem) auto 0;">
+        星露谷物语：全球 5000 万玩家的农场养成游戏，支持本地联机<br>
+        我们做了一个 AI 驱动的第三方模组，TA 接管第二玩家，和你一起玩
+      </div>
+    </div>
+    <div class="reveal" style="display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(0.8rem,2vw,1.5rem); width:100%; max-width:900px;">
+      <div class="parchment-card" style="text-align:center; padding:clamp(1rem,2vh,1.5rem) clamp(0.8rem,1.5vw,1.2rem);">
+        <div style="font-size:clamp(1.8rem,3.5vw,2.8rem); margin-bottom:clamp(0.3rem,0.8vh,0.5rem);">🎭</div>
+        <div style="font-family:'Press Start 2P',monospace; font-size:clamp(0.65rem,1.1vw,0.9rem); color:#5a3e0a; margin-bottom:clamp(0.2rem,0.5vh,0.4rem);">自定义</div>
+        <div style="font-size:clamp(0.65rem,0.95vw,0.82rem); color:rgba(107,66,38,0.7); line-height:1.7;">
+          灵魂 · 身份 · 性格<br>
+          <strong>你定义 TA 是谁</strong>
+        </div>
+      </div>
+      <div class="parchment-card" style="text-align:center; padding:clamp(1rem,2vh,1.5rem) clamp(0.8rem,1.5vw,1.2rem);">
+        <div style="font-size:clamp(1.8rem,3.5vw,2.8rem); margin-bottom:clamp(0.3rem,0.8vh,0.5rem);">🌱</div>
+        <div style="font-family:'Press Start 2P',monospace; font-size:clamp(0.65rem,1.1vw,0.9rem); color:#5a3e0a; margin-bottom:clamp(0.2rem,0.5vh,0.4rem);">在场感</div>
+        <div style="font-size:clamp(0.65rem,0.95vw,0.82rem); color:rgba(107,66,38,0.7); line-height:1.7;">
+          不是虚构情节<br>
+          <strong>真实经历 = 真实回忆</strong>
+        </div>
+      </div>
+      <div class="parchment-card" style="text-align:center; padding:clamp(1rem,2vh,1.5rem) clamp(0.8rem,1.5vw,1.2rem);">
+        <div style="font-size:clamp(1.8rem,3.5vw,2.8rem); margin-bottom:clamp(0.3rem,0.8vh,0.5rem);">🌍</div>
+        <div style="font-family:'Press Start 2P',monospace; font-size:clamp(0.65rem,1.1vw,0.9rem); color:#5a3e0a; margin-bottom:clamp(0.2rem,0.5vh,0.4rem);">跨游戏</div>
+        <div style="font-size:clamp(0.65rem,0.95vw,0.82rem); color:rgba(107,66,38,0.7); line-height:1.7;">
+          不同世界观<br>
+          <strong>博德之门 · 饥荒 · 双人成行</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SLIDE 3: GAMING USERS & COMPANION DEMAND ==================== -->
+<section class="slide bg-cream" id="slide-3">
+  <div class="slide-inner">
+    <div class="two-col">
+      <div class="col-text reveal">
+        <h2 class="section-title">6.74 亿游戏用户<br>屏幕背后的沉默需求</h2>
+        <div style="font-size:clamp(0.7rem,1vw,0.85rem); color:rgba(107,66,38,0.7); margin-bottom:clamp(0.3rem,0.8vh,0.5rem);">
+          在这些发亮的屏幕背后，有多少个沉默的灵魂。
+        </div>
+        <div class="data-cards">
+          <div class="parchment-card">
+            <div class="data-number">6.74 亿</div>
+            <div class="data-label">中国游戏用户（中国音数协 2024 年报告，历史新高）</div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-number">~60%</div>
+            <div class="data-label">玩家倾向组队游戏，但大量玩家找不到长期稳定队友（澎湃研究所 2025）</div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-number">50%+</div>
+            <div class="data-label">青年体验过陪伴服务，游戏陪玩占 37.2%（中国青年报社调查）</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <img src="/slides/assets/xhs-companion-posts.jpg" alt="小红书找搭子" style="max-width:100%; max-height:min(45vh,380px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      </div>
+    </div>
+  </div>
+  <div class="sources">
+    来源：<a href="https://www.gameres.com/909773.html" target="_blank">https://www.gameres.com/909773.html</a>（GameRes · 2024游戏产业报告 · 6.74亿用户）|
+    <a href="https://m.thepaper.cn/newsDetail_forward_29853212" target="_blank">https://m.thepaper.cn/newsDetail_forward_29853212</a>（澎湃研究所 · 游戏玩家群体白描）|
+    <a href="https://36kr.com/p/2557544328257671" target="_blank">https://36kr.com/p/2557544328257671</a>（36氪 · 陪伴经济500亿）|
+    <a href="https://zqb.cyol.com/html/2023-06/14/nw.D110000zgqnb_20230614_7-08.htm" target="_blank">https://zqb.cyol.com/html/2023-06/14/nw.D110000zgqnb_20230614_7-08.htm</a>（中国青年报 · 50%+青年体验过陪伴服务 · 游戏陪玩37.2%）
+  </div>
+</section>
+
+<!-- ==================== SLIDE 3: AI COMPANIONSHIP VALIDATED ==================== -->
+<section class="slide bg-green" id="slide-4">
+  <div class="slide-inner">
+    <div class="two-col">
+      <div class="col-text reveal">
+        <h2 class="section-title">&#19978;&#20159;&#20154;&#24050;&#32463;&#22312;&#29992; AI<br>&#33719;&#21462;&#38506;&#20276;</h2>
+        <div class="data-cards">
+          <div class="parchment-card">
+            <div class="data-number">2000&#19975; MAU</div>
+            <div class="data-label">Character.AI &mdash; &#26085;&#22343;&#20351;&#29992; 2 &#23567;&#26102;</div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-number">2.12 亿用户</div>
+            <div class="data-label">MiniMax（星野+Talkie）· MAU 2760 万（IPO 招股书 2025.09）</div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-number">$375 亿</div>
+            <div class="data-label">AI 陪伴市场 2035（预测），CAGR 31%</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <img src="/slides/assets/ai-companion-market.jpg" alt="AI陪伴市场预测" style="max-width:100%; max-height:min(45vh,380px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      </div>
+    </div>
+  </div>
+  <div class="sources">
+    来源：<a href="https://www.demandsage.com/character-ai-statistics/" target="_blank">https://www.demandsage.com/character-ai-statistics/</a>（Character.AI Stats）|
+    <a href="https://h5.ifeng.com/c/vivoArticle/v002l3APrBfr0OFYqJt0V2fqSkTQ2Dp2xfDmOgjzKzrAgAM__" target="_blank">https://h5.ifeng.com/c/vivoArticle/v002l3APrBfr0OFYqJt0V2fqSkTQ2Dp2xfDmOgjzKzrAgAM__</a>（凤凰网 · MiniMax IPO 招股书 · 2.12亿用户 · MAU 2760万）|
+    <a href="https://www.fortunebusinessinsights.com/ai-companion-market-113258" target="_blank">https://www.fortunebusinessinsights.com/ai-companion-market-113258</a>（Fortune BI）|
+    <a href="https://techcrunch.com/2025/08/12/ai-companion-apps-on-track-to-pull-in-120m-in-2025/" target="_blank">https://techcrunch.com/2025/08/12/ai-companion-apps-on-track-to-pull-in-120m-in-2025/</a>（TechCrunch）
+  </div>
+</section>
+
+<!-- ==================== SLIDE 4: PRODUCT GIF 1 & 2 ==================== -->
+<section class="slide bg-dark" id="slide-5">
+  <div class="slide-inner">
+    <div class="reveal" style="text-align:center; margin-bottom:clamp(0.5rem,2vh,1.5rem);">
+      <h2 class="section-title" style="color:#fdf6e3;">&#19981;&#26159;&#32842;&#22825;&#65292;&#26159;&#19968;&#36215;&#20570;&#20107;</h2>
+    </div>
+    <div class="two-col" style="flex:1; min-height:0;">
+      <div class="reveal">
+        <video src="/slides/assets/auto-watering.mp4" autoplay loop muted playsinline style="max-width:100%; max-height:min(42vh,350px); object-fit:contain; border-radius:8px;"></video>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <video src="/slides/assets/chop-tree.mp4" autoplay loop muted playsinline style="max-width:100%; max-height:min(42vh,350px); object-fit:contain; border-radius:8px;"></video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SLIDE 5: GIF 3 + MEMORY ==================== -->
+<section class="slide bg-dark" id="slide-6">
+  <div class="slide-inner">
+    <div class="two-col">
+      <div class="col-text reveal">
+        <h2 class="section-title" style="color:#fdf6e3;">TA 会记住你们<br>一起经历的事</h2>
+        <p style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.8rem,1.2vw,1rem); color:rgba(253,246,227,0.7); line-height:1.8; margin-top:clamp(0.3rem,1vh,0.8rem);">
+          &#35760;&#24518;&#31995;&#32479; + &#25216;&#33021;&#20307;&#31995;<br>
+          &#29992;&#24471;&#36234;&#20037;&#36234;&#25026;&#20320;
+        </p>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <img src="/slides/assets/memory-dialogue.jpg" alt="记忆对话" style="max-width:100%; max-height:min(45vh,380px); object-fit:contain; border-radius:8px;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SLIDE 6: MARKET FEEDBACK ==================== -->
+<section class="slide bg-cream" id="slide-7">
+  <div class="slide-inner">
+    <div class="reveal" style="margin-bottom:clamp(0.3rem,1vh,0.6rem);">
+      <div class="badge">&#24066;&#22330;&#21453;&#39304;</div>
+      <h2 class="section-title">&#36187;&#21518; 12 &#22825;&#65292;&#20174; Demo &#21040;&#20869;&#27979;</h2>
+    </div>
+    <div class="two-col" style="flex:1; min-height:0;">
+      <div class="col-text reveal">
+        <div class="data-cards">
+          <div class="parchment-card">
+            <div class="data-number">7,000+</div>
+            <div class="data-label">小红书粉丝（零推广）</div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-number">1.8&#19975;</div>
+            <div class="data-label">&#28857;&#36190;&#25910;&#34255; + &#35780;&#35770; 1200+</div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-number">300+</div>
+            <div class="data-label">Waitlist &#30003;&#35831;</div>
+          </div>
+        </div>
+        <div style="font-size:clamp(0.6rem,0.9vw,0.75rem); color:rgba(107,66,38,0.6); margin-top:clamp(0.2rem,0.5vh,0.4rem);">
+          Mac/Windows 双平台 · 记忆系统+技能系统 · 二轮内测本周末启动
+        </div>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <div style="display:flex; flex-direction:column; gap:clamp(0.3rem,0.8vh,0.5rem);"><img src="/slides/assets/fans-trend.png" alt="粉丝趋势" style="max-width:100%; max-height:min(22vh,190px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);"><img src="/slides/assets/post-data.png" alt="推文数据" style="max-width:100%; max-height:min(22vh,190px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SLIDE 7: 96% USER PROFILE ==================== -->
+<section class="slide bg-green" id="slide-8">
+  <div class="slide-inner">
+    <div class="two-col">
+      <div class="col-text reveal">
+        <div style="font-family:'Press Start 2P',monospace; font-size:clamp(3rem,8vw,6rem); color:#5a3e0a; text-shadow:2px 2px 0 rgba(139,105,20,0.3); animation:pulse-gold 3s ease-in-out infinite; line-height:1.2;">
+          96%
+        </div>
+        <div style="font-size:clamp(0.8rem,1.2vw,1rem); font-weight:700; margin-top:clamp(0.3rem,1vh,0.6rem);">
+          &#22899;&#24615;&#29992;&#25143; &middot; 60%+ &#20026; 18-24&#23681; &middot; &#19968;&#32447;&#22478;&#24066;
+        </div>
+        <div style="font-size:clamp(0.65rem,0.9vw,0.8rem); color:rgba(107,66,38,0.6); margin-top:clamp(0.3rem,0.8vh,0.5rem); line-height:1.6;">
+          &#20013;&#22269;&#22899;&#24615;&#29609;&#23478; 3&#20159;&#65292;&#28040;&#36153;&#37329;&#39069;&#27604;&#30007;&#24615;&#39640; 31%
+        </div>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <div style="display:flex; flex-direction:column; gap:clamp(0.3rem,0.8vh,0.5rem);"><img src="/slides/assets/user-profile.png" alt="用户画像" style="max-width:100%; max-height:min(22vh,190px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);"><img src="/slides/assets/user-region.png" alt="地区分布" style="max-width:100%; max-height:min(22vh,190px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);"></div>
+      </div>
+    </div>
+  </div>
+  <div class="sources">
+    来源：小红书创作者后台 |
+    <a href="https://news.qq.com/rain/a/20250731A07DCH00" target="_blank">https://news.qq.com/rain/a/20250731A07DCH00</a>（CNNIC/腾讯 · 女性玩家48%）|
+    <a href="https://36kr.com/p/2968363024011521" target="_blank">https://36kr.com/p/2968363024011521</a>（36氪 · 女性玩家消费特征）
+  </div>
+</section>
+
+<!-- ==================== SLIDE 8: USER TESTIMONIALS ==================== -->
+<section class="slide bg-cream" id="slide-9">
+  <div class="slide-inner">
+    <div class="reveal" style="margin-bottom:clamp(0.3rem,0.8vh,0.5rem);">
+      <div class="badge">用户的声音</div>
+      <h2 class="section-title">Waitlist 申请中的真实留言</h2>
+    </div>
+    <div class="reveal" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:clamp(0.5rem,1.2vw,0.8rem); flex:1; align-items:stretch;">
+      <div class="parchment-card" style="font-size:clamp(0.8rem,1.1vw,1rem); line-height:1.8; font-style:italic;">
+        "我是一名从2013年就开始接触《星露谷物语》的老玩家，从大学时代一直玩到工作多年，对这款游戏有着很深的感情。作为比较内向的i人，我不太习惯和陌生玩家联机搭伴，所以一直遗憾没能有人一起体验游戏。最近了解到你们开发的AI搭子MOD，非常感兴趣，也十分期待能有试玩机会。"
+        <div style="font-style:normal; font-size:clamp(0.6rem,0.85vw,0.75rem); color:rgba(107,66,38,0.5); margin-top:clamp(0.3rem,0.5vh,0.4rem);">— Waitlist 申请者</div>
+      </div>
+      <div class="parchment-card" style="font-size:clamp(0.8rem,1.1vw,1rem); line-height:1.8; font-style:italic;">
+        "已经快一年没有敢打开这个游戏了，从开始一直是跟前任玩，我们在一起九年，最上头的时候两个人通宵好几天玩星露谷，他养动物、熏鱼，做饭，我种植、酿酒...去年我们分手了，好几次打开星露谷，想开一个独属于我自己的档，每次都来不及捏人就关掉游戏。很想体验一下这个可以永远陪我的搭子..."
+        <div style="font-style:normal; font-size:clamp(0.6rem,0.85vw,0.75rem); color:rgba(107,66,38,0.5); margin-top:clamp(0.3rem,0.5vh,0.4rem);">— Waitlist 申请者</div>
+      </div>
+      <div class="parchment-card" style="font-size:clamp(0.8rem,1.1vw,1rem); line-height:1.8; font-style:italic;">
+        "在我生活落入低谷的时候，是星露谷拯救了我。在现实世界中我是一个很孤单的人，AI软件是我的灵魂出口，最难过的时候可以和Deepseek聊上一整天。之后我用豆包开启屏幕共享，玩星露谷的时候就一个人自言自语，等待有些傻傻的豆包看我玩儿。看到你们团队开发的这个项目，真的很开心，谢谢团队们考虑到像我这样可能有些孤独的人。"
+        <div style="font-style:normal; font-size:clamp(0.6rem,0.85vw,0.75rem); color:rgba(107,66,38,0.5); margin-top:clamp(0.3rem,0.5vh,0.4rem);">— Waitlist 申请者</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SLIDE 9: GAMING COMPANION DEMAND ==================== -->
+<section class="slide bg-green" id="slide-10">
+  <div class="slide-inner">
+    <div class="reveal" style="margin-bottom:clamp(0.2rem,0.8vh,0.5rem);">
+      <div class="badge">市场空间 ①</div>
+    </div>
+    <div class="two-col" style="flex:1; min-height:0;">
+      <div class="col-text reveal">
+        <h2 class="section-title">🎮 游戏中的搭子需求<br>有多大？</h2>
+        <div class="data-cards">
+          <div class="parchment-card">
+            <div class="data-label"><strong>58%</strong> 的 Z 世代将游戏视为主要社交空间</div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-label">社交功能使游戏参与时长提升 <strong>+35%</strong></div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-label">多人游戏贡献游戏总收入的 <strong>76%</strong></div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-label">星露谷物语全球 <strong>5000 万</strong> 销量，Reddit <strong>290 万</strong>订阅，支持联机但很多人找不到搭子</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <img src="/slides/assets/waitlist-data.jpg" alt="Waitlist数据" style="max-width:100%; max-height:min(45vh,380px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      </div>
+    </div>
+  </div>
+  <div class="sources">
+    来源：<a href="https://techrt.com/multiplayer-gaming-statistics/" target="_blank">https://techrt.com/multiplayer-gaming-statistics/</a>（TechRT · Z世代游戏社交）|
+    <a href="https://sqmagazine.co.uk/online-gaming-statistics/" target="_blank">https://sqmagazine.co.uk/online-gaming-statistics/</a>（多人游戏收入76%）|
+    <a href="https://steamcharts.com/app/413150" target="_blank">https://steamcharts.com/app/413150</a>（SteamCharts）|
+    <a href="https://subredditstats.com/r/StardewValley" target="_blank">https://subredditstats.com/r/StardewValley</a>（Reddit 290万）|
+    <a href="https://www.vgchartz.com/article/467162/stardew-valley-sales-top-50-million-units/" target="_blank">https://www.vgchartz.com/article/467162/stardew-valley-sales-top-50-million-units/</a>（VGChartz · 5000万销量）
+  </div>
+</section>
+
+<!-- ==================== SLIDE 10: MARKET - GAME COMPANIONSHIP ==================== -->
+<section class="slide bg-cream" id="slide-11">
+  <div class="slide-inner">
+    <div class="reveal" style="margin-bottom:clamp(0.2rem,0.8vh,0.5rem);">
+      <div class="badge">&#24066;&#22330;&#31354;&#38388; &#9313;</div>
+    </div>
+    <div class="two-col" style="flex:1; min-height:0;">
+      <div class="col-text reveal">
+        <h2 class="section-title">🤝 游戏陪玩：<br>320 亿元市场（2024）</h2>
+        <div class="data-cards">
+          <div class="parchment-card">
+            <div class="data-label">2024 年市场规模 <strong>320 亿元</strong>，年复合增长 <strong>35%+</strong></div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-label">用户突破 <strong>3 亿</strong>，从业者超 <strong>1500 万</strong></div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-label">比心注册用户：<strong>6,000 万</strong></div>
+          </div>
+          <div class="parchment-card" style="border-color:var(--gold);">
+            <div class="data-label" style="font-weight:700;">
+              AI 搭子代替真人陪玩 = 更好体验 + 更低成本 + 随时在线<br>可以给游戏赋能
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <img src="/slides/assets/gaming-companion-market.jpg" alt="陪玩市场" style="max-width:100%; max-height:min(45vh,380px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      </div>
+    </div>
+  </div>
+  <div class="sources">
+    来源：<a href="https://www.sohu.com/a/946513819_122362510" target="_blank">https://www.sohu.com/a/946513819_122362510</a>（搜狐 · 2024陪玩320亿 · 3亿用户 · 1500万从业者 · CAGR 35%+）|
+    <a href="https://m.jiemian.com/article/6370290.html" target="_blank">https://m.jiemian.com/article/6370290.html</a>（界面新闻 · 比心6000万）
+  </div>
+</section>
+
+<!-- ==================== SLIDE 11: MARKET - AI COMPANIONSHIP ==================== -->
+<section class="slide bg-green" id="slide-12">
+  <div class="slide-inner">
+    <div class="reveal" style="margin-bottom:clamp(0.2rem,0.8vh,0.5rem);">
+      <div class="badge">&#24066;&#22330;&#31354;&#38388; &#9314;</div>
+    </div>
+    <div class="two-col" style="flex:1; min-height:0;">
+      <div class="col-text reveal">
+        <h2 class="section-title">🧠 AI 陪伴赛道<br>预测 $375 亿（2035）</h2>
+        <div class="data-cards">
+          <div class="parchment-card">
+            <div class="data-label">2025&#8594;2034&#65292;<strong style="color:#5a3e0a;">CAGR 31%</strong></div>
+          </div>
+          <div class="parchment-card">
+            <div class="data-label">AI &#38506;&#20276; App &#19979;&#36733;&#37327;&#21516;&#27604; <strong>+88%</strong></div>
+          </div>
+          <div class="parchment-card" style="border-color:var(--gold);">
+            <div class="data-label" style="font-weight:700;">
+              现有 AI 产品只能聊天或工作协助<br>
+              我们的产品还提供<span style="color:var(--green);">共同体验，陪伴连接</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="animation-delay:0.2s;">
+        <img src="/slides/assets/ai-companion-market-2035.jpg" alt="AI陪伴市场$552B" style="max-width:100%; max-height:min(45vh,380px); object-fit:contain; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+      </div>
+    </div>
+  </div>
+  <div class="sources">
+    来源：<a href="https://www.fortunebusinessinsights.com/ai-companion-market-113258" target="_blank">https://www.fortunebusinessinsights.com/ai-companion-market-113258</a>（Fortune BI · $375B）|
+    <a href="https://www.precedenceresearch.com/ai-companion-market" target="_blank">https://www.precedenceresearch.com/ai-companion-market</a>（Precedence · $4,359B by 2034）|
+    <a href="https://techcrunch.com/2025/08/12/ai-companion-apps-on-track-to-pull-in-120m-in-2025/" target="_blank">https://techcrunch.com/2025/08/12/ai-companion-apps-on-track-to-pull-in-120m-in-2025/</a>（TechCrunch · +88%）
+  </div>
+</section>
+
+<!-- ==================== SLIDE: VISION + NEXT STEPS (MERGED) ==================== -->
+<section class="slide bg-sky" id="slide-13">
+  <div class="star" style="left:12%;top:10%"></div>
+  <div class="star" style="left:30%;top:6%"></div>
+  <div class="star" style="left:50%;top:18%"></div>
+  <div class="star" style="left:70%;top:8%"></div>
+  <div class="star" style="left:88%;top:14%"></div>
+
+  <div class="slide-inner" style="text-align:center; justify-content:center; align-items:center;">
+    <div class="reveal" style="max-width:min(85vw,700px);">
+      <p style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.9rem,1.5vw,1.2rem); color:rgba(255,255,255,0.95); line-height:2; font-weight:500;">
+        StarCoPlay 是送给所有玩家的赛博礼物。
+      </p>
+      <p style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.75rem,1.2vw,0.95rem); color:rgba(255,255,255,0.8); line-height:2; margin-top:clamp(0.3rem,1vh,0.6rem);">
+        TA 是 AI 游戏搭子，也是一个数字化生命体，让原本冰冷的数值逻辑，变成温热的日常陪伴。<br>
+        TA 不只是在帮你通关，TA 是在和你一起，写下一段属于你们两个人的故事。
+      </p>
+    </div>
+    <div class="reveal" style="margin-top:clamp(0.8rem,1.5vh,1.2rem);">
+      <p style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.7rem,1vw,0.9rem); color:rgba(255,255,255,0.6); letter-spacing:0.05em;">— 接下来，我们会重点推进 —</p>
+    </div>
+    <div class="reveal" style="display:flex; gap:clamp(0.8rem,2vw,1.5rem); width:100%; max-width:800px; margin-top:clamp(0.5rem,1vh,0.8rem);">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div style="font-weight:700; font-size:clamp(0.75rem,1.1vw,0.95rem); margin:clamp(0.2rem,0.5vh,0.4rem) 0;">降低使用<br>门槛</div>
+        <div style="font-size:clamp(0.6rem,0.85vw,0.75rem); color:rgba(107,66,38,0.6);">一键安装，零配置</div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div style="font-weight:700; font-size:clamp(0.75rem,1.1vw,0.95rem); margin:clamp(0.2rem,0.5vh,0.4rem) 0;">跑通付费<br>模型</div>
+        <div style="font-size:clamp(0.6rem,0.85vw,0.75rem); color:rgba(107,66,38,0.6);">订阅 + 按量计费</div>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div style="font-weight:700; font-size:clamp(0.75rem,1.1vw,0.95rem); margin:clamp(0.2rem,0.5vh,0.4rem) 0;">技能分享<br>市场</div>
+        <div style="font-size:clamp(0.6rem,0.85vw,0.75rem); color:rgba(107,66,38,0.6);">社区驱动 AI 技能</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SLIDE 13: Q&A ==================== -->
+<section class="slide bg-sky" id="slide-14">
+  <div class="star" style="left:8%;top:10%"></div>
+  <div class="star" style="left:20%;top:6%"></div>
+  <div class="star" style="left:40%;top:12%"></div>
+  <div class="star" style="left:65%;top:8%"></div>
+  <div class="star" style="left:80%;top:15%"></div>
+  <div class="star" style="left:92%;top:10%"></div>
+
+  <div class="slide-inner" style="text-align:center; align-items:center;">
+    <div class="reveal">
+      <h1 style="font-family:'Press Start 2P',monospace; font-size:clamp(2rem,5vw,4rem); color:white; text-shadow:3px 3px 6px rgba(0,0,0,0.3); margin-bottom:clamp(1rem,3vh,2rem);">
+        Q & A
+      </h1>
+    </div>
+    <div class="reveal" style="display:flex; gap:clamp(3rem,8vw,6rem); justify-content:center; flex-wrap:wrap; animation-delay:0.2s;">
+      <div style="text-align:center;">
+        <img src="/slides/assets/qr-group.jpg" alt="内测群" style="width:clamp(110px,16vw,160px); height:clamp(110px,16vw,160px); object-fit:cover; border-radius:12px;">
+        <div style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.75rem,1.1vw,0.95rem); color:rgba(255,255,255,0.9); margin-top:0.6rem; font-weight:500;">内测体验群</div>
+      </div>
+      <div style="text-align:center;">
+        <img src="/slides/assets/qr-xiaohongshu.png" alt="小红书" style="width:clamp(110px,16vw,160px); height:clamp(110px,16vw,160px); object-fit:cover; border-radius:12px;">
+        <div style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.75rem,1.1vw,0.95rem); color:rgba(255,255,255,0.9); margin-top:0.6rem; font-weight:500;">小红书 Star Coplay</div>
+      </div>
+      <div style="text-align:center;">
+        <img src="/slides/assets/qr-website.jpg" alt="官网" style="width:clamp(110px,16vw,160px); height:clamp(110px,16vw,160px); object-fit:cover; border-radius:12px;">
+        <div style="font-family:'Noto Sans SC',sans-serif; font-size:clamp(0.75rem,1.1vw,0.95rem); color:rgba(255,255,255,0.9); margin-top:0.6rem; font-weight:500;">star-coplay.luosea.cn</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  const progressBar = document.getElementById('progress-bar');
+  const navDotsContainer = document.getElementById('nav-dots');
+
+  // Create nav dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot';
+    dot.addEventListener('click', () => {
+      slides[i].scrollIntoView({ behavior: 'smooth' });
+    });
+    navDotsContainer.appendChild(dot);
+  });
+  const navDots = document.querySelectorAll('.nav-dot');
+
+  // IntersectionObserver for reveal animations + active tracking
+  let currentSlide = 0;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Reveal children
+        entry.target.querySelectorAll('.reveal').forEach((el, i) => {
+          setTimeout(() => el.classList.add('visible'), i * 150);
+        });
+        // Update current slide
+        const idx = Array.from(slides).indexOf(entry.target);
+        if (idx !== -1) {
+          currentSlide = idx;
+          updateUI();
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+  slides.forEach(s => observer.observe(s));
+
+  function updateUI() {
+    // Progress bar
+    const progress = ((currentSlide + 1) / totalSlides) * 100;
+    progressBar.style.width = progress + '%';
+    // Nav dots
+    navDots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    let target = currentSlide;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      target = Math.min(currentSlide + 1, totalSlides - 1);
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      target = Math.max(currentSlide - 1, 0);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      target = 0;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      target = totalSlides - 1;
+    }
+    if (target !== currentSlide) {
+      slides[target].scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // Touch navigation
+  let touchStartY = 0;
+  document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    const diff = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(diff) > 50) {
+      const target = diff > 0
+        ? Math.min(currentSlide + 1, totalSlides - 1)
+        : Math.max(currentSlide - 1, 0);
+      if (target !== currentSlide) {
+        slides[target].scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, { passive: true });
+
+  // Initialize
+  updateUI();
+  // Reveal first slide immediately
+  slides[0].querySelectorAll('.reveal').forEach((el, i) => {
+    setTimeout(() => el.classList.add('visible'), i * 150);
+  });
+})();
+</script>
+</body>
+</html>

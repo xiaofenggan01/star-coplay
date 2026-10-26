@@ -1,0 +1,7 @@
+{
+  "commandId": "fixture-query-map-exits-ok",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "query_map_exits",
+  "queryMapExits": {}
+}

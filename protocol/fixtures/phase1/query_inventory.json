@@ -1,0 +1,9 @@
+{
+  "commandId": "fixture-query-inventory",
+  "timeoutMs": 5000,
+  "source": "COMMAND_SOURCE_DIAGNOSTIC",
+  "capability": "query_inventory",
+  "queryInventory": {
+    "includeDetails": true
+  }
+}

@@ -1,0 +1,31 @@
+id: stardew.advanced.clear_farm
+version: 1.0.0
+description: Clear weeds, twigs, and stones in bounded tool-specific phases
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    targets: {type: string, enum: [all, weeds, twigs, stones]}
+    stamina_below: {type: integer, minimum: 0, maximum: 500}
+    time_after: {type: integer, minimum: 0, maximum: 2600}
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed, partial, failed]}
+    summary: {type: string, maxLength: 2000}
+    data_json: {type: string, maxLength: 5000}
+    truncated: {type: boolean}
+  required: [status, summary, data_json, truncated]
+  additionalProperties: false
+requires:
+  capabilities:
+    - {id: query_world_region, version: ">=2.4.5,<3.0.0"}
+    - {id: execute_on_targets, version: ">=2.4.5,<3.0.0"}
+risk: [changes_save, consumes_energy]
+timeout_seconds: 300
+cancellable: true
+retry: never
+failure_codes: [capability_failed, timeout, cancelled]
+execution_mode: background

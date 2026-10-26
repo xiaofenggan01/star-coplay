@@ -1,0 +1,29 @@
+id: stardew.advanced.chop_trees
+version: 1.0.0
+description: Chop a bounded number of mature trees on the current map
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    max_count: {type: integer, minimum: 1, maximum: 20}
+    include_stumps: {type: boolean}
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed, partial, failed]}
+    summary: {type: string, maxLength: 2000}
+    data_json: {type: string, maxLength: 5000}
+    truncated: {type: boolean}
+  required: [status, summary, data_json, truncated]
+  additionalProperties: false
+requires:
+  capabilities:
+    - {id: chop_trees, version: ">=2.4.5,<3.0.0"}
+risk: [changes_save, consumes_energy]
+timeout_seconds: 300
+cancellable: true
+retry: never
+failure_codes: [capability_failed, timeout, cancelled]
+execution_mode: background

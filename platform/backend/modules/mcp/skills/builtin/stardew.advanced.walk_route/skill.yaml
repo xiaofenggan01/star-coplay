@@ -1,0 +1,41 @@
+id: stardew.advanced.walk_route
+version: 1.0.0
+description: Visit a bounded ordered list of player-specified map waypoints
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    waypoints:
+      type: array
+      minItems: 1
+      maxItems: 20
+      items:
+        type: object
+        properties:
+          map_id: {type: string, minLength: 1, maxLength: 120}
+          x: {type: integer}
+          y: {type: integer}
+        required: [map_id, x, y]
+        additionalProperties: false
+    stop_on_failure: {type: boolean}
+  required: [waypoints]
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed, partial, failed]}
+    summary: {type: string, maxLength: 2000}
+    data_json: {type: string, maxLength: 5000}
+    truncated: {type: boolean}
+  required: [status, summary, data_json, truncated]
+  additionalProperties: false
+requires:
+  capabilities:
+    - {id: go_to, version: ">=2.4.5,<3.0.0"}
+risk: []
+timeout_seconds: 300
+cancellable: true
+retry: never
+failure_codes: [capability_failed, timeout, cancelled, invalid_arguments]
+execution_mode: background

@@ -1,0 +1,30 @@
+id: stardew.knowledge.read_wiki
+version: 1.0.0
+description: Read one bundled Stardew Valley Wiki page or section with a hard output limit
+game: stardew-valley
+entrypoint: implementation:run
+input_schema:
+  type: object
+  properties:
+    page: {type: string, minLength: 1, maxLength: 120}
+    section: {type: string, minLength: 1, maxLength: 120}
+    max_chars: {type: integer, minimum: 1000, maximum: 6000}
+  required: [page]
+  additionalProperties: false
+output_schema:
+  type: object
+  properties:
+    status: {type: string, enum: [completed]}
+    page: {type: string}
+    section: {type: string}
+    content: {type: string, maxLength: 6000}
+    max_chars: {type: integer, minimum: 1000, maximum: 6000}
+    truncated: {type: boolean}
+  required: [status, page, section, content, max_chars, truncated]
+  additionalProperties: false
+requires: {capabilities: []}
+risk: []
+timeout_seconds: 10
+cancellable: false
+retry: never
+failure_codes: [knowledge_unavailable]
