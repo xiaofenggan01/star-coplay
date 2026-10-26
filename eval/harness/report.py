@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import statistics
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,37 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
         bucket = by_policy.setdefault(policy_key, {})
         bucket[status] = bucket.get(status, 0) + 1
 
+    aggregate: dict[str, dict[str, Any]] = {}
+    failure_kinds: dict[str, int] = {}
+    for result in results:
+        metrics = result.get("metrics") or {}
+        key = result.get("policy") or "skill"
+        bucket = aggregate.setdefault(
+            key,
+            {"runs": 0, "tokens": [], "latency_ms": [], "failures": 0, "errors": 0},
+        )
+        bucket["runs"] += 1
+        if metrics.get("llm_tokens"):
+            bucket["tokens"].append(metrics["llm_tokens"])
+        if metrics.get("llm_latency_ms"):
+            bucket["latency_ms"].append(metrics["llm_latency_ms"])
+        if result.get("status") == "failed":
+            bucket["failures"] += 1
+        if result.get("status") == "error":
+            bucket["errors"] += 1
+        kind = result.get("failure_kind")
+        if kind:
+            failure_kinds[kind] = failure_kinds.get(kind, 0) + 1
+
+    for bucket in aggregate.values():
+        tokens = bucket.pop("tokens")
+        latency = bucket.pop("latency_ms")
+        bucket["total_tokens"] = sum(tokens)
+        bucket["mean_tokens"] = round(statistics.mean(tokens), 1) if tokens else 0
+        bucket["std_tokens"] = round(statistics.pstdev(tokens), 1) if len(tokens) > 1 else 0
+        bucket["mean_latency_ms"] = round(statistics.mean(latency), 0) if latency else 0
+        bucket["std_latency_ms"] = round(statistics.pstdev(latency), 0) if len(latency) > 1 else 0
+
     runnable = counts["passed"] + counts["gap"] + counts["failed"] + counts["error"]
     return {
         "total": len(results),
@@ -32,6 +64,9 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
         **{key: counts[key] for key in STATUS_ORDER},
         "by_tag": by_tag,
         "by_policy": by_policy,
+        "aggregate": aggregate,
+        "failure_kinds": failure_kinds,
+        "schema_version": 2,
     }
 
 
@@ -65,6 +100,31 @@ def render(results: list[dict[str, Any]], summary: dict[str, Any], *, verbose: b
             if result.get("trace"):
                 lines.append(result["trace"])
 
+    aggregate = summary.get("aggregate") or {}
+    if any(name in aggregate for name in ("llm", "agent")):
+        lines.append("")
+        lines.append("policy stats")
+        for name in ("routing", "llm", "agent"):
+            bucket = aggregate.get(name)
+            if not bucket:
+                continue
+            line = f"  {name:<8} runs={bucket['runs']:<3}"
+            if bucket.get("total_tokens"):
+                line += (
+                    f" tokens={bucket['total_tokens']} "
+                    f"(mean {bucket['mean_tokens']} ± {bucket['std_tokens']})"
+                )
+            if bucket.get("mean_latency_ms"):
+                line += (
+                    f" latency={bucket['mean_latency_ms']:.0f}ms "
+                    f"± {bucket['std_latency_ms']:.0f}"
+                )
+            lines.append(line)
+
+    failure_kinds = summary.get("failure_kinds") or {}
+    if failure_kinds:
+        lines.append("  failures: " + ", ".join(f"{k}={v}" for k, v in sorted(failure_kinds.items())))
+
     lines.append("-" * len(header))
     lines.append(
         f"total={summary['total']}  runnable={summary['runnable']}  "
@@ -83,6 +143,7 @@ def write_json(path: Path, summary: dict[str, Any], results: list[dict[str, Any]
                 "id": r.get("id"),
                 "title": r.get("title"),
                 "status": r.get("status"),
+                "failure_kind": r.get("failure_kind"),
                 "tags": r.get("tags"),
                 "checks": r.get("checks"),
                 "metrics": r.get("metrics"),

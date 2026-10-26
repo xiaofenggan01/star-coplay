@@ -46,6 +46,19 @@ def postcheck(goal: dict[str, Any], world: SimWorld, before: dict[str, Any]) -> 
     """Compare the world after the plan against the goal."""
     goal_type = str(goal.get("type") or "").strip().lower()
 
+    if goal_type in ("composite", "routine"):
+        subs = [sub for sub in (goal.get("steps") or []) if isinstance(sub, dict)]
+        if not subs:
+            return False, "partial", "composite goal has no steps"
+        failures: list[str] = []
+        for index, sub in enumerate(subs):
+            ok, _status, observation = postcheck(sub, world, before)
+            if not ok:
+                failures.append(f"step {index + 1} ({sub.get('type')}): {observation}")
+        if not failures:
+            return True, "ok", "goal satisfied: all subgoals"
+        return False, "partial", "; ".join(failures)
+
     if goal_type in ("acquire", "get", "gather"):
         item = normalize_item(goal.get("item"))
         target = int(goal.get("qty") or 1)

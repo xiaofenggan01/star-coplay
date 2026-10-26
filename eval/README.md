@@ -42,8 +42,10 @@ eval/
 │   ├── sim_bridge.py        # 把 SimWorld 接到生产 SkillContext 上
 │   ├── runner.py            # 跑一个场景：建世界 → 调真实 skill → 校验
 │   ├── assertions.py        # expect 断言求值
-│   └── report.py            # 汇总与渲染
+│   ├── policies/            # routing / llm / agent 三种策略
+│   └── report.py            # 汇总、归因与渲染
 ├── scenarios/*.json         # 场景库
+├── replays/*.json           # 离线回放用的规划响应
 └── tests/                   # 评估集自身的测试
 ```
 
@@ -51,12 +53,15 @@ eval/
 `SkillContext`，只把 bridge 换成 `SimBridge`，因此 `chop_trees` 的每一次查询和挥砍
 都走真实实现。
 
-## 两种运行模式
+## 三种运行模式 / 三种策略
 
 | 模式 | 场景字段 | 跑什么 | 评估什么 |
 |---|---|---|---|
 | `skill`（默认） | `skill` + `params` | 直接调用一个 L3 skill | 单个动作的语义与守卫 |
-| `goal` | `mode: "goal"` + `goal` + `policy` | `GoalRouter` 把目标拆成 skill 调用 | 目标分解、前置检查、后置校验 |
+| `goal` | `mode: "goal"` + `goal` + `policy` | routing / llm / agent 三种策略 | 目标分解、前置检查、后置校验 |
+
+`goal` 支持的目标：`acquire`（含 `qty` 缺失时的澄清）、`water_crops`、`sleep`、
+`composite`（顺序子目标）。
 
 `goal` 模式接的是 [`agent/slow_loop/goal_router.py`](../agent/slow_loop/goal_router.py)
 ——一个确定性的保底规划器，属于生产代码而非测试替身。它负责“正常玩家会不会做这件事”
@@ -90,6 +95,18 @@ agent/.venv/bin/python eval/run_eval.py --policy both \
 ```
 
 `eval/replays/*.json` 是手写的规划响应，只用于验证链路，不是模型输出。
+
+### 多轮 agent
+
+`agent` 策略每次只做一个决策：执行一个 skill → 看到结果与最新世界 → 再决策，最多 4 轮。
+它用来评估“看到 partial 结果后继续补一刀”的能力，而单次规划做不到这一点。
+
+```bash
+agent/.venv/bin/python eval/run_eval.py --policy agent \
+  --llm-script eval/replays/scripted-agent.json --id agent-
+```
+
+`--policy all` 会同时跑 routing / llm / agent。
 
 ## 场景 schema
 
@@ -152,26 +169,24 @@ agent/.venv/bin/python eval/run_eval.py --policy both \
 ## 当前基线（2026-10-26）
 
 ```
-total=31  runnable=24  passed=20  gaps=4  failed=0  skipped=7
+total=44  runnable=37  passed=37  gaps=0  failed=0  skipped=7
 ```
 
-- 14 个 `skill` 场景：10 通过、4 个 gap；
-- 10 个 `goal` 场景：全部通过，覆盖 Acquire / Water / Sleep 的目标分解与前置检查；
-- 7 个 `planned` 场景：语义规格；
-- LLM 策略：10 个 goal 场景在 scripted 回放下与 routing 持平（10/10），
-  真实模型结果需用 `--policy both` 自行跑。
+- 14 个 `skill` 场景全绿（原先的 4 个 gap 已在 M4 修复）；
+- 22 个 `goal` 场景：基础 10 + 判别 12（复合/澄清/冲突/恢复/成本），routing 全绿；
+- 1 个多轮 agent 场景；
+- 7 个 `planned` 场景：语义规格。
 
-四个已知 gap，都是真实缺陷，不是测试写错：
+M4 修掉的四个缺陷（保留场景做回归）：
 
-| 场景 | 问题 |
+| 场景 | 现在的行为 |
 |---|---|
-| [chop-010-low-stamina](scenarios/chop-010-low-stamina.json) | skill 没有体力前置判断，12 点体力照样砍到 0 |
-| [chop-011-wood-already-enough](scenarios/chop-011-wood-already-enough.json) | 背包已有 50 木头仍然去砍 |
-| [chop-013-late-night](scenarios/chop-013-late-night.json) | 凌晨 1 点没有时间约束 |
-| [chop-014-estimate-overshoot](scenarios/chop-014-estimate-overshoot.json) | `ESTIMATED_WOOD_PER_TREE=10` 导致实际 5 木/棵时提前停 |
+| [chop-010-low-stamina](scenarios/chop-010-low-stamina.json) | 体力 < 20 直接 `blocked: stamina_low` |
+| [chop-011-wood-already-enough](scenarios/chop-011-wood-already-enough.json) | 已达标返回 `ok: already_satisfied`，零挥砍 |
+| [chop-013-late-night](scenarios/chop-013-late-night.json) | 过午夜直接 `blocked: late_night` |
+| [chop-014-estimate-overshoot](scenarios/chop-014-estimate-overshoot.json) | 按实测木材停，目标 10 会砍满两棵 |
 
-`chop-002` 还暴露了效率问题：每挥一刀都查一次背包 + 世界，20 刀产生近百条命令。
-断言里用 `budget.commands_total` 兜底，但后续应改成“事件驱动 + 批量查询”。
+注意：`target_wood` 语义已改为“背包里至少有多少木头”（绝对值），不再是“再砍多少”。
 
 ## 新增场景
 
@@ -188,15 +203,14 @@ agent/.venv/bin/python eval/run_eval.py --id <new-id> --verbose
 
 - `chop_trees` / `water_crops` / `go_bed` 可在仿真里真实运行；`harvest_crops` /
   `ship_items` 仍委托 mod compound handler，仿真尚未覆盖。
-- `goal` 模式的默认策略是确定性 `GoalRouter`，它定义“正确行为”的基线；`llm` 策略
-  已接入同一接口，但真实模型需要自备 API key，仓库内只有 scripted 回放。
-- 没有模拟 LLM 决策：评估的是 L3 skill 的语义，不是“玩家一句话 → 计划”。
+- `goal` 模式的默认策略是确定性 `GoalRouter`；`llm` / `agent` 已接入同一接口，
+  但真实模型需要自备 API key（CI 只跑 scripted 回放）。
+- `agent` 是轻量多轮策略，不是生产 `DeliberativeLoop`（没有记忆、工具 routing、prompt 装配）。
 - 仿真简化：单地图、无天气/季节/作物生长、掉落散射简化为固定环。
 - 时间粒度 10 分钟/动作，用于预算断言，不是精确游戏时钟。
 
 ## 下一步
 
-1. **接真实 agent**：现在接的是“LLM 规划器”，下一步把完整 `DeliberativeLoop`
-   （含工具 schema、记忆、prompt 装配）作为 policy 跑同一批目标。
-2. **方差与成本**：`--runs` 已支持重复运行，补一个汇总表（均值/标准差/tokens 成本）。
-3. **覆盖扩展**：`harvest_crops` / `ship_items`、背包满、季节与体力恢复。
+1. **接完整 `DeliberativeLoop`**：把生产 agent（工具 schema、记忆、prompt 装配）作为 policy。
+2. **覆盖扩展**：`harvest_crops` / `ship_items`、背包满、季节切换、体力恢复。
+3. **真实模型基线**：定期用 `--policy all --runs 3` 跑一轮，记录通过率与成本。

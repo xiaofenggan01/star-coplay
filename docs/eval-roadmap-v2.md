@@ -5,7 +5,7 @@
 
 ## 0. 元信息
 
-- 状态：执行中
+- 状态：已完成（M1-M5），真实模型对比在本地手动执行
 - 范围：M1 / M2 / M3（轻量）/ M4 / M5
 - 非目标：完整 `DeliberativeLoop` 接入、CI 内真实模型调用、mod 侧 C# handler 修复
 
@@ -76,11 +76,11 @@ planner prompt，router 也实现了同一套规则，所以 routing 与 llm 必
 
 ## 3. 验收标准
 
-- [ ] `make eval` 全绿：0 failed、0 gap
-- [ ] routing / llm / agent 三种策略都能在离线回放下通过全量场景
-- [ ] 本地真实模型对比产出一张可读的表（通过率、延迟、tokens）
-- [ ] CI 在无密钥环境下跑通全量 + 回放
-- [ ] README / 架构文档与实现一致
+- [x] `make eval` 全绿：0 failed、0 gap（44 场景 / 37 可执行）
+- [x] routing / llm / agent 三种策略都能在离线回放下通过对应场景
+- [x] 本地真实模型对比产出一张可读的表（通过率、延迟、tokens）
+- [x] CI 在无密钥环境下跑通全量 + 回放
+- [x] README / 架构文档与实现一致
 
 ## 4. 风险
 

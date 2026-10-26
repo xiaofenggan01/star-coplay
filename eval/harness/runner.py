@@ -125,11 +125,16 @@ def run_scenario(
     try:
         if spec.get("mode") == "goal":
             chosen = policy or spec.get("policy") or "routing"
-            if chosen == "llm":
+            if chosen in ("llm", "agent"):
                 if llm_policy is None:
-                    from .policies.llm import LlmPolicy
+                    if chosen == "llm":
+                        from .policies.llm import LlmPolicy
 
-                    llm_policy = LlmPolicy()
+                        llm_policy = LlmPolicy()
+                    else:
+                        from .policies.agent import AgentPolicy
+
+                        llm_policy = AgentPolicy()
                 runner_policy = llm_policy
             else:
                 from .policies.routing import RoutingPolicy
@@ -181,10 +186,25 @@ def run_scenario(
     else:
         outcome = "failed"
 
+    failure_kind = None
+    if outcome in ("failed", "error"):
+        blocked = (result.get("data") or {}).get("blocked_reason")
+        if blocked == "invalid_plan":
+            failure_kind = "invalid_plan"
+        elif blocked == "llm_misjudged":
+            failure_kind = "llm_misjudged"
+        elif blocked == "needs_clarification":
+            failure_kind = "unexpected_clarification"
+        elif error:
+            failure_kind = "skill_failed"
+        else:
+            failure_kind = "wrong_choice"
+
     return {
         "id": scenario_id,
         "title": spec.get("title", ""),
         "status": outcome,
+        "failure_kind": failure_kind,
         "policy": (policy or spec.get("policy")) if spec.get("mode") == "goal" else None,
         "skill": spec.get("skill"),
         "tags": spec.get("tags") or [],

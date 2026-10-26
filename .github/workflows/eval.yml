@@ -39,6 +39,9 @@ jobs:
       - name: LLM policy replay (offline, no key)
         run: python eval/run_eval.py --policy both --llm-script eval/replays/scripted-demo.json --id goal-
 
+      - name: Agent policy replay (offline, no key)
+        run: python eval/run_eval.py --policy agent --llm-script eval/replays/scripted-agent.json --id agent-
+
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4

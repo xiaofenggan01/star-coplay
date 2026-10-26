@@ -1,0 +1,48 @@
+{
+  "id": "clarify-002-zero-qty",
+  "title": "模糊目标：数量为 0，应该澄清而不是当作 1",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "clarify"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "wood",
+    "qty": 0
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10
+      }
+    ]
+  },
+  "expect": {
+    "success": false,
+    "status": "blocked",
+    "data": {
+      "blocked_reason": "needs_clarification"
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    }
+  }
+}

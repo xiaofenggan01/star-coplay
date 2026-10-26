@@ -188,7 +188,7 @@ async def chop_trees(
 
     for tree, stand_side in tree_plans:
         ctx.check_cancelled()
-        if wood_after - wood_before >= target_wood:
+        if wood_after >= target_wood:
             stopped_reason = "wood_target_reached"
             break
 
@@ -226,7 +226,15 @@ async def chop_trees(
                 )
                 break
 
-            if not await _tree_still_choppable(ctx, tree, include_stumps=include_stumps):
+            inventory_payload = await ctx.query_inventory_snapshot(
+                container_kind="player",
+                include_empty_slots=False,
+                include_details=True,
+            )
+            inventory = _fact(inventory_payload)
+            wood_after = _wood_count(inventory)
+            if wood_after >= target_wood:
+                stopped_reason = "wood_target_reached"
                 tree_gone = True
                 break
 
@@ -253,7 +261,7 @@ async def chop_trees(
         )
         inventory = _fact(inventory_payload)
         wood_after = _wood_count(inventory)
-        if wood_after - wood_before >= target_wood:
+        if wood_after >= target_wood:
             stopped_reason = "wood_target_reached"
             break
 
@@ -270,7 +278,7 @@ async def chop_trees(
             break
 
     wood_gained = max(0, wood_after - wood_before)
-    if wood_gained >= target_wood:
+    if wood_after >= target_wood:
         status = "ok"
         success = True
         error_code = None

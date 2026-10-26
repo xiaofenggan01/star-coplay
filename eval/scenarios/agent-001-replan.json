@@ -1,0 +1,71 @@
+{
+  "id": "agent-001-replan",
+  "title": "多轮 agent：第一次只砍到 5 木，看到结果后补一刀",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "agent",
+    "recovery"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "wood",
+    "qty": 10
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      },
+      {
+        "x": 12,
+        "y": 14,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied",
+      "goal_satisfied": true
+    },
+    "world": {
+      "inventory.Wood": {
+        "min": 10
+      }
+    },
+    "commands": {
+      "must_include": [
+        "use_tool"
+      ]
+    }
+  }
+}

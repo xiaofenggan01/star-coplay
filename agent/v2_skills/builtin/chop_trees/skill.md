@@ -15,7 +15,7 @@ routing:
 parameters:
   target_wood:
     type: integer
-    description: "How many Wood to gain before stopping. Default 5. Values above 50 are clamped to 50."
+    description: "Stop once the backpack holds at least this much Wood. Default 5. Values above 50 are clamped to 50."
     default: 5
   radius:
     type: integer
@@ -30,9 +30,9 @@ tags: [farming, trees, wood, atomic, l3]
 
 # chop_trees
 
-Use this skill for direct player requests to chop trees or collect wood. This MVP composes proto-native L1 atoms in Python: query runtime and inventory, query nearby tree and tile facts, equip an axe, move adjacent, use the axe, re-query to verify, and stop when Wood in the backpack has increased enough.
+Use this skill for direct player requests to chop trees or collect wood. This MVP composes proto-native L1 atoms in Python: query runtime and inventory, query nearby tree and tile facts, equip an axe, move adjacent, use the axe, re-query to verify, and stop once Wood in the backpack reaches the requested total.
 
-Default behavior is deliberately bounded: if the player only says "砍树" or "搞点木头" without a quantity, call `skill:chop_trees()` and stop after +5 Wood. If a quantity is requested, pass it as `target_wood`, but never exceed 50. After completion, do not start another chopping round unless the player gives a new command.
+Default behavior is deliberately bounded: if the player only says "砍树" or "搞点木头" without a quantity, call `skill:chop_trees()` and stop once the backpack holds 5 Wood. If a quantity is requested, pass it as `target_wood`, but never exceed 50. After completion, do not start another chopping round unless the player gives a new command.
 
 ## Behavior
 

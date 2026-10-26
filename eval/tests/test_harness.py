@@ -102,10 +102,13 @@ def test_basic_scenario_passes():
     assert out["metrics"]["inventory"]["Wood"] >= 5
 
 
-def test_known_gap_is_reported_as_gap():
+def test_former_gaps_are_now_plain_passes():
+    # chop-011 used to be a known gap; the skill now short-circuits when the
+    # inventory already holds the requested wood.
     spec = json.loads((EVAL_DIR / "scenarios" / "chop-011-wood-already-enough.json").read_text(encoding="utf-8"))
     out = run_scenario(spec)
-    assert out["status"] == "gap", out["checks"]
+    assert out["status"] == "passed", out["checks"]
+    assert out["metrics"]["use_tool_calls"] == 0
 
 
 def test_planned_scenario_is_skipped():

@@ -1,0 +1,6 @@
+{
+  "agent-001-replan": [
+    "{\"action\": \"plan\", \"steps\": [{\"skill\": \"chop_trees\", \"params\": {\"target_wood\": 5}, \"reason\": \"start with one tree\"}]}",
+    "{\"action\": \"plan\", \"steps\": [{\"skill\": \"chop_trees\", \"params\": {\"target_wood\": 10}, \"reason\": \"still need 5 more, ask for 10 total\"}]}"
+  ]
+}

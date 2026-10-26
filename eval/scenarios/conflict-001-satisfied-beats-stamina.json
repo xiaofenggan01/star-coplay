@@ -1,0 +1,58 @@
+{
+  "id": "conflict-001-satisfied-beats-stamina",
+  "title": "目标已满足时，体力低也应直接结束",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "conflict"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "wood",
+    "qty": 10
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 5
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      },
+      {
+        "item": "Wood",
+        "qty": 20,
+        "slot": 2
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied"
+    },
+    "budget": {
+      "use_tool_calls": {
+        "equals": 0
+      }
+    },
+    "world": {
+      "mature_trees_left": {
+        "equals": 1
+      }
+    }
+  }
+}

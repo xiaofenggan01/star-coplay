@@ -1,0 +1,77 @@
+{
+  "id": "optimal-001-exact-one-tree",
+  "title": "成本意识：目标 5 木只砍一棵，不扫全图",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "optimal"
+  ],
+  "goal": {
+    "type": "acquire",
+    "item": "wood",
+    "qty": 5
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      },
+      {
+        "x": 12,
+        "y": 14,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      },
+      {
+        "x": 16,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "world": {
+      "trees_felled": {
+        "equals": 1
+      },
+      "stumps": {
+        "equals": 1
+      },
+      "inventory.Wood": {
+        "min": 5
+      }
+    }
+  }
+}

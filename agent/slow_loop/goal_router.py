@@ -106,16 +106,31 @@ class GoalRouter:
             return self._plan_water(goal, ctx)
         if goal_type in ("sleep", "go_bed", "gotobed"):
             return self._plan_sleep(goal, ctx)
+        if goal_type in ("composite", "routine"):
+            return self._plan_composite(goal, ctx)
         return GoalPlan(goal_type=goal_type or "unknown", blocked_reason="unsupported_goal")
 
     # ── goal types ───────────────────────────────────────────────────────
 
     def _plan_acquire(self, goal: dict, ctx: GoalContext) -> GoalPlan:
         item = normalize_item(goal.get("item"))
+        raw_qty = goal.get("qty")
+        if raw_qty is None or raw_qty == "":
+            return GoalPlan(
+                "acquire",
+                blocked_reason="needs_clarification",
+                note=f"how many {item}?",
+            )
         try:
-            qty = int(goal.get("qty") or 1)
+            qty = int(raw_qty)
         except (TypeError, ValueError):
             return GoalPlan("acquire", blocked_reason="invalid_qty")
+        if qty <= 0:
+            return GoalPlan(
+                "acquire",
+                blocked_reason="needs_clarification",
+                note=f"how many {item}?",
+            )
 
         have = ctx.inventory_count(item)
         if have >= qty:
@@ -141,15 +156,15 @@ class GoalRouter:
         need = qty - have
         return GoalPlan(
             "acquire",
-            steps=[PlanStep(skill=skill, params={"target_wood": need}, reason=f"need {need} more {item}")],
+            steps=[PlanStep(skill=skill, params={"target_wood": qty}, reason=f"need {need} more {item}")],
             note=f"have {have}/{qty} {item}",
         )
 
     def _plan_water(self, goal: dict, ctx: GoalContext) -> GoalPlan:
-        if str(ctx.weather).lower() in ("rain", "rainy", "storm"):
-            return GoalPlan("water_crops", blocked_reason="raining", note="nature waters today")
         if ctx.unwatered_crops <= 0:
             return GoalPlan("water_crops", satisfied=True, note="all crops are watered")
+        if str(ctx.weather).lower() in ("rain", "rainy", "storm"):
+            return GoalPlan("water_crops", blocked_reason="raining", note="nature waters today")
         if ctx.minutes >= self.late_night_minutes:
             return GoalPlan("water_crops", blocked_reason="late_night")
         if ctx.stamina < self.min_stamina_for_watering:
@@ -161,6 +176,36 @@ class GoalRouter:
         return GoalPlan(
             "water_crops",
             steps=[PlanStep(skill="water_crops", params={}, reason=f"{ctx.unwatered_crops} unwatered crops")],
+        )
+
+    def _plan_composite(self, goal: dict, ctx: GoalContext) -> GoalPlan:
+        subs = goal.get("steps")
+        if not isinstance(subs, list) or not subs:
+            return GoalPlan("composite", blocked_reason="empty_composite")
+
+        steps: list[PlanStep] = []
+        notes: list[str] = []
+        all_satisfied = True
+        for index, sub in enumerate(subs):
+            if not isinstance(sub, dict):
+                return GoalPlan("composite", blocked_reason="invalid_composite_step")
+            plan = self.plan(sub, ctx)
+            if plan.blocked_reason:
+                return GoalPlan(
+                    "composite",
+                    blocked_reason=plan.blocked_reason,
+                    note=f"step {index + 1}: {plan.note or plan.blocked_reason}",
+                )
+            steps.extend(plan.steps)
+            all_satisfied = all_satisfied and (plan.satisfied or not plan.steps)
+            if plan.note:
+                notes.append(f"step {index + 1}: {plan.note}")
+
+        return GoalPlan(
+            "composite",
+            steps=steps,
+            satisfied=all_satisfied and not steps,
+            note="; ".join(notes),
         )
 
     def _plan_sleep(self, goal: dict, ctx: GoalContext) -> GoalPlan:

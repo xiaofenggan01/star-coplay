@@ -52,7 +52,7 @@ def test_acquire_plans_remaining_quantity():
     assert plan.blocked_reason is None
     assert len(plan.steps) == 1
     assert plan.steps[0].skill == "chop_trees"
-    assert plan.steps[0].params == {"target_wood": 6}
+    assert plan.steps[0].params == {"target_wood": 10}
 
 
 def test_acquire_already_satisfied_makes_no_plan():

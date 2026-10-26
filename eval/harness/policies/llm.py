@@ -46,10 +46,14 @@ Rules a normal player follows:
 - If the goal is already satisfied by the inventory/world, reply satisfied.
 - If the goal cannot be done with the available skills, refuse with reason "unsupported_item".
 
+The goal may be a composite of several subgoals; plan the steps in order.
+If the goal is ambiguous (for example no quantity), ask instead of guessing.
+
 Reply shapes:
 {"action":"plan","steps":[{"skill":"chop_trees","params":{"target_wood":10},"reason":"..."}]}
 {"action":"satisfied","note":"..."}
 {"action":"refuse","reason":"late_night|stamina_low|raining|too_early|unsupported_item","note":"..."}
+{"action":"clarify","question":"how many wood do you need?"}
 
 Available skills and parameters:
 - chop_trees: target_wood (int, required)
@@ -197,6 +201,9 @@ def parse_plan(text: str) -> tuple[dict[str, Any] | None, str | None]:
     if action == "refuse":
         reason = str(payload.get("reason") or "llm_refused")
         return {"action": "refuse", "reason": reason, "note": str(payload.get("note") or "")}, None
+    if action == "clarify":
+        question = str(payload.get("question") or payload.get("note") or "").strip()
+        return {"action": "clarify", "question": question}, None
     if action != "plan":
         return None, f"unknown action {action!r}"
 
@@ -329,6 +336,21 @@ class LlmPolicy:
                 after=world.snapshot(),
                 satisfied=False,
                 blocked_reason="llm_misjudged",
+                extra={"llm": llm_meta, "plan_source": "llm"},
+            )
+
+        if action == "clarify":
+            return result_payload(
+                goal_type=str(goal.get("type") or ""),
+                success=False,
+                status="blocked",
+                observation=f"llm needs clarification: {parsed.get('question')}",
+                plan=parsed,
+                steps=[],
+                before=before,
+                after=world.snapshot(),
+                satisfied=False,
+                blocked_reason="needs_clarification",
                 extra={"llm": llm_meta, "plan_source": "llm"},
             )
 

@@ -1,0 +1,60 @@
+{
+  "id": "recover-001-composite-partial-water",
+  "title": "复合作业：低体力下先完成浇水再睡觉",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "recovery",
+    "composite"
+  ],
+  "goal": {
+    "type": "composite",
+    "steps": [
+      {
+        "type": "water_crops"
+      },
+      {
+        "type": "sleep"
+      }
+    ]
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 12
+    },
+    "start_minutes": 1320,
+    "crops": [
+      {
+        "x": 11,
+        "y": 10
+      },
+      {
+        "x": 12,
+        "y": 10
+      },
+      {
+        "x": 13,
+        "y": 10
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied"
+    },
+    "world": {
+      "unwatered_crops": {
+        "equals": 0
+      },
+      "day": {
+        "equals": 2
+      }
+    }
+  }
+}

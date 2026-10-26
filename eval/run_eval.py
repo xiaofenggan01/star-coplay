@@ -24,6 +24,7 @@ import json
 import sys
 from pathlib import Path
 
+from harness.policies.agent import AgentPolicy
 from harness.policies.llm import LlmConfig, LlmPolicy, ScriptedPlannerClient
 from harness.report import render, summarize, write_json
 from harness.runner import run_scenario
@@ -65,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--verbose", action="store_true", help="show failing checks and traces")
     parser.add_argument(
         "--policy",
-        choices=["routing", "llm", "both"],
+        choices=["routing", "llm", "agent", "both", "all"],
         default=None,
         help="override goal-scenario policy (default: scenario's own, usually routing)",
     )
@@ -105,13 +106,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{spec.get('id'):<28} {spec.get('status', 'runnable'):<9} {spec.get('title', '')}")
         return 0
 
-    policies = [args.policy] if args.policy and args.policy != "both" else (
-        ["routing", "llm"] if args.policy == "both" else [None]
-    )
+    if args.policy in (None, "routing", "llm", "agent"):
+        policies = [args.policy]
+    elif args.policy == "both":
+        policies = ["routing", "llm"]
+    else:  # all
+        policies = ["routing", "llm", "agent"]
 
     llm_script: dict[str, list[str]] = {}
     llm_config: LlmConfig | None = None
-    if "llm" in policies:
+    if "llm" in policies or "agent" in policies:
         if args.llm_script:
             llm_script = json.loads(Path(args.llm_script).read_text(encoding="utf-8"))
             llm_config = LlmConfig(model="scripted")
@@ -149,23 +153,25 @@ def main(argv: list[str] | None = None) -> int:
             continue
 
         for chosen in policies:
-            if chosen == "llm":
+            if chosen in ("llm", "agent"):
                 if llm_script:
                     responses = llm_script.get(str(spec.get("id")))
                     if responses is None:
-                        print(f"--llm-script has no entry for {spec.get('id')}", file=sys.stderr)
-                        return 2
-                    scenario_policy = LlmPolicy(
-                        client=ScriptedPlannerClient(list(responses)),
-                        config=llm_config,
+                        continue
+                    scenario_policy = (
+                        LlmPolicy(client=ScriptedPlannerClient(list(responses)), config=llm_config)
+                        if chosen == "llm"
+                        else AgentPolicy(client=ScriptedPlannerClient(list(responses)), config=llm_config)
                     )
                 else:
-                    scenario_policy = LlmPolicy(config=llm_config)
+                    scenario_policy = (
+                        LlmPolicy(config=llm_config) if chosen == "llm" else AgentPolicy(config=llm_config)
+                    )
                 for run_index in range(1, max(1, args.runs) + 1):
                     result = run_scenario(
                         spec,
                         verbose=args.verbose,
-                        policy="llm",
+                        policy=chosen,
                         llm_policy=scenario_policy,
                     )
                     result["run"] = run_index
@@ -180,9 +186,11 @@ def main(argv: list[str] | None = None) -> int:
 
     # Side-by-side policy comparison, only when more than one policy ran.
     policy_stats = summary.get("by_policy") or {}
-    if len([p for p in policy_stats if p in ("routing", "llm")]) > 1:
+    if len([p for p in policy_stats if p in ("routing", "llm", "agent")]) > 1:
         print("\npolicy comparison")
-        for name in ("routing", "llm"):
+        for name in ("routing", "llm", "agent"):
+            if name not in policy_stats:
+                continue
             bucket = policy_stats.get(name) or {}
             total = sum(bucket.values())
             passed = bucket.get("passed", 0)

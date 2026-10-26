@@ -1,0 +1,82 @@
+{
+  "id": "recover-002-chop-then-water",
+  "title": "复合作业：砍 10 木后接着把作物浇了",
+  "status": "runnable",
+  "mode": "goal",
+  "policy": "routing",
+  "tags": [
+    "goal",
+    "recovery",
+    "composite"
+  ],
+  "goal": {
+    "type": "composite",
+    "steps": [
+      {
+        "type": "acquire",
+        "item": "wood",
+        "qty": 10
+      },
+      {
+        "type": "water_crops"
+      }
+    ]
+  },
+  "world": {
+    "player": {
+      "x": 10,
+      "y": 10,
+      "stamina": 270
+    },
+    "inventory": [
+      {
+        "item": "Axe",
+        "qty": 1,
+        "slot": 1
+      }
+    ],
+    "trees": [
+      {
+        "x": 12,
+        "y": 10,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      },
+      {
+        "x": 12,
+        "y": 14,
+        "drops": [
+          {
+            "item": "Wood",
+            "qty": 5
+          }
+        ]
+      }
+    ],
+    "crops": [
+      {
+        "x": 11,
+        "y": 12
+      }
+    ]
+  },
+  "expect": {
+    "success": true,
+    "status": "ok",
+    "data": {
+      "goal_status": "satisfied"
+    },
+    "world": {
+      "inventory.Wood": {
+        "min": 10
+      },
+      "unwatered_crops": {
+        "equals": 0
+      }
+    }
+  }
+}
