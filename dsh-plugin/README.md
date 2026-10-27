@@ -39,10 +39,11 @@ plugin.
 
 ## Install
 
-1. Open DSH -> Plugins, or add this monorepo's plugin directory directly:
-   `dsh plugin --profile desktop add file:/absolute/path/to/star-coplay/dsh-plugin`
+1. Add the published package:
+   `dsh plugin --profile desktop add https://github.com/xiaofenggan01/star-coplay/releases/download/dsh-v0.4.0/starcoplay-dsh-0.4.0.tgz`
+   (developing locally, use `file:/absolute/path/to/star-coplay/dsh-plugin`)
 2. Enable starcoplay-dsh. The StarCoPlay mod asset is published at this repo's
-   mod-latest release tag (currently mod v2.6.0).
+   mod-latest release tag (currently mod v2.5.0).
 3. Talk to DSH. On the first turn it calls starcoplay_status. If the mod is
    missing, it calls starcoplay_install_mod, which shows a native confirmation
    dialog. Choose 安装最新版.
@@ -114,9 +115,12 @@ Automatic co-op join (the Join LAN click) remains deferred.
 Commit lib/index.js when publishing: DSH installs from GitHub without running
 build scripts, so the built bundle must be in the repository.
 
-Load the local checkout into a DSH profile. pnpm's git specs resolve the repo
-root, so they cannot address this subdirectory; file: is the supported path
-while the plugin lives in the monorepo:
+Install the published tarball:
+
+    dsh plugin --profile desktop add https://github.com/xiaofenggan01/star-coplay/releases/download/dsh-v0.4.0/starcoplay-dsh-0.4.0.tgz
+
+Load the local checkout instead (pnpm's git specs resolve the repo root, so
+they cannot address this subdirectory; file: is the dev path):
 
     dsh plugin --profile desktop add file:/absolute/path/to/star-coplay/dsh-plugin
 
