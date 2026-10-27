@@ -69,7 +69,7 @@ star-coplay/
 │       ├── Actions/        # 能力实现（move_to、say、emote …）
 │       └── ModEntry.cs     # SMAPI 入口
 │
-├── dsh-plugin/             # DSH 原生插件（TypeScript，独立发布单元）
+├── dsh-plugin/             # DSH 原生插件（任务板 + 游戏内 HUD）
 │   ├── src/                # route（本地 WS 路由）/ game（安装启动）/ tools / prompt
 │   ├── lib/                # 构建产物（DSH 从仓库安装，需提交）
 │   └── cordis.patch.yml    # DSH profile 补丁

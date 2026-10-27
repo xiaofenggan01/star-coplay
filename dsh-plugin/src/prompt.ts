@@ -24,6 +24,8 @@ export const SYSTEM_PROMPT = [
   '- When you think the task is done, call starcoplay_task_report with',
   '  completed=true. The plugin checks the world; if it reports "还差一点",',
   '  the task is NOT done — continue or explain why.',
+  '- If starcoplay_status reports taskHud.supported=false, the in-game task',
+  '  strip is unavailable; ask the player to update the StarCoPlay mod.',
   '- "任务" / "进度" -> starcoplay_task_list. Pause/cancel/resume ->',
   '  starcoplay_task_update. Only one task is active at a time.',
   '',

@@ -27,6 +27,24 @@ export interface StatusSnapshot {
   }
   launcher: { running: boolean; pid?: number }
   bridgePlayerIds: string[]
+  taskHud: { supported: boolean; requiredModVersion: string }
+}
+
+export const REQUIRED_MOD_VERSION_FOR_HUD = '2.5.0'
+
+/** Compare dotted versions; missing or malformed versions count as too old. */
+export function isModVersionAtLeast(version: string | undefined, minimum: string): boolean {
+  if (!version) return false
+  const parse = (value: string) => value.split('.').map((part) => Number.parseInt(part, 10) || 0)
+  const current = parse(version)
+  const required = parse(minimum)
+  const length = Math.max(current.length, required.length)
+  for (let index = 0; index < length; index += 1) {
+    const left = current[index] ?? 0
+    const right = required[index] ?? 0
+    if (left !== right) return left > right
+  }
+  return true
 }
 
 export function formatStatus(status: StatusSnapshot): string {

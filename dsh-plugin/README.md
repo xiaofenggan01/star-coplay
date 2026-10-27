@@ -19,6 +19,17 @@ Windows is not verified.
 The plugin speaks the mod's Local Direct V2 JSON protocol, so it does not need
 Python, MCP, or protobuf codegen.
 
+## Compatibility
+
+| Plugin | StarCoPlay mod | In-game task HUD |
+|---|---|---|
+| 0.4.x | >= 2.5.0 | yes |
+| 0.4.x | < 2.5.0 | chat only (`starcoplay_status.taskHud.supported=false`) |
+
+The mod asset on the `mod-latest` release is the current build; the plugin's
+install flow downloads it. Updating the mod does not require reinstalling the
+plugin.
+
 ## Requirements
 
 - Stardew Valley

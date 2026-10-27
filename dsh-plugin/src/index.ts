@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto'
 import type { CapabilityEntry } from './route/digest.js'
 import { detectGamePaths, listBridgePlayerIds } from './game/paths.js'
 import { StarCoPlayRouteServer } from './route/server.js'
-import { registerStatusTool, type StatusSnapshot } from './tools/status.js'
+import { isModVersionAtLeast, registerStatusTool, REQUIRED_MOD_VERSION_FOR_HUD, type StatusSnapshot } from './tools/status.js'
 import { registerGameTools } from './tools/game.js'
 import { registerTaskTools } from './tools/tasks.js'
 import { TaskBoardService } from './tasks/board.js'
@@ -110,6 +110,10 @@ export async function apply(ctx: any, config: any = {}): Promise<void> {
       game,
       launcher: launcher.status(),
       bridgePlayerIds: listBridgePlayerIds(game.modsDir),
+      taskHud: {
+        supported: isModVersionAtLeast(game.modVersion, REQUIRED_MOD_VERSION_FOR_HUD),
+        requiredModVersion: REQUIRED_MOD_VERSION_FOR_HUD,
+      },
     }
   }
 

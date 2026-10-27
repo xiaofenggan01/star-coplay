@@ -640,6 +640,20 @@ function isPortOpen(host, port) {
 
 // src/tools/status.ts
 import { defineTool } from "@deepseek-ai/dsh-tools";
+var REQUIRED_MOD_VERSION_FOR_HUD = "2.5.0";
+function isModVersionAtLeast(version, minimum) {
+  if (!version) return false;
+  const parse = (value) => value.split(".").map((part) => Number.parseInt(part, 10) || 0);
+  const current = parse(version);
+  const required = parse(minimum);
+  const length = Math.max(current.length, required.length);
+  for (let index = 0; index < length; index += 1) {
+    const left = current[index] ?? 0;
+    const right = required[index] ?? 0;
+    if (left !== right) return left > right;
+  }
+  return true;
+}
 function formatStatus(status) {
   return JSON.stringify(status, null, 2);
 }
@@ -1956,6 +1970,8 @@ var SYSTEM_PROMPT = [
   "- When you think the task is done, call starcoplay_task_report with",
   '  completed=true. The plugin checks the world; if it reports "\u8FD8\u5DEE\u4E00\u70B9",',
   "  the task is NOT done \u2014 continue or explain why.",
+  "- If starcoplay_status reports taskHud.supported=false, the in-game task",
+  "  strip is unavailable; ask the player to update the StarCoPlay mod.",
   '- "\u4EFB\u52A1" / "\u8FDB\u5EA6" -> starcoplay_task_list. Pause/cancel/resume ->',
   "  starcoplay_task_update. Only one task is active at a time.",
   "",
@@ -2066,7 +2082,11 @@ async function apply(ctx, config = {}) {
       route: { ...route.status(), lastError: routeError || route.status().lastError },
       game,
       launcher: launcher.status(),
-      bridgePlayerIds: listBridgePlayerIds(game.modsDir)
+      bridgePlayerIds: listBridgePlayerIds(game.modsDir),
+      taskHud: {
+        supported: isModVersionAtLeast(game.modVersion, REQUIRED_MOD_VERSION_FOR_HUD),
+        requiredModVersion: REQUIRED_MOD_VERSION_FOR_HUD
+      }
     };
   };
   registerStatusTool(ctx, getStatus);
